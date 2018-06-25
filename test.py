@@ -2,6 +2,8 @@ import pyembroidery.ExpReader as expReader
 import pyembroidery.ExpWriter as expWriter
 import pyembroidery.DstReader as dstReader
 import pyembroidery.DstWriter as dstWriter
+import pyembroidery.PecWriter as pecWriter
+import pyembroidery.PesWriter as pesWriter
 import pyembroidery.PatternReader as patternPrinter
 import pyembroidery.EmbPattern as EmbPattern
 import pyembroidery.WriteEncoder as encode
@@ -36,8 +38,8 @@ expReader.read("BN00883_A.EXP",printer)
 # The pattern can be fed exact stitches, marking the ones with final and new for color and for location.
 # If done this way, the encoder will interpolate everything else you need within the set max and min jump distances.
 encoder = encode.WriteEncoder()
-encoder.maxStitchLength = expWriter.maxStitchDistance
-encoder.maxJumpLength = expWriter.maxJumpDistance
+encoder.maxStitchLength = pecWriter.maxStitchDistance
+encoder.maxJumpLength = pecWriter.maxJumpDistance
 encoder.tie_on = True
 encoder.tie_off = True
 encoder.setTranslation(0,-20)
@@ -47,6 +49,5 @@ pattern = encoder.process(printer.pattern)
 
 #writes the encoded pattern to file
 #dstWriter.extendedHeader = True; #This exports rare extended headers with thread colors.
-pattern.fixColorCount();
-dstWriter.write(pattern,"converted.dst")
+pesWriter.write(pattern,"converted.pes")
 
