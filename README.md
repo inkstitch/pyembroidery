@@ -8,6 +8,8 @@ pyembroidery is a embroidery format reader and writer utility. It can read
 it can write:
 * DST
 * EXP
+* PEC (blank graphics)
+* PES (truncated)
 
 It's a conversion of Embroidermodder/MobileViewer java code,
 Which in turn is a conversion of Embroidermodder/Libembroidery C++ code.
@@ -16,8 +18,6 @@ It's largely intended for use in lexelby/inkstitch but is entirely reasonable fo
 
 Hopefully adding the following soon:
 
-* PEC (blank graphics)
-* PES (truncated)
 * JEF
 
 The original inkstitch suggestion included VP3 as well. So that might be needed to round things out.
