@@ -1,15 +1,21 @@
 class ReaderObject():
     def __init__(self):
         pass
-    def move(self,dx,dy):
+
+    def move(self, dx, dy):
         pass
-    def stitch(self,dx, dy):
+
+    def stitch(self, dx, dy):
         pass
-    def stop(self,dx,dy):
+
+    def stop(self, dx, dy):
         pass
-    def trim(self,dx,dy):
+
+    def trim(self, dx, dy):
         pass
-    def colorChange(self,dx,dy):
+
+    def colorChange(self, dx, dy):
         pass
+
     def sequin(self, dx, dy):
         pass

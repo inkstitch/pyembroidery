@@ -1,12 +1,11 @@
-
-def signed(b:int) -> int:
+def signed(b: int) -> int:
     if b > 127:
         return -256 + b
     else:
         return b
 
 
-def read(file:str, readObject):
+def read(file: str, readObject):
     with open(file, "rb") as f:
         while True:
             b = f.read(2)
@@ -14,7 +13,7 @@ def read(file:str, readObject):
                 break
             if ((b[0] & 0xFF) == 0x80):
                 if (b[1] == 0x80):
-                    b = f.read(2);
+                    b = f.read(2)
                     if len(b) != 2:
                         break
                     readObject.stop()
@@ -36,7 +35,7 @@ def read(file:str, readObject):
                         b = f.read(2)
                         if len(b) != 2:
                             break
-                        readObject.stop();
+                        readObject.stop()
                         readObject.move(signed(b[0]), signed(b[1]))
             else:
-                readObject.stitch(signed(b[0]), -signed(b[1]));
+                readObject.stitch(signed(b[0]), -signed(b[1]))

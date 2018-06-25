@@ -14,5 +14,5 @@ class PrintReader():
     def colorChange(self, dx: float, dy: float):
         print("COLOR_CHANGE")
 
-    def sequin(self,dx: float, dy: float):
+    def sequin(self, dx: float, dy: float):
         print("SEQUIN")

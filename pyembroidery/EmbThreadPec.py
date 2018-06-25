@@ -70,9 +70,10 @@ def getThreadSet():
         EmbThreadPec(255, 200, 200, "Applique", "64")
     ]
 
+
 class EmbThreadPec(EmbThread.EmbThread):
     def __init__(self, red, green, blue, description, catalogNumber):
-        self.setColor(red,green, blue)
+        self.setColor(red, green, blue)
         self.description = description
         self.catalogNumber = catalogNumber
         self.brand = "Brother"

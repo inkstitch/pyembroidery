@@ -15,6 +15,7 @@ STITCH_FINAL_LOCATION = 0xF2
 STITCH_FINAL_COLOR = 0xF3
 COMMAND_MASK = 0xFF
 
+
 def set(p, copy):
     copy.stitches = p.stitches
     copy.threadlist = p.threadlist
@@ -26,20 +27,22 @@ def set(p, copy):
     copy.comments = p.comments
     copy.copyright = p.copyright
 
+
 class EmbPattern():
     def __init__(self):
-        self.stitches = [] #type: list
-        self.threadlist = [] #type: list
-        self.filename = None #type: str
-        self.name = None #type: str
+        self.stitches = []  # type: list
+        self.threadlist = []  # type: list
+        self.filename = None  # type: str
+        self.name = None  # type: str
         self.category = None  # type: str
         self.author = None  # type: str
         self.keywords = None  # type: str
         self.comments = None  # type: str
-        self.copyright = None # type: str
+        self.copyright = None  # type: str
         self._previousX = 0  # type: float
-        self._previousY = 0 # type: float
-        # filename, name, category, author, keywords, comments, are typical metadata.
+        self._previousY = 0  # type: float
+        # filename, name, category, author, keywords, comments, are typical
+        # metadata.
 
     def extends(self):
         minX = float('inf')
@@ -59,7 +62,7 @@ class EmbPattern():
         return (minX, minY, maxX, maxY)
 
     def countColorChanges(self):
-        count = 0;
+        count = 0
         for stitch in self.stitches:
             flags = stitch[2]
             if flags is COLOR_CHANGE:
@@ -76,9 +79,9 @@ class EmbPattern():
         self.threadlist.append(thread)
 
     def getRandomThread(self):
-        import random;
-        thread = EmbThread.EmbThread();
-        thread.color = 0xFF000000 | random.randint(0,0xFFFFFF);
+        import random
+        thread = EmbThread.EmbThread()
+        thread.color = 0xFF000000 | random.randint(0, 0xFFFFFF)
         thread.description = "Random"
         return thread
 
@@ -107,16 +110,16 @@ class EmbPattern():
             if thread != lastthread:
                 singleton.append(thread)
             lastthread = thread
-        return singleton;
+        return singleton
 
     def translate(self, dx, dy):
         for stitch in self.command:
-            stitch[0] += dx;
-            stitch[1] += dy;
+            stitch[0] += dx
+            stitch[1] += dy
 
     def fixColorCount(self):
-        threadIndex = 0;
-        starting = True;
+        threadIndex = 0
+        starting = True
         for stitch in self.stitches:
             data = stitch[2] & COMMAND_MASK
             if data is STITCH:
@@ -132,10 +135,10 @@ class EmbPattern():
 
     def addStitchAbs(self, x, y, cmd):
         self.add(x, y, cmd)
-        self._previousX = x;
-        self._previousY = y;
+        self._previousX = x
+        self._previousY = y
 
     def addStitchRel(self, dx, dy, cmd):
-        x = self._previousX + dx;
-        y = self._previousY + dy;
+        x = self._previousX + dx
+        y = self._previousY + dy
         self.addStitchAbs(x, y, cmd)
