@@ -14,7 +14,7 @@ class ReaderObject():
     def trim(self, dx, dy):
         pass
 
-    def colorChange(self, dx, dy):
+    def color_change(self, dx, dy):
         pass
 
     def sequin(self, dx, dy):

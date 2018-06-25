@@ -1,23 +1,19 @@
 import math
 import pyembroidery.EmbPattern as EmbPattern
 
-maxJumpDistance = 121
-maxStitchDistance = 121
-
-extendedHeader = False
+MAX_JUMP_DISTANCE = 121
+MAX_STITCH_DISTANCE = 121
 PPMM = 10
 DSTHEADERSIZE = 512
 
-
-def rint(v: float) -> int:
-    return round(v)
+extended_header = False
 
 
 def bit(b: int) -> int:
     return 1 << b
 
 
-def encodeRecord(x: int, y: int, flags: int):
+def encode_record(x: int, y: int, flags: int):
     y = -y  # flips the coordinate y space.
     b0 = 0
     b1 = 0
@@ -112,20 +108,20 @@ def write(pattern: EmbPattern, file):
         if name is None:
             name = "Untitled"
         f.write(bytes("LA:%-16s\r" % (name), 'utf8'))
-        f.write(bytes("ST:%7d\r" % (pattern.countStitches()), 'utf8'))
-        f.write(bytes("CO:%3d\r" % (pattern.countColorChanges()), 'utf8'))
-        xExtend = math.ceil(PPMM * width / 2)
-        yExtend = math.ceil(PPMM * height / 2)
-        f.write(bytes("+X:%5d\r" % (xExtend), 'utf8'))
-        f.write(bytes("-X:%5d\r" % (xExtend), 'utf8'))
-        f.write(bytes("+Y:%5d\r" % (yExtend), 'utf8'))
-        f.write(bytes("-Y:%5d\r" % (yExtend), 'utf8'))
+        f.write(bytes("ST:%7d\r" % (pattern.count_stitches()), 'utf8'))
+        f.write(bytes("CO:%3d\r" % (pattern.count_color_changes()), 'utf8'))
+        x_extend = math.ceil(PPMM * width / 2)
+        y_extend = math.ceil(PPMM * height / 2)
+        f.write(bytes("+X:%5d\r" % (x_extend), 'utf8'))
+        f.write(bytes("-X:%5d\r" % (x_extend), 'utf8'))
+        f.write(bytes("+Y:%5d\r" % (y_extend), 'utf8'))
+        f.write(bytes("-Y:%5d\r" % (y_extend), 'utf8'))
         f.write(bytes("AX:+%5d\r" % (0), 'utf8'))
         f.write(bytes("AY:+%5d\r" % (0), 'utf8'))
         f.write(bytes("MX:+%5d\r" % (0), 'utf8'))
         f.write(bytes("AY:+%5d\r" % (0), 'utf8'))
         f.write(bytes("PD:%6s\r" % ("******"), 'utf8'))
-        if extendedHeader:
+        if extended_header:
             if pattern.author is not None:
                 f.write(bytes("AU:%s\r" % (pattern.author), 'utf8'))
             if pattern.copyright is not None:
@@ -135,9 +131,9 @@ def write(pattern: EmbPattern, file):
                     f.write(
                         bytes(
                             "TC:%s,%s,%s\r" %
-                            (thread.hexColor(),
+                            (thread.hex_color(),
                              thread.description,
-                             thread.catalogNumber),
+                             thread.catalog_number),
                             'utf8'))
         f.write(b'\x1a')
         for i in range(f.tell(), DSTHEADERSIZE):
@@ -153,10 +149,10 @@ def write(pattern: EmbPattern, file):
             dx = x - xx
             dy = y - yy
             if (data is EmbPattern.TRIM):
-                f.write(encodeRecord(2, 2, EmbPattern.JUMP))
-                f.write(encodeRecord(-4, -4, EmbPattern.JUMP))
-                f.write(encodeRecord(2, 2, EmbPattern.JUMP))
+                f.write(encode_record(2, 2, EmbPattern.JUMP))
+                f.write(encode_record(-4, -4, EmbPattern.JUMP))
+                f.write(encode_record(2, 2, EmbPattern.JUMP))
             else:
-                f.write(encodeRecord(rint(dx), rint(dy), data))
+                f.write(encode_record(round(dx), round(dy), data))
             xx = x
             yy = y

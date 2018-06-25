@@ -1,38 +1,33 @@
-def writeInt8(stream, value: int):
+def write_int_8(stream, value: int):
     stream.write(bytes([value & 0xFF]))
 
 
-def writeInt16LE(stream, value: int):
+def write_int_16le(stream, value: int):
     stream.write(bytes([value & 0xFF, (value >> 8) & 0xFF]))
 
 
-def writeInt16BE(stream, value: int):
-    stream.write(
-        bytes(reversed([value & 0xFF, (value >> 8) & 0xFF, (value >> 16) & 0xFF])))
+def write_int_16be(stream, value: int):
+    stream.write(bytes([(value >> 8) & 0xFF, value & 0xFF]))
 
 
-def writeInt24LE(stream, value: int):
+def write_int_24le(stream, value: int):
     stream.write(
         bytes([value & 0xFF, (value >> 8) & 0xFF, (value >> 16) & 0xFF]))
 
 
-def writeInt24BE(stream, value: int):
-    stream.write(bytes(reversed([value & 0xFF,
-                                 (value >> 8) & 0xFF,
-                                 (value >> 16) & 0xFF,
-                                 (value >> 24) & 0xFF])))
+def write_int_24be(stream, value: int):
+    stream.write(
+        bytes([(value >> 16) & 0xFF, (value >> 8) & 0xFF, value & 0xFF]))
 
 
-def writeInt32LE(stream, value: int):
+def write_int_32le(stream, value: int):
     stream.write(bytes([value & 0xFF, (value >> 8) & 0xFF,
                         (value >> 16) & 0xFF, (value >> 24) & 0xFF]))
 
 
-def writeInt32BE(stream, value: int):
-    stream.write(bytes(reversed([value & 0xFF,
-                                 (value >> 8) & 0xFF,
-                                 (value >> 16) & 0xFF,
-                                 (value >> 24) & 0xFF])))
+def write_int_32be(stream, value: int):
+    stream.write(bytes([(value >> 24) & 0xFF(value >> 16) & 0xFF,
+                        (value >> 8) & 0xFF, value & 0xFF]))
 
 
 def write(stream, string: str):

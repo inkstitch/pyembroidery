@@ -11,7 +11,7 @@ class PrintReader():
     def trim(self, dx: float, dy: float):
         print("TRIM")
 
-    def colorChange(self, dx: float, dy: float):
+    def color_change(self, dx: float, dy: float):
         print("COLOR_CHANGE")
 
     def sequin(self, dx: float, dy: float):

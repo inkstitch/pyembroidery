@@ -6,8 +6,8 @@ import pyembroidery.EmbThreadPec as EmbThreadPec
 import pyembroidery.WriteHelper as helper
 import pyembroidery.PecGraphics as PecGraphics
 
-maxJumpDistance = 2047
-maxStitchDistance = 2047
+MAX_JUMP_DISTANCE = 2047
+MAX_STITCH_DISTANCE = 2047
 
 MASK_07_BIT = 0b01111111
 JUMP_CODE = 0b00010000
@@ -20,26 +20,26 @@ PEC_ICON_HEIGHT = 38
 def write(pattern: EmbPattern, file):
     with open(file, "wb") as f:
         f.write(bytes("#PEC0001", 'utf8'))
-        writePecStitches(pattern, f)
+        write_pec_stitches(pattern, f)
 
 
-def encodeLongForm(value: int) -> int:
+def encode_long_form(value: int) -> int:
     value &= 0b00001111_11111111
     value |= 0b10000000_00000000
     return value
 
 
-def flagJump(longForm: int) -> int:
+def flag_jump(longForm: int) -> int:
     return longForm | (JUMP_CODE << 8)
 
 
-def flagTrim(longForm: int) -> int:
+def flag_trim(longForm: int) -> int:
     return longForm | (TRIM_CODE << 8)
 
 
-def pecEncode(pattern: EmbPattern, f):
-    colorchangeJump = False
-    colorTwo = True
+def pec_encode(pattern: EmbPattern, f):
+    color_change_jump = False
+    color_two = True
     jumping = False
     stitches = pattern.stitches
     xx = 0
@@ -51,49 +51,49 @@ def pecEncode(pattern: EmbPattern, f):
         dx = x - xx
         dy = y - yy
         if data is EmbPattern.STITCH:
-            deltaX = round(dx)
-            deltaY = round(dy)
-            if jumping and deltaX is not 0 and deltaY is not 0:
+            delta_x = round(dx)
+            delta_y = round(dy)
+            if jumping and delta_x is not 0 and delta_y is not 0:
                 f.write(b'\x00\x00')
                 jumping = False
-            if -64 < deltaX < 63 and -64 < deltaY < 63:
-                f.write(bytes([deltaX & MASK_07_BIT, deltaY & MASK_07_BIT]))
+            if -64 < delta_x < 63 and -64 < delta_y < 63:
+                f.write(bytes([delta_x & MASK_07_BIT, delta_y & MASK_07_BIT]))
             else:
-                deltaX = encodeLongForm(deltaX)
-                deltaY = encodeLongForm(deltaY)
+                delta_x = encode_long_form(delta_x)
+                delta_y = encode_long_form(delta_y)
                 data = [
-                    (deltaX >> 8) & 0xFF,
-                    deltaX & 0xFF,
-                    (deltaY >> 8) & 0xFF,
-                    deltaY & 0xFF]
+                    (delta_x >> 8) & 0xFF,
+                    delta_x & 0xFF,
+                    (delta_y >> 8) & 0xFF,
+                    delta_y & 0xFF]
                 f.write(bytes(data))
         elif data is EmbPattern.JUMP:
             jumping = True
-            deltaX = round(dx)
-            deltaX = encodeLongForm(deltaX)
-            if colorchangeJump:
-                deltaX = flagJump(deltaX)
+            delta_x = round(dx)
+            delta_x = encode_long_form(delta_x)
+            if color_change_jump:
+                delta_x = flag_jump(delta_x)
             else:
-                deltaX = flagTrim(deltaX)
-            deltaY = round(dy)
-            deltaY = encodeLongForm(deltaY)
-            if colorchangeJump:
-                deltaY = flagJump(deltaY)
+                delta_x = flag_trim(delta_x)
+            delta_y = round(dy)
+            delta_y = encode_long_form(delta_y)
+            if color_change_jump:
+                delta_y = flag_jump(delta_y)
             else:
-                deltaY = flagTrim(deltaY)
+                delta_y = flag_trim(delta_y)
             f.write(bytes([
-                (deltaX >> 8) & 0xFF,
-                deltaX & 0xFF,
-                (deltaY >> 8) & 0xFF,
-                deltaY & 0xFF
+                (delta_x >> 8) & 0xFF,
+                delta_x & 0xFF,
+                (delta_y >> 8) & 0xFF,
+                delta_y & 0xFF
             ]))
-            colorchangeJump = False
+            color_change_jump = False
         elif data is EmbPattern.COLOR_CHANGE:
             if jumping:
                 f.write(b'\x00\x00')
                 jumping = False
             f.write(b'\xfe\xb0')
-            if colorTwo:
+            if color_two:
                 f.write(b'\x02')
             else:
                 f.write(b'\x01')
@@ -111,7 +111,7 @@ def pecEncode(pattern: EmbPattern, f):
         yy = y
 
 
-def writePecStitches(pattern: EmbPattern, f):
+def write_pec_stitches(pattern: EmbPattern, f):
     extends = pattern.extends()
     width = extends[2] - extends[0]
     height = extends[3] - extends[1]
@@ -123,44 +123,44 @@ def writePecStitches(pattern: EmbPattern, f):
     f.write(bytes("LA:%-16s\r" % (name), 'utf8'))
     f.write(b'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\xFF\x00\x06\x26')
 
-    pattern.fixColorCount()
-    threadset = EmbThreadPec.getThreadSet()
-    chart = [None] * len(threadset)
+    pattern.fix_color_count()
+    thread_set = EmbThreadPec.getThreadSet()
+    chart = [None] * len(thread_set)
     for thread in set(pattern.threadlist):
-        index = thread.findNearestIndex(threadset)
-        threadset[index] = None
+        index = thread.find_nearest_color_index(thread_set)
+        thread_set[index] = None
         chart[index] = thread
 
     colorlist = []
     for thread in pattern.threadlist:
-        colorlist.append(thread.findNearestIndex(chart))
-    currentThreadCount = len(colorlist)
-    if currentThreadCount is not 0:
+        colorlist.append(thread.find_nearest_color_index(chart))
+    current_thread_count = len(colorlist)
+    if current_thread_count is not 0:
         f.write(b'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20')
-        colorlist.insert(0, currentThreadCount - 1)
+        colorlist.insert(0, current_thread_count - 1)
         f.write(bytes(colorlist))
     else:
         f.write(b'\x20\x20\x20\x20\x64\x20\x00\x20\x00\x20\x20\x20\xFF')
-    for i in range(currentThreadCount, 463):
+    for i in range(current_thread_count, 463):
         f.write(b'\x20')  # 520
     f.write(b'\x00\x00')
-    encodef = io.BytesIO()
-    pecEncode(pattern, encodef)
-    graphicsOffsetValue = encodef.tell() + 20
-    helper.writeInt24LE(f, graphicsOffsetValue)
+    stitch_encode = io.BytesIO()
+    pec_encode(pattern, stitch_encode)
+    graphics_offset_value = stitch_encode.tell() + 20
+    helper.write_int_24le(f, graphics_offset_value)
     f.write(b'\x31\xff\xf0')
-    helper.writeInt16LE(f, round(width))
-    helper.writeInt16LE(f, round(height))
-    helper.writeInt16LE(f, 0x1E0)
-    helper.writeInt16LE(f, 0x1B0)
+    helper.write_int_16le(f, round(width))
+    helper.write_int_16le(f, round(height))
+    helper.write_int_16le(f, 0x1E0)
+    helper.write_int_16le(f, 0x1B0)
 
-    helper.writeInt16LE(f, 0x9000 | -round(extends[0]))
-    helper.writeInt16LE(f, 0x9000 | -round(extends[1]))
-    pecEncode(pattern, f)
+    helper.write_int_16le(f, 0x9000 | -round(extends[0]))
+    helper.write_int_16le(f, 0x9000 | -round(extends[1]))
+    pec_encode(pattern, f)
     # shutil.copyfileobj(encodef, f)
 
     blank = PecGraphics.blank
 
     f.write(bytes(blank))
-    for i in range(0, currentThreadCount):
+    for i in range(0, current_thread_count):
         f.write(bytes(blank))

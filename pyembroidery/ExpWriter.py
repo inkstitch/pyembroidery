@@ -1,12 +1,7 @@
 import pyembroidery.EmbPattern as EmbPattern
 
-maxJumpDistance = 127
-maxStitchDistance = 127
-
-
-def rint(v: float) -> int:
-    return round(v)
-
+MAX_JUMP_DISTANCE = 127
+MAX_STITCH_DISTANCE = 127
 
 def write(pattern: EmbPattern, file):
     with open(file, "wb") as f:
@@ -24,15 +19,15 @@ def write(pattern: EmbPattern, file):
                 if jumping:
                     f.write(b'\x00\x00')
                     jumping = False
-                deltaX = rint(dx) & 0xFF
-                deltaY = -rint(dy) & 0xFF
-                f.write(bytes([deltaX, deltaY]))
+                delta_x = round(dx) & 0xFF
+                delta_y = -round(dy) & 0xFF
+                f.write(bytes([delta_x, delta_y]))
             elif data is EmbPattern.JUMP:
                 jumping = True
-                deltaX = rint(dx) & 0xFF
-                deltaY = -rint(dy) & 0xFF
+                delta_x = round(dx) & 0xFF
+                delta_y = -round(dy) & 0xFF
                 f.write(b'\x80\x04')
-                f.write(bytes([deltaX, deltaY]))
+                f.write(bytes([delta_x, delta_y]))
             elif data is EmbPattern.COLOR_CHANGE:
                 if jumping:
                     f.write(b'\x00\x00')

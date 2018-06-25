@@ -2,7 +2,7 @@ import pyembroidery.EmbPattern as EmbPattern
 import math
 
 
-def distanceSq(x0: float, y0: float, x1: float, y1: float) -> float:
+def distance_squared(x0: float, y0: float, x1: float, y1: float) -> float:
     dx = x1 - x0
     dy = y1 - y0
     dx *= dx
@@ -11,7 +11,7 @@ def distanceSq(x0: float, y0: float, x1: float, y1: float) -> float:
 
 
 def distance(x0: float, y0: float, x1: float, y1: float) -> float:
-    return math.sqrt(distanceSq(x0, y0, x1, y1))
+    return math.sqrt(distance_squared(x0, y0, x1, y1))
 
 
 def towards(a: float, b: float, amount: float) -> float:
@@ -26,70 +26,64 @@ def oriented(x0: float, y0: float, x1: float, y1: float, r: float):
     radians = angleR(x0, y0, x1, y1)
     return (x0 + (r * math.cos(radians)), y0 + (r * math.sin(radians)))
 
-
-def rint(v: float) -> int:
-    return round(v)
-    # This should actually perform a proper rint.
-
-
 class WriteEncoder():
     def __init__(self):
-        self.maxJumpLength = float('inf')  # type: float
-        self.maxStitchLength = float('inf')  # type: float
+        self.max_jump_length = float('inf')  # type: float
+        self.max_stitch_length = float('inf')  # type: float
         self.tie_on = False  # type: bool
         self.tie_off = False  # type: bool
-        self.needle_X = 0  # type: float
-        self.needle_Y = 0  # type: float
+        self.needle_x = 0  # type: float
+        self.needle_y = 0  # type: float
         self.translate_X = 0  # type: float
         self.translate_Y = 0  # type: float
 
-    def setTranslation(self, x: float, y: float):
+    def set_translation(self, x: float, y: float):
         self.translate_X = x
         self.translate_Y = y
 
     def jumpTo(self, transcode, x: float, y: float):
-        self.stepToRange(transcode, x, y, self.maxJumpLength, EmbPattern.JUMP)
+        self.step_to_range(transcode, x, y, self.max_jump_length, EmbPattern.JUMP)
         transcode.append([x, y, EmbPattern.JUMP])
 
     def stitchTo(self, transcode, x: float, y: float):
-        self.stepToRange(
+        self.step_to_range(
             transcode,
             x,
             y,
-            self.maxStitchLength,
+            self.max_stitch_length,
             EmbPattern.STITCH)
         transcode.append([x, y, EmbPattern.STITCH])
 
-    def stepToRange(
+    def step_to_range(
             self,
             transcode,
             x: float,
             y: float,
             length: float,
             data: int):
-        distanceX = x - self.needle_X
-        distanceY = y - self.needle_Y
-        if abs(distanceX) > length or abs(distanceY) > length:
-            stepsX = math.ceil(abs(distanceX / length))
-            stepsY = math.ceil(abs(distanceY / length))
+        distance_x = x - self.needle_x
+        distance_y = y - self.needle_y
+        if abs(distance_x) > length or abs(distance_y) > length:
+            stepsX = math.ceil(abs(distance_x / length))
+            stepsY = math.ceil(abs(distance_y / length))
             if (stepsX > stepsY):
                 steps = stepsX
             else:
                 steps = stepsY
-            stepSizeX = distanceX / steps
-            stepSizeY = distanceY / steps
+            stepSizeX = distance_x / steps
+            stepSizeY = distance_y / steps
 
             q = 0
             qe = steps
-            qx = self.needle_X
-            qy = self.needle_Y
+            qx = self.needle_x
+            qy = self.needle_y
             while q < qe:
-                transcode.append([rint(qx), rint(qy), data])
+                transcode.append([round(qx), round(qy), data])
                 q += 1
                 qx += stepSizeX
                 qy += stepSizeY
 
-    def lockStitch(
+    def lock_stitch(
             self,
             transcode,
             lockposition_x: float,
@@ -100,13 +94,13 @@ class WriteEncoder():
                 lockposition_x,
                 lockposition_y,
                 towards_x,
-                towards_y) > self.maxStitchLength:
+                towards_y) > self.max_stitch_length:
             polar = oriented(
                 lockposition_x,
                 lockposition_y,
                 towards_x,
                 towards_y,
-                self.maxStitchLength)
+                self.max_stitch_length)
             towards_x = polar[0]
             towards_y = polar[1]
         self.stitchTo(transcode, lockposition_x, lockposition_y)
@@ -128,64 +122,64 @@ class WriteEncoder():
         EmbPattern.set(p, copy)
         layer = copy.stitches
         for stitch in layer:
-            stitch[0] = rint(stitch[0] - self.translate_X)
-            stitch[1] = rint(stitch[1] - self.translate_Y)
+            stitch[0] = round(stitch[0] - self.translate_X)
+            stitch[1] = round(stitch[1] - self.translate_Y)
         p.stitches = []
         p.threadlist = []
-        self.writeCode(copy, p)
-        self.writeThread(copy, p)
+        self.write_code(copy, p)
+        self.write_thread(copy, p)
         return p
 
-    def writeThread(self, pattern_from, pattern_to):
+    def write_thread(self, pattern_from, pattern_to):
         threads_to = pattern_to.threadlist
         threads_to.extend(pattern_to.threadlist)
 
-    def writeCode(self, pattern_from, pattern_to):
-        fromPoints = pattern_from.stitches
-        toPoints = pattern_to.stitches
-        currentIndexEnd = len(fromPoints)
-        currentIndex = 0
-        while currentIndex < currentIndexEnd:
-            current = fromPoints[currentIndex]
+    def write_code(self, pattern_from, pattern_to):
+        from_stitches = pattern_from.stitches
+        to_stitches = pattern_to.stitches
+        current_index_end = len(from_stitches)
+        current_index = 0
+        while current_index < current_index_end:
+            current = from_stitches[current_index]
             current_x = current[0]
             current_y = current[1]
-            processingCommand = current[2]
-            if processingCommand is EmbPattern.STITCH:
-                self.stitchTo(toPoints, current_x, current_y)
-            elif processingCommand is EmbPattern.STITCH_FINAL_LOCATION:
+            current_command = current[2]
+            if current_command is EmbPattern.STITCH:
+                self.stitchTo(to_stitches, current_x, current_y)
+            elif current_command is EmbPattern.STITCH_FINAL_LOCATION:
                 if self.tie_off:
-                    bi = currentIndex - 1
-                    b = fromPoints[bi]
+                    bi = current_index - 1
+                    b = from_stitches[bi]
                     bx = b[0]
                     by = b[1]
-                    self.lockStitch(toPoints, current_x, current_y, bx, by)
-                self.stitchTo(toPoints, current_x, current_y)
-                toPoints.append([current_x, current_y, EmbPattern.TRIM])
-            elif processingCommand is EmbPattern.STITCH_FINAL_COLOR:
+                    self.lock_stitch(to_stitches, current_x, current_y, bx, by)
+                self.stitchTo(to_stitches, current_x, current_y)
+                to_stitches.append([current_x, current_y, EmbPattern.TRIM])
+            elif current_command is EmbPattern.STITCH_FINAL_COLOR:
                 if self.tie_off:
-                    bi = currentIndex - 1
-                    b = fromPoints[bi]
+                    bi = current_index - 1
+                    b = from_stitches[bi]
                     bx = b[0]
                     by = b[1]
-                    self.lockStitch(toPoints, current_x, current_y, bx, by)
-                self.stitchTo(toPoints, current_x, current_y)
-                toPoints.append([current_x, current_y, EmbPattern.TRIM])
-                toPoints.append(
+                    self.lock_stitch(to_stitches, current_x, current_y, bx, by)
+                self.stitchTo(to_stitches, current_x, current_y)
+                to_stitches.append([current_x, current_y, EmbPattern.TRIM])
+                to_stitches.append(
                     [current_x, current_y, EmbPattern.COLOR_CHANGE])
-            elif processingCommand is EmbPattern.STITCH_NEW_LOCATION or processingCommand is EmbPattern.STITCH_NEW_COLOR:
-                self.jumpTo(toPoints, current_x, current_y)
-                self.needle_X = current_x
-                self.needle_Y = current_y
+            elif current_command is EmbPattern.STITCH_NEW_LOCATION or current_command is EmbPattern.STITCH_NEW_COLOR:
+                self.jumpTo(to_stitches, current_x, current_y)
+                self.needle_x = current_x
+                self.needle_y = current_y
                 if self.tie_on:
-                    bi = currentIndex + 1
-                    b = fromPoints[bi]
+                    bi = current_index + 1
+                    b = from_stitches[bi]
                     bx = b[0]
                     by = b[1]
-                    self.lockStitch(toPoints, current_x, current_y, bx, by)
-                toPoints.append([current_x, current_y, EmbPattern.STITCH])
+                    self.lock_stitch(to_stitches, current_x, current_y, bx, by)
+                to_stitches.append([current_x, current_y, EmbPattern.STITCH])
             else:
-                toPoints.append(current)
-            self.needle_X = current_x
-            self.needle_Y = current_y
-            currentIndex += 1
-        toPoints.append([self.needle_X, self.needle_Y, EmbPattern.END])
+                to_stitches.append(current)
+            self.needle_x = current_x
+            self.needle_y = current_y
+            current_index += 1
+        to_stitches.append([self.needle_x, self.needle_y, EmbPattern.END])

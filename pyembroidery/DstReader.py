@@ -2,7 +2,7 @@ def getbit(b: int, pos: int) -> int:
     return (b >> pos) & 1
 
 
-def decodedx(b0: int, b1: int, b2: int) -> int:
+def decode_dx(b0: int, b1: int, b2: int) -> int:
     x = 0
     x += getbit(b2, 2) * (+81)
     x += getbit(b2, 3) * (-81)
@@ -17,7 +17,7 @@ def decodedx(b0: int, b1: int, b2: int) -> int:
     return x
 
 
-def decodedy(b0: int, b1: int, b2: int) -> int:
+def decode_dy(b0: int, b1: int, b2: int) -> int:
     y = 0
     y += getbit(b2, 5) * (+81)
     y += getbit(b2, 4) * (-81)
@@ -32,26 +32,26 @@ def decodedy(b0: int, b1: int, b2: int) -> int:
     return -y
 
 
-def read(file: str, readObject):
+def read(file: str, read_object):
     with open(file, "rb") as f:
         f.seek(512)
-        sequinMode = False
+        sequin_mode = False
         while True:
             byte = f.read(3)
             if len(byte) != 3:
                 break
-            dx = decodedx(byte[0], byte[1], byte[2])
-            dy = decodedy(byte[0], byte[1], byte[2])
+            dx = decode_dx(byte[0], byte[1], byte[2])
+            dy = decode_dy(byte[0], byte[1], byte[2])
             if ((byte[2] & 0b11110011) == 0b11110011):
-                readObject.stop(dx, dy)
+                read_object.stop(dx, dy)
             elif ((byte[2] & 0b11000011) == 0b11000011):
-                readObject.colorChange(dx, dy)
+                read_object.color_change(dx, dy)
             elif ((byte[2] & 0b01000011) == 0b01000011):
-                sequinMode = not sequinMode
+                sequin_mode = not sequin_mode
             elif ((byte[2] & 0b10000011) == 0b10000011):
-                if sequinMode:
-                    readObject.sequin(dx, dy)
+                if sequin_mode:
+                    read_object.sequin(dx, dy)
                 else:
-                    readObject.move(dx, dy)
+                    read_object.move(dx, dy)
             else:
-                readObject.stitch(dx, dy)
+                read_object.stitch(dx, dy)

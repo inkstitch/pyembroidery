@@ -45,23 +45,23 @@ class EmbPattern():
         # metadata.
 
     def extends(self):
-        minX = float('inf')
-        minY = float('inf')
-        maxX = -float('inf')
-        maxY = -float('inf')
+        min_x = float('inf')
+        min_y = float('inf')
+        max_x = -float('inf')
+        max_y = -float('inf')
 
         for stitch in self.stitches:
-            if stitch[0] > maxX:
-                maxX = stitch[0]
-            if stitch[0] < minX:
-                minX = stitch[0]
-            if stitch[1] > maxY:
-                maxY = stitch[1]
-            if stitch[1] < minY:
-                minY = stitch[1]
-        return (minX, minY, maxX, maxY)
+            if stitch[0] > max_x:
+                max_x = stitch[0]
+            if stitch[0] < min_x:
+                min_x = stitch[0]
+            if stitch[1] > max_y:
+                max_y = stitch[1]
+            if stitch[1] < min_y:
+                min_y = stitch[1]
+        return (min_x, min_y, max_x, max_y)
 
-    def countColorChanges(self):
+    def count_color_changes(self):
         count = 0
         for stitch in self.stitches:
             flags = stitch[2]
@@ -69,47 +69,47 @@ class EmbPattern():
                 count += 1
         return count
 
-    def countStitches(self):
+    def count_stitches(self):
         return len(self.stitches)
+
+    def count_threads(self):
+        return len(self.threadlist)
 
     def add(self, x, y, cmd):
         self.stitches.append([x, y, cmd])
 
-    def addThread(self, thread):
+    def add_thread(self, thread):
         self.threadlist.append(thread)
 
-    def getRandomThread(self):
+    def get_random_thread(self):
         import random
         thread = EmbThread.EmbThread()
         thread.color = 0xFF000000 | random.randint(0, 0xFFFFFF)
         thread.description = "Random"
         return thread
 
-    def getThreadOrFiller(self, index):
+    def get_thread_or_filler(self, index):
         if (len(self.threadlist) <= index):
-            return self.getRandomThread()
+            return self.get_random_thread()
         else:
             return self.threadlist[index]
 
-    def getThreadCount(self):
-        return len(self.threadlist)
-
-    def getAsEmbObject(self):
+    def get_as_stitchblock(self):
         pass  # This should generate, stitchblocks
 
-    def getAsColorObject(self):
+    def get_as_colorblock(self):
         pass  # This should generate, colorblocks
 
-    def getUniqueThreadList(self):
+    def get_unique_threadlist(self):
         return set(self.threadlist)
 
-    def getSingletonThreadList(self):
+    def get_singleton_threadlist(self):
         singleton = []
-        lastthread = null
+        last_thread = null
         for thread in self.threadlist:
-            if thread != lastthread:
+            if thread != last_thread:
                 singleton.append(thread)
-            lastthread = thread
+            last_thread = thread
         return singleton
 
     def translate(self, dx, dy):
@@ -117,28 +117,28 @@ class EmbPattern():
             stitch[0] += dx
             stitch[1] += dy
 
-    def fixColorCount(self):
-        threadIndex = 0
+    def fix_color_count(self):
+        thread_index = 0
         starting = True
         for stitch in self.stitches:
             data = stitch[2] & COMMAND_MASK
             if data is STITCH:
                 if starting:
-                    threadIndex += 1
+                    thread_index += 1
                     starting = False
             elif data is COLOR_CHANGE:
                 if starting:
                     continue
-                threadIndex += 1
-        while len(self.threadlist) < threadIndex:
-            self.addThread(self.getThreadOrFiller(len(self.threadlist)))
+                thread_index += 1
+        while len(self.threadlist) < thread_index:
+            self.add_thread(self.get_thread_or_filler(len(self.threadlist)))
 
-    def addStitchAbs(self, x, y, cmd):
+    def add_stitch_absolute(self, x, y, cmd):
         self.add(x, y, cmd)
         self._previousX = x
         self._previousY = y
 
-    def addStitchRel(self, dx, dy, cmd):
+    def add_stitch_relative(self, dx, dy, cmd):
         x = self._previousX + dx
         y = self._previousY + dy
-        self.addStitchAbs(x, y, cmd)
+        self.add_stitch_absolute(x, y, cmd)
