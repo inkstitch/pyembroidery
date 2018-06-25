@@ -6,7 +6,6 @@ maxStitchDistance = 127
 
 def rint(v: float) -> int:
     return round(v)
-    # This should actually perform a proper rint.
 
 
 def write(pattern: EmbPattern, file):

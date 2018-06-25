@@ -1,3 +1,5 @@
+import pyembroidery.EmbThread as EmbThread
+
 NO_COMMAND = -1
 STITCH = 0
 JUMP = 1
@@ -22,6 +24,7 @@ def set(p, copy):
     copy.author = p.author
     copy.keywords = p.keywords
     copy.comments = p.comments
+    copy.copyright = p.copyright
 
 class EmbPattern():
     def __init__(self):
@@ -33,18 +36,51 @@ class EmbPattern():
         self.author = None  # type: str
         self.keywords = None  # type: str
         self.comments = None  # type: str
+        self.copyright = None # type: str
         self._previousX = 0  # type: float
         self._previousY = 0 # type: float
         # filename, name, category, author, keywords, comments, are typical metadata.
 
+    def extends(self):
+        minX = float('inf')
+        minY = float('inf')
+        maxX = -float('inf')
+        maxY = -float('inf')
+
+        for stitch in self.stitches:
+            if stitch[0] > maxX:
+                maxX = stitch[0]
+            if stitch[0] < minX:
+                minX = stitch[0]
+            if stitch[1] > maxY:
+                maxY = stitch[1]
+            if stitch[1] < minY:
+                minY = stitch[1]
+        return (minX, minY, maxX, maxY)
+
+    def countColorChanges(self):
+        count = 0;
+        for stitch in self.stitches:
+            flags = stitch[2]
+            if flags is COLOR_CHANGE:
+                count += 1
+        return count
+
+    def countStitches(self):
+        return len(self.stitches)
+
     def add(self, x, y, cmd):
-        self.stitches.append([x, y, cmd]);
+        self.stitches.append([x, y, cmd])
 
     def addThread(self, thread):
-        self.threadlist.append(self, thread)
+        self.threadlist.append(thread)
 
     def getRandomThread(self):
-        return EmbThread(0xFF000000, "Random")
+        import random;
+        thread = EmbThread.EmbThread();
+        thread.color = 0xFF000000 | random.randint(0,0xFFFFFF);
+        thread.description = "Random"
+        return thread
 
     def getThreadOrFiller(self, index):
         if (len(self.threadlist) <= index):
@@ -81,13 +117,13 @@ class EmbPattern():
     def fixColorCount(self):
         threadIndex = 0;
         starting = True;
-        for stitch in self.command:
+        for stitch in self.stitches:
             data = stitch[2] & COMMAND_MASK
-            if data == STITCH:
+            if data is STITCH:
                 if starting:
                     threadIndex += 1
-                starting = false
-            elif data == self.commands['COLOR_CHANGE']:
+                    starting = False
+            elif data is COLOR_CHANGE:
                 if starting:
                     continue
                 threadIndex += 1
