@@ -1,11 +1,11 @@
-def signed(b: int) -> int:
+def signed(b):
     if b > 127:
         return -256 + b
     else:
         return b
 
 
-def read(file: str, read_object):
+def read(file, read_object):
     with open(file, "rb") as f:
         while True:
             b = f.read(2)

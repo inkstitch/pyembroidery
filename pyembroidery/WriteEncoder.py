@@ -2,7 +2,7 @@ import pyembroidery.EmbPattern as EmbPattern
 import math
 
 
-def distance_squared(x0: float, y0: float, x1: float, y1: float) -> float:
+def distance_squared(x0, y0, x1, y1):
     dx = x1 - x0
     dy = y1 - y0
     dx *= dx
@@ -10,19 +10,19 @@ def distance_squared(x0: float, y0: float, x1: float, y1: float) -> float:
     return dx + dy
 
 
-def distance(x0: float, y0: float, x1: float, y1: float) -> float:
+def distance(x0, y0, x1, y1):
     return math.sqrt(distance_squared(x0, y0, x1, y1))
 
 
-def towards(a: float, b: float, amount: float) -> float:
+def towards(a, b, amount):
     return (amount * (b - a)) + a
 
 
-def angleR(x0: float, y0: float, x1: float, y1: float) -> float:
+def angleR(x0, y0, x1, y1):
     return math.atan2(y1 - y0, x1 - x0)
 
 
-def oriented(x0: float, y0: float, x1: float, y1: float, r: float):
+def oriented(x0, y0, x1, y1, r):
     radians = angleR(x0, y0, x1, y1)
     return (x0 + (r * math.cos(radians)), y0 + (r * math.sin(radians)))
 
@@ -37,15 +37,15 @@ class WriteEncoder():
         self.translate_X = 0  # type: float
         self.translate_Y = 0  # type: float
 
-    def set_translation(self, x: float, y: float):
+    def set_translation(self, x, y):
         self.translate_X = x
         self.translate_Y = y
 
-    def jumpTo(self, transcode, x: float, y: float):
+    def jumpTo(self, transcode, x, y):
         self.step_to_range(transcode, x, y, self.max_jump_length, EmbPattern.JUMP)
         transcode.append([x, y, EmbPattern.JUMP])
 
-    def stitchTo(self, transcode, x: float, y: float):
+    def stitchTo(self, transcode, x, y):
         self.step_to_range(
             transcode,
             x,
@@ -57,10 +57,10 @@ class WriteEncoder():
     def step_to_range(
             self,
             transcode,
-            x: float,
-            y: float,
-            length: float,
-            data: int):
+            x,
+            y,
+            length,
+            data):
         distance_x = x - self.needle_x
         distance_y = y - self.needle_y
         if abs(distance_x) > length or abs(distance_y) > length:
@@ -86,10 +86,10 @@ class WriteEncoder():
     def lock_stitch(
             self,
             transcode,
-            lockposition_x: float,
-            lockposition_y: float,
-            towards_x: float,
-            towards_y: float):
+            lockposition_x,
+            lockposition_y,
+            towards_x,
+            towards_y):
         if distance(
                 lockposition_x,
                 lockposition_y,
@@ -117,7 +117,7 @@ class WriteEncoder():
                 lockposition_x, towards_x, .33), towards(
                 lockposition_y, towards_y, .33))
 
-    def process(self, p: EmbPattern) -> EmbPattern:
+    def process(self, p):
         copy = EmbPattern.EmbPattern()
         EmbPattern.set(p, copy)
         layer = copy.stitches

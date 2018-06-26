@@ -1,8 +1,8 @@
-def getbit(b: int, pos: int) -> int:
+def getbit(b, pos):
     return (b >> pos) & 1
 
 
-def decode_dx(b0: int, b1: int, b2: int) -> int:
+def decode_dx(b0, b1, b2):
     x = 0
     x += getbit(b2, 2) * (+81)
     x += getbit(b2, 3) * (-81)
@@ -17,7 +17,7 @@ def decode_dx(b0: int, b1: int, b2: int) -> int:
     return x
 
 
-def decode_dy(b0: int, b1: int, b2: int) -> int:
+def decode_dy(b0, b1, b2):
     y = 0
     y += getbit(b2, 5) * (+81)
     y += getbit(b2, 4) * (-81)
@@ -32,7 +32,7 @@ def decode_dy(b0: int, b1: int, b2: int) -> int:
     return -y
 
 
-def read(file: str, read_object):
+def read(file, read_object):
     with open(file, "rb") as f:
         f.seek(512)
         sequin_mode = False

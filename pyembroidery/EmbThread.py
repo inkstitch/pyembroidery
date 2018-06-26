@@ -1,4 +1,4 @@
-def find_nearest_color_index(find_color: int, values) -> int:
+def find_nearest_color_index(find_color, values):
     red = (find_color >> 16) & 0xff
     green = (find_color >> 8) & 0xff
     blue = find_color & 0xff
@@ -23,12 +23,12 @@ def find_nearest_color_index(find_color: int, values) -> int:
 
 
 def color_distance_red_mean(
-        r1: int,
-        g1: int,
-        b1: int,
-        r2: int,
-        g2: int,
-        b2: int) -> int:
+        r1,
+        g1,
+        b1,
+        r2,
+        g2,
+        b2):
     rmean = round((r1 + r2) / 2)
     r = int(r1 - r2)
     g = int(g1 - g2)
@@ -51,25 +51,25 @@ class EmbThread:
         self.weight = None  # type: str
         # description, catalog_number, details, brand, chart, weight
 
-    def set_color(self, r: int, g: int, b: int):
+    def set_color(self, r, g, b):
         self.color = 0xFF000000 | (
             (r & 255) << 16) | (
             (g & 255) << 8) | (
             b & 255)
 
-    def get_opaque_color(self) -> int:
+    def get_opaque_color(self):
         return 0xFF000000 | self.color
 
-    def get_red(self) -> int:
+    def get_red(self):
         return (self.color >> 16) & 0xFF
 
-    def get_green(self) -> int:
+    def get_green(self):
         return (self.color >> 8) & 0xFF
 
-    def get_blue(self) -> int:
+    def get_blue(self):
         return self.color & 0xFF
 
-    def find_nearest_color_index(self, values) -> int:
+    def find_nearest_color_index(self, values):
         return find_nearest_color_index(self.color, values)
 
     def hex_color(self):
