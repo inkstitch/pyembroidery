@@ -1,7 +1,7 @@
 import pyembroidery.EmbThread as EmbThread
 
 
-def getThreadSet():
+def get_thread_set():
     return [
         EmbThreadPec(0, 0, 0, "Unknown", "0"),
         EmbThreadPec(14, 31, 124, "Prussian Blue", "1"),
