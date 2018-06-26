@@ -3,7 +3,7 @@ import pyembroidery.EmbPattern as EmbPattern
 MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127
 
-def write(pattern: EmbPattern, file):
+def write(pattern, file):
     with open(file, "wb") as f:
         stitches = pattern.stitches
         jumping = False

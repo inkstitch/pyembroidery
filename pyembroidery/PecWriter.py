@@ -17,27 +17,27 @@ PEC_ICON_WIDTH = 48
 PEC_ICON_HEIGHT = 38
 
 
-def write(pattern: EmbPattern, file):
+def write(pattern, file):
     with open(file, "wb") as f:
         f.write(bytes("#PEC0001", 'utf8'))
         write_pec_stitches(pattern, f)
 
 
-def encode_long_form(value: int) -> int:
-    value &= 0b00001111_11111111
-    value |= 0b10000000_00000000
+def encode_long_form(value):
+    value &= 0b0000111111111111
+    value |= 0b1000000000000000
     return value
 
 
-def flag_jump(longForm: int) -> int:
+def flag_jump(longForm):
     return longForm | (JUMP_CODE << 8)
 
 
-def flag_trim(longForm: int) -> int:
+def flag_trim(longForm):
     return longForm | (TRIM_CODE << 8)
 
 
-def pec_encode(pattern: EmbPattern, f):
+def pec_encode(pattern, f):
     color_change_jump = False
     color_two = True
     jumping = False
@@ -111,7 +111,7 @@ def pec_encode(pattern: EmbPattern, f):
         yy = y
 
 
-def write_pec_stitches(pattern: EmbPattern, f):
+def write_pec_stitches(pattern, f):
     extends = pattern.extends()
     width = extends[2] - extends[0]
     height = extends[3] - extends[1]

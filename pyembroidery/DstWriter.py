@@ -9,11 +9,11 @@ DSTHEADERSIZE = 512
 extended_header = False
 
 
-def bit(b: int) -> int:
+def bit(b):
     return 1 << b
 
 
-def encode_record(x: int, y: int, flags: int):
+def encode_record(x, y, flags):
     y = -y  # flips the coordinate y space.
     b0 = 0
     b1 = 0
@@ -98,7 +98,7 @@ def encode_record(x: int, y: int, flags: int):
     return bytes([b0, b1, b2])
 
 
-def write(pattern: EmbPattern, file):
+def write(pattern, file):
     with open(file, "wb") as f:
         extends = pattern.extends()
         width = extends[2] - extends[0]
