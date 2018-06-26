@@ -35,5 +35,5 @@ def write_int_32be(stream, value):
                         (value >> 8) & 0xFF, value & 0xFF]))
 
 def write(stream, string):
-    stream.write(bytes[string, 'utf8'])
+    stream.write(bytes(string, 'utf8'))
     
