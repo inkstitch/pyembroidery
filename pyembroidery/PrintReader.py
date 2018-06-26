@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 class PrintReader():
     def move(self, dx: float, dy: float):
         print("JUMP ", dx, dy)
