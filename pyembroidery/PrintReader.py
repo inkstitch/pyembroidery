@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+
 class PrintReader():
     def move(self, dx, dy):
         print("JUMP ", dx, dy)
@@ -18,3 +19,9 @@ class PrintReader():
 
     def sequin(self, dx, dy):
         print("SEQUIN")
+
+    def end(self, dx, dy):
+        print("END")
+
+    def add_thread(self, thread):
+        print("LOADED THREAD")

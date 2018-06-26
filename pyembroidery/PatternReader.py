@@ -23,5 +23,8 @@ class PatternReader():
     def sequin(self, dx, dy):
         self.pattern.add_stitch_relative(dx, dy, EmbPattern.SEQUIN)
 
-    def count(self):
-        return len(self.pattern.stitches)
+    def stop(self,dx,dy):
+        self.pattern.add_stitch_relative(dx,dy, EmbPattern.END)
+
+    def add_thread(self, thread):
+        self.pattern.add_thread(thread)

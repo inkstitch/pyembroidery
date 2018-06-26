@@ -19,3 +19,9 @@ class ReaderObject():
 
     def sequin(self, dx, dy):
         pass
+
+    def end(self,dx,dy):
+        pass
+
+    def add_thread(self,thread):
+        pass

@@ -5,7 +5,9 @@ import pyembroidery.DstWriter as dstWriter
 import pyembroidery.PecWriter as pecWriter
 import pyembroidery.PesWriter as pesWriter
 import pyembroidery.JefWriter as jefWriter
+import pyembroidery.JefReader as jefReader
 import pyembroidery.PatternReader as pattern_reader
+import pyembroidery.PrintReader as print_reader
 import pyembroidery.EmbPattern as EmbPattern
 import pyembroidery.WriteEncoder as encode
 import math
@@ -39,6 +41,7 @@ pesWriter.write(reader2.pattern, "sequin-convert.pes")
 # GENERATES A FRACTAL
 pattern = EmbPattern.EmbPattern()
 pattern.add_stitch_absolute(0, 0, EmbPattern.STITCH_NEW_COLOR)
+
 
 def evaluate_lsystem(symbol, rules, depth):
     if depth <= 0 or symbol not in rules:
@@ -88,3 +91,5 @@ dstWriter.write(pattern, "generated.dst")
 dstWriter.extended_header = True
 dstWriter.write(pattern, "generated-eh.dst")
 jefWriter.write(pattern, "generated.jef")
+# printer = print_reader.PrintReader()
+# jefReader.read("generated.jef",printer)
