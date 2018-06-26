@@ -1,3 +1,7 @@
+def write_int_array_8(stream, int_array):
+    for value in int_array:
+        stream.write(bytes([int(value) & 0xFF]))
+
 def write_int_8(stream, value: int):
     stream.write(bytes([value & 0xFF]))
 
@@ -31,4 +35,4 @@ def write_int_32be(stream, value: int):
 
 
 def write(stream, string: str):
-    stream.write(bytes[string, 'utf8'])
+    stream.write(bytes(string, 'utf8'))

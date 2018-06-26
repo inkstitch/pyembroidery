@@ -4,6 +4,7 @@ import pyembroidery.DstReader as dstReader
 import pyembroidery.DstWriter as dstWriter
 import pyembroidery.PecWriter as pecWriter
 import pyembroidery.PesWriter as pesWriter
+import pyembroidery.JefWriter as jefWriter
 import pyembroidery.PatternReader as pattern_reader
 import pyembroidery.EmbPattern as EmbPattern
 import pyembroidery.WriteEncoder as encode
@@ -86,3 +87,4 @@ expWriter.write(pattern, "generated.exp")
 dstWriter.write(pattern, "generated.dst")
 dstWriter.extended_header = True
 dstWriter.write(pattern, "generated-eh.dst")
+jefWriter.write(pattern, "generated.jef")
