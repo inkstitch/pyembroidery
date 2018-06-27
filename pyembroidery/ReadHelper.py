@@ -71,3 +71,12 @@ def read_int_32be(stream):
         return (byte[3] & 0xFF) + ((byte[2] & 0xFF) << 8) + \
                ((byte[1] & 0xFF) << 16) + ((byte[0] & 0xFF) << 24);
     return None
+
+def read_string_8(stream,length):
+    byte = stream.read(length);
+    return byte.decode('utf8');
+
+
+def read_string_16(stream,length):
+    byte = stream.read(length);
+    return byte.decode('utf16');

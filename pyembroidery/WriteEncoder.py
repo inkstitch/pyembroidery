@@ -26,6 +26,7 @@ def oriented(x0, y0, x1, y1, r):
     radians = angleR(x0, y0, x1, y1)
     return (x0 + (r * math.cos(radians)), y0 + (r * math.sin(radians)))
 
+
 class WriteEncoder():
     def __init__(self):
         self.max_jump_length = float('inf')  # type: float
@@ -34,12 +35,12 @@ class WriteEncoder():
         self.tie_off = False  # type: bool
         self.needle_x = 0  # type: float
         self.needle_y = 0  # type: float
-        self.translate_X = 0  # type: float
-        self.translate_Y = 0  # type: float
+        self.translate_x = 0  # type: float
+        self.translate_y = 0  # type: float
 
     def set_translation(self, x, y):
-        self.translate_X = x
-        self.translate_Y = y
+        self.translate_x = x
+        self.translate_y = y
 
     def jumpTo(self, transcode, x, y):
         self.step_to_range(transcode, x, y, self.max_jump_length, EmbPattern.JUMP)
@@ -122,8 +123,8 @@ class WriteEncoder():
         EmbPattern.set(p, copy)
         layer = copy.stitches
         for stitch in layer:
-            stitch[0] = round(stitch[0] - self.translate_X)
-            stitch[1] = round(stitch[1] - self.translate_Y)
+            stitch[0] = round(stitch[0] - self.translate_x)
+            stitch[1] = round(stitch[1] - self.translate_y)
         p.stitches = []
         p.threadlist = []
         self.write_code(copy, p)
@@ -132,21 +133,22 @@ class WriteEncoder():
 
     def write_thread(self, pattern_from, pattern_to):
         threads_to = pattern_to.threadlist
-        threads_to.extend(pattern_to.threadlist)
+        threads_to.extend(pattern_from.threadlist)
 
     def write_code(self, pattern_from, pattern_to):
         from_stitches = pattern_from.stitches
         to_stitches = pattern_to.stitches
         current_index_end = len(from_stitches)
         current_index = 0
+        current_command = EmbPattern.NO_COMMAND
         while current_index < current_index_end:
             current = from_stitches[current_index]
             current_x = current[0]
             current_y = current[1]
             current_command = current[2]
-            if current_command is EmbPattern.STITCH:
+            if current_command == EmbPattern.STITCH:
                 self.stitchTo(to_stitches, current_x, current_y)
-            elif current_command is EmbPattern.STITCH_FINAL_LOCATION:
+            elif current_command == EmbPattern.STITCH_FINAL_LOCATION:
                 if self.tie_off:
                     bi = current_index - 1
                     b = from_stitches[bi]
@@ -155,7 +157,7 @@ class WriteEncoder():
                     self.lock_stitch(to_stitches, current_x, current_y, bx, by)
                 self.stitchTo(to_stitches, current_x, current_y)
                 to_stitches.append([current_x, current_y, EmbPattern.TRIM])
-            elif current_command is EmbPattern.STITCH_FINAL_COLOR:
+            elif current_command == EmbPattern.STITCH_FINAL_COLOR:
                 if self.tie_off:
                     bi = current_index - 1
                     b = from_stitches[bi]
@@ -166,7 +168,7 @@ class WriteEncoder():
                 to_stitches.append([current_x, current_y, EmbPattern.TRIM])
                 to_stitches.append(
                     [current_x, current_y, EmbPattern.COLOR_CHANGE])
-            elif current_command is EmbPattern.STITCH_NEW_LOCATION or current_command is EmbPattern.STITCH_NEW_COLOR:
+            elif current_command == EmbPattern.STITCH_NEW_LOCATION or current_command == EmbPattern.STITCH_NEW_COLOR:
                 self.jumpTo(to_stitches, current_x, current_y)
                 self.needle_x = current_x
                 self.needle_y = current_y
@@ -182,4 +184,5 @@ class WriteEncoder():
             self.needle_x = current_x
             self.needle_y = current_y
             current_index += 1
-        to_stitches.append([self.needle_x, self.needle_y, EmbPattern.END])
+        if current_command != EmbPattern.END:
+            to_stitches.append([self.needle_x, self.needle_y, EmbPattern.END])

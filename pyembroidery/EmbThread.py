@@ -7,7 +7,7 @@ def find_nearest_color_index(find_color, values):
     current_closest_value = float("inf")
     for t in values:
         current_index += 1
-        if t is None:
+        if t == None:
             continue
         dist = color_distance_red_mean(
             red,

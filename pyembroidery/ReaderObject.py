@@ -5,6 +5,9 @@ class ReaderObject():
     def move(self, dx, dy):
         pass
 
+    def move_abs(self, x,y):
+        pass
+
     def stitch(self, dx, dy):
         pass
 

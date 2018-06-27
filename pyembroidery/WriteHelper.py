@@ -31,7 +31,7 @@ def write_int_32le(stream, value):
 
 
 def write_int_32be(stream, value):
-    stream.write(bytes([(value >> 24) & 0xFF(value >> 16) & 0xFF,
+    stream.write(bytes([(value >> 24) & 0xFF, (value >> 16) & 0xFF,
                         (value >> 8) & 0xFF, value & 0xFF]))
 
 def write(stream, string):

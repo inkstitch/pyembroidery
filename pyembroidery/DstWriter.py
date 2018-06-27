@@ -122,9 +122,9 @@ def write(pattern, file):
         f.write(bytes("AY:+%5d\r" % (0), 'utf8'))
         f.write(bytes("PD:%6s\r" % ("******"), 'utf8'))
         if extended_header:
-            if pattern.author is not None:
+            if pattern.author != None:
                 f.write(bytes("AU:%s\r" % (pattern.author), 'utf8'))
-            if pattern.copyright is not None:
+            if pattern.copyright != None:
                 f.write(bytes("CP:%s\r" % (pattern.copyright), 'utf8'))
             if len(pattern.threadlist) > 0:
                 for thread in pattern.threadlist:
@@ -148,7 +148,7 @@ def write(pattern, file):
             data = stitch[2]
             dx = x - xx
             dy = y - yy
-            if (data is EmbPattern.TRIM):
+            if data == EmbPattern.TRIM:
                 f.write(encode_record(2, 2, EmbPattern.JUMP))
                 f.write(encode_record(-4, -4, EmbPattern.JUMP))
                 f.write(encode_record(2, 2, EmbPattern.JUMP))
