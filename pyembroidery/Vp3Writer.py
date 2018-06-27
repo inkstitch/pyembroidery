@@ -158,6 +158,8 @@ def write(pattern, file):
         first_stitch_block = True
         last_x = 0;
         last_y = 0;
+        block_shift_x = 0
+        block_shift_y = 0
         while stitch_index < count_stitches:
             # skip non-stitch elements.
             # calculate frame shift.
@@ -183,8 +185,8 @@ def write(pattern, file):
                     break;
             seek_index -= 1;
             block_end_stitch = pattern.stitches[seek_index]
-            block_shift_x = block_end_stitch[0]
-            block_shift_y = block_end_stitch[1]
+            block_shift_x = block_end_stitch[0] - block_shift_x
+            block_shift_y = block_end_stitch[1] - block_shift_y
 
             # this element goes between stitch blocks.
             if not first_stitch_block:
@@ -212,6 +214,9 @@ def write(pattern, file):
             # Wilcom 00 00 BE 3C == 48700
             # Note: flipped values of the earlier initial_x, initial_y
             # 41500, -48700
+
+            # This needs to be recalculated. It's the difference between layers, as well.
+            # between 1st and 2nd it's: -18.5 -48.6
             helper.write_int_32be(f, int(initial_x) * -100)
             helper.write_int_32be(f, int(initial_y) * 100)
 
@@ -232,7 +237,6 @@ def write(pattern, file):
             helper.write_int_8(f, current_thread.get_red())
             helper.write_int_8(f, current_thread.get_green())
             helper.write_int_8(f, current_thread.get_blue())
-
 
             # b'\x00\x00\x00\x05\x28
             helper.write_int_8(f, 0)
@@ -266,6 +270,8 @@ def write(pattern, file):
             # Wilcom: 00 00 00 00 == 0
             # Note 23_000 + 133_000 = 156_000 the max_x value.
             # Note the y shift between block ends (layer 2) is actually 0.
+
+            # Shift from first to last position.
             helper.write_int_32be(f, int(block_shift_x) * 100)
             # wilcom has position data here.
             helper.write_int_32be(f, int(block_shift_y) * -100)
@@ -300,6 +306,7 @@ def write(pattern, file):
             # helper.write_int_16be(f, frameshift_x)
             # helper.write_int_16be(f, frameshift_y)
 
+            initializing_block = True
             while stitch_index < count_stitches:
                 stitch = pattern.stitches[stitch_index]
                 x = stitch[0]
@@ -320,8 +327,12 @@ def write(pattern, file):
                     helper.write_int_16be(f, dx)
                     helper.write_int_16be(f, dy)
                     f.write(b'\x80\x02')
+                if initializing_block:
+                    helper.write_int_8(f, 0)
+                    helper.write_int_8(f, 0)
+                    initializing_block = False
                 stitch_index += 1
-            vp3_patch_byte_offset(f, placeholder_next_block_seek_distance, 0)
+            vp3_patch_byte_offset(f, placeholder_next_block_seek_distance, -4)
             vp3_patch_byte_offset(f, placeholder_jump_to_next_block, -4)
             first_stitch_block = False
         f.write(b'\x80\x03\x00')
