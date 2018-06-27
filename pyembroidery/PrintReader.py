@@ -5,6 +5,9 @@ class PrintReader():
     def move(self, dx, dy):
         print("JUMP ", dx, dy)
 
+    def move_abs(self, x,y):
+        print("MOVE ABS ", x, y)
+
     def stitch(self, dx, dy):
         print("STITCH", dx, dy)
 

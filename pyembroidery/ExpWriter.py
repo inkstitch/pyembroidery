@@ -22,23 +22,23 @@ def write(pattern, file):
                 delta_x = round(dx) & 0xFF
                 delta_y = -round(dy) & 0xFF
                 f.write(bytes([delta_x, delta_y]))
-            elif data is EmbPattern.JUMP:
+            elif data == EmbPattern.JUMP:
                 jumping = True
                 delta_x = round(dx) & 0xFF
                 delta_y = -round(dy) & 0xFF
                 f.write(b'\x80\x04')
                 f.write(bytes([delta_x, delta_y]))
-            elif data is EmbPattern.COLOR_CHANGE:
+            elif data == EmbPattern.COLOR_CHANGE:
                 if jumping:
                     f.write(b'\x00\x00')
                     jumping = False
                 f.write(b'\x80\x01\x00\x00')
-            elif data is EmbPattern.STOP:
+            elif data == EmbPattern.STOP:
                 if jumping:
                     f.write(b'\x00\x00')
                     jumping = False
                 f.write(b'\x80\x01\x00\x00')
-            elif data is EmbPattern.END:
+            elif data == EmbPattern.END:
                 pass
             if jumping:
                 f.write(b'\x00\x00')

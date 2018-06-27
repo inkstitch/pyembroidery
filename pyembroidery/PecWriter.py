@@ -67,7 +67,7 @@ def pec_encode(pattern, f):
                     (delta_y >> 8) & 0xFF,
                     delta_y & 0xFF]
                 f.write(bytes(data))
-        elif data is EmbPattern.JUMP:
+        elif data == EmbPattern.JUMP:
             jumping = True
             delta_x = round(dx)
             delta_x = encode_long_form(delta_x)
@@ -88,7 +88,7 @@ def pec_encode(pattern, f):
                 delta_y & 0xFF
             ]))
             color_change_jump = False
-        elif data is EmbPattern.COLOR_CHANGE:
+        elif data == EmbPattern.COLOR_CHANGE:
             if jumping:
                 f.write(b'\x00\x00')
                 jumping = False
@@ -97,12 +97,12 @@ def pec_encode(pattern, f):
                 f.write(b'\x02')
             else:
                 f.write(b'\x01')
-        elif data is EmbPattern.STOP:
+        elif data == EmbPattern.STOP:
             if jumping:
                 f.write(b'\x00\x00')
                 jumping = False
             f.write(b'\x80\x01\x00\x00')
-        elif data is EmbPattern.END:
+        elif data == EmbPattern.END:
             if jumping:
                 f.write(b'\x00\x00')
                 jumping = False
@@ -117,7 +117,7 @@ def write_pec_stitches(pattern, f):
     height = extends[3] - extends[1]
 
     name = pattern.name
-    if name is None:
+    if name == None:
         name = "Untitled"
     name = name[:8]
     f.write(bytes("LA:%-16s\r" % (name), 'utf8'))

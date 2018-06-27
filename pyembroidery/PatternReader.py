@@ -8,6 +8,9 @@ class PatternReader():
     def move(self, dx, dy):
         self.pattern.add_stitch_relative(dx, dy, EmbPattern.JUMP)
 
+    def move_abs(self, x, y):
+        self.pattern.add_stitch_absolute(x, y, EmbPattern.JUMP)
+
     def stitch(self, dx, dy):
         self.pattern.add_stitch_relative(dx, dy, EmbPattern.STITCH)
 
@@ -23,8 +26,8 @@ class PatternReader():
     def sequin(self, dx, dy):
         self.pattern.add_stitch_relative(dx, dy, EmbPattern.SEQUIN)
 
-    def stop(self,dx,dy):
-        self.pattern.add_stitch_relative(dx,dy, EmbPattern.END)
+    def end(self, dx, dy):
+        self.pattern.add_stitch_relative(dx, dy, EmbPattern.END)
 
     def add_thread(self, thread):
         self.pattern.add_thread(thread)

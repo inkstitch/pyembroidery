@@ -16,7 +16,7 @@ HOOP_126X110 = 3
 HOOP_200X200 = 4
 
 
-def write(pattern: EmbPattern, file):
+def write(pattern, file):
     with open(file, "wb") as f:
         pattern.fix_color_count();
         color_count = pattern.count_threads();
@@ -83,7 +83,7 @@ def write(pattern: EmbPattern, file):
             helper.write_int_array_8(f, encoded_bytes)
             xx = x
             yy = y
-        if data is not EmbPattern.END:
+        if data != EmbPattern.END:
             f.write(b'\x80\x10')
 
 
@@ -97,17 +97,17 @@ def get_jef_hoop_size(width: int, height: int) -> int:
     return HOOP_200X200
 
 def jef_encode(dx, dy, data):
-    if data is EmbPattern.STITCH:
+    if data == EmbPattern.STITCH:
         return [dx, dy]
-    if data is EmbPattern.COLOR_CHANGE:
+    if data == EmbPattern.COLOR_CHANGE:
         return [0x80, 0x01, dx, dy]
-    if data is EmbPattern.STOP:
+    if data == EmbPattern.STOP:
         return [0x80, 0x01, dx, dy]
-    if data is EmbPattern.END:
+    if data == EmbPattern.END:
         return [0x80, 0x10, dx, dy]
-    if data is EmbPattern.JUMP:
+    if data == EmbPattern.JUMP:
         return [0x80, 0x02, dx, dy]
-    if data is EmbPattern.TRIM:
+    if data == EmbPattern.TRIM:
         return [0x80, 0x02, dx, dy]
     return [dx, dy]
 

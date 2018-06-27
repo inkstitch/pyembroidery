@@ -61,13 +61,16 @@ class EmbPattern():
                 min_y = stitch[1]
         return (min_x, min_y, max_x, max_y)
 
-    def count_color_changes(self):
+    def count_stitch_commands(self, command):
         count = 0
         for stitch in self.stitches:
             flags = stitch[2]
-            if flags is COLOR_CHANGE:
+            if flags == command:
                 count += 1
         return count
+
+    def count_color_changes(self):
+        return self.count_stitch_commands(COLOR_CHANGE)
 
     def count_stitches(self):
         return len(self.stitches)
@@ -113,7 +116,7 @@ class EmbPattern():
         return singleton
 
     def translate(self, dx, dy):
-        for stitch in self.command:
+        for stitch in self.stitches:
             stitch[0] += dx
             stitch[1] += dy
 
@@ -122,11 +125,11 @@ class EmbPattern():
         starting = True
         for stitch in self.stitches:
             data = stitch[2] & COMMAND_MASK
-            if data is STITCH:
+            if data == STITCH:
                 if starting:
                     thread_index += 1
                     starting = False
-            elif data is COLOR_CHANGE:
+            elif data == COLOR_CHANGE:
                 if starting:
                     continue
                 thread_index += 1
@@ -142,3 +145,34 @@ class EmbPattern():
         x = self._previousX + dx
         y = self._previousY + dy
         self.add_stitch_absolute(x, y, cmd)
+
+    def list_commands(self, read_object):
+        last_x = 0
+        last_y = 0
+        for thread in self.threadlist:
+            read_object.add_thread(thread)
+        stitch_position = 0;
+        for stitch in self.stitches:
+            x = stitch[0]
+            y = stitch[1]
+            flags = stitch[2]
+            dx = x - last_x
+            dy = y - last_y
+            if flags == STITCH:
+                read_object.stitch(dx, dy);
+            elif flags == JUMP:
+                read_object.move(dx, dy);
+            elif flags == COLOR_CHANGE:
+                read_object.color_change(dx, dy);
+            elif flags == STOP:
+                read_object.stop(dx, dy);
+            elif flags == TRIM:
+                read_object.trim(dx, dy);
+            elif flags == SEQUIN:
+                read_object.sequin(dx, dy);
+            elif flags == END:
+                read_object.end(dx, dy)
+            else:
+                pass
+            stitch_position += 1
+
