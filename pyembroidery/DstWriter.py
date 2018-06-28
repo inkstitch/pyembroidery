@@ -98,61 +98,60 @@ def encode_record(x, y, flags):
     return bytes([b0, b1, b2])
 
 
-def write(pattern, file):
-    with open(file, "wb") as f:
-        extends = pattern.extends()
-        width = extends[2] - extends[0]
-        height = extends[3] - extends[1]
+def write(pattern, f):
+    extends = pattern.extends()
+    width = extends[2] - extends[0]
+    height = extends[3] - extends[1]
 
-        name = pattern.name
-        if name is None:
-            name = "Untitled"
-        f.write(bytes("LA:%-16s\r" % (name), 'utf8'))
-        f.write(bytes("ST:%7d\r" % (pattern.count_stitches()), 'utf8'))
-        f.write(bytes("CO:%3d\r" % (pattern.count_color_changes()), 'utf8'))
-        x_extend = math.ceil(PPMM * width / 2)
-        y_extend = math.ceil(PPMM * height / 2)
-        f.write(bytes("+X:%5d\r" % (x_extend), 'utf8'))
-        f.write(bytes("-X:%5d\r" % (x_extend), 'utf8'))
-        f.write(bytes("+Y:%5d\r" % (y_extend), 'utf8'))
-        f.write(bytes("-Y:%5d\r" % (y_extend), 'utf8'))
-        f.write(bytes("AX:+%5d\r" % (0), 'utf8'))
-        f.write(bytes("AY:+%5d\r" % (0), 'utf8'))
-        f.write(bytes("MX:+%5d\r" % (0), 'utf8'))
-        f.write(bytes("AY:+%5d\r" % (0), 'utf8'))
-        f.write(bytes("PD:%6s\r" % ("******"), 'utf8'))
-        if extended_header:
-            if pattern.author != None:
-                f.write(bytes("AU:%s\r" % (pattern.author), 'utf8'))
-            if pattern.copyright != None:
-                f.write(bytes("CP:%s\r" % (pattern.copyright), 'utf8'))
-            if len(pattern.threadlist) > 0:
-                for thread in pattern.threadlist:
-                    f.write(
-                        bytes(
-                            "TC:%s,%s,%s\r" %
-                            (thread.hex_color(),
-                             thread.description,
-                             thread.catalog_number),
-                            'utf8'))
-        f.write(b'\x1a')
-        for i in range(f.tell(), DSTHEADERSIZE):
-            f.write(b'\x20')  # space
+    name = pattern.name
+    if name is None:
+        name = "Untitled"
+    f.write(bytes("LA:%-16s\r" % (name), 'utf8'))
+    f.write(bytes("ST:%7d\r" % (pattern.count_stitches()), 'utf8'))
+    f.write(bytes("CO:%3d\r" % (pattern.count_color_changes()), 'utf8'))
+    x_extend = math.ceil(PPMM * width / 2)
+    y_extend = math.ceil(PPMM * height / 2)
+    f.write(bytes("+X:%5d\r" % (x_extend), 'utf8'))
+    f.write(bytes("-X:%5d\r" % (x_extend), 'utf8'))
+    f.write(bytes("+Y:%5d\r" % (y_extend), 'utf8'))
+    f.write(bytes("-Y:%5d\r" % (y_extend), 'utf8'))
+    f.write(bytes("AX:+%5d\r" % (0), 'utf8'))
+    f.write(bytes("AY:+%5d\r" % (0), 'utf8'))
+    f.write(bytes("MX:+%5d\r" % (0), 'utf8'))
+    f.write(bytes("AY:+%5d\r" % (0), 'utf8'))
+    f.write(bytes("PD:%6s\r" % ("******"), 'utf8'))
+    if extended_header:
+        if pattern.author != None:
+            f.write(bytes("AU:%s\r" % (pattern.author), 'utf8'))
+        if pattern.copyright != None:
+            f.write(bytes("CP:%s\r" % (pattern.copyright), 'utf8'))
+        if len(pattern.threadlist) > 0:
+            for thread in pattern.threadlist:
+                f.write(
+                    bytes(
+                        "TC:%s,%s,%s\r" %
+                        (thread.hex_color(),
+                         thread.description,
+                         thread.catalog_number),
+                        'utf8'))
+    f.write(b'\x1a')
+    for i in range(f.tell(), DSTHEADERSIZE):
+        f.write(b'\x20')  # space
 
-        stitches = pattern.stitches
-        xx = 0
-        yy = 0
-        for stitch in stitches:
-            x = stitch[0]
-            y = stitch[1]
-            data = stitch[2]
-            dx = x - xx
-            dy = y - yy
-            if data == EmbPattern.TRIM:
-                f.write(encode_record(2, 2, EmbPattern.JUMP))
-                f.write(encode_record(-4, -4, EmbPattern.JUMP))
-                f.write(encode_record(2, 2, EmbPattern.JUMP))
-            else:
-                f.write(encode_record(round(dx), round(dy), data))
-            xx = x
-            yy = y
+    stitches = pattern.stitches
+    xx = 0
+    yy = 0
+    for stitch in stitches:
+        x = stitch[0]
+        y = stitch[1]
+        data = stitch[2]
+        dx = x - xx
+        dy = y - yy
+        if data == EmbPattern.TRIM:
+            f.write(encode_record(2, 2, EmbPattern.JUMP))
+            f.write(encode_record(-4, -4, EmbPattern.JUMP))
+            f.write(encode_record(2, 2, EmbPattern.JUMP))
+        else:
+            f.write(encode_record(round(dx), round(dy), data))
+        xx = x
+        yy = y

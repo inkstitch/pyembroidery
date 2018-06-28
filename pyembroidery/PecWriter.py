@@ -17,10 +17,9 @@ PEC_ICON_WIDTH = 48
 PEC_ICON_HEIGHT = 38
 
 
-def write(pattern, file):
-    with open(file, "wb") as f:
-        f.write(bytes("#PEC0001", 'utf8'))
-        write_pec_stitches(pattern, f)
+def write(pattern, f):
+    f.write(bytes("#PEC0001", 'utf8'))
+    write_pec_stitches(pattern, f)
 
 
 def encode_long_form(value):

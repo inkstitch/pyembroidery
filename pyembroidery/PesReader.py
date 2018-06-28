@@ -7,40 +7,39 @@ TRIM_CODE = 0x20
 FLAG_LONG = 0x80
 
 
-def read(file, read_object):
-    with open(file, "rb") as f:
-        threadlist = []
-        pes_string = helper.read_string_8(f, 8)
+def read(f, read_object):
+    threadlist = []
+    pes_string = helper.read_string_8(f, 8)
 
-        if pes_string == "#PEC0001":
-            PecReader.read_pec(f, read_object, threadlist)
-            return
-
-        pec_block_position = helper.read_int_32le(f)
-
-        # Ignoring several known PES versions, just abort and read PEC block
-        # All versions allow, abort and read PEC block.
-        # Metadata started appearing in V4
-        # Threads appeared in V5.
-        # We quickly abort if there's any complex items in the header.
-        # "#PES0100", "#PES0090" "#PES0080" "#PES0070", "#PES0040",
-        # "#PES0030", "#PES0022", "#PES0020"
-        if pes_string == "#PES0060":
-            read_pes_header_version_6(f, read_object, threadlist)
-        elif pes_string == "#PES0050":
-            read_pes_header_version_5(f, read_object, threadlist)
-        elif pes_string == "#PES0055":
-            read_pes_header_version_5(f, read_object, threadlist)
-        elif pes_string == "#PES0056":
-            read_pes_header_version_5(f, read_object, threadlist)
-        elif pes_string == "#PES0040":
-            read_pes_header_version_4(f, read_object)
-        elif pes_string == "#PES0001":
-            read_pes_header_version_1(f, read_object)
-        else:
-            pass  # Header is unrecognised.
-        f.seek(pec_block_position, 0)
+    if pes_string == "#PEC0001":
         PecReader.read_pec(f, read_object, threadlist)
+        return
+
+    pec_block_position = helper.read_int_32le(f)
+
+    # Ignoring several known PES versions, just abort and read PEC block
+    # All versions allow, abort and read PEC block.
+    # Metadata started appearing in V4
+    # Threads appeared in V5.
+    # We quickly abort if there's any complex items in the header.
+    # "#PES0100", "#PES0090" "#PES0080" "#PES0070", "#PES0040",
+    # "#PES0030", "#PES0022", "#PES0020"
+    if pes_string == "#PES0060":
+        read_pes_header_version_6(f, read_object, threadlist)
+    elif pes_string == "#PES0050":
+        read_pes_header_version_5(f, read_object, threadlist)
+    elif pes_string == "#PES0055":
+        read_pes_header_version_5(f, read_object, threadlist)
+    elif pes_string == "#PES0056":
+        read_pes_header_version_5(f, read_object, threadlist)
+    elif pes_string == "#PES0040":
+        read_pes_header_version_4(f, read_object)
+    elif pes_string == "#PES0001":
+        read_pes_header_version_1(f, read_object)
+    else:
+        pass  # Header is unrecognised.
+    f.seek(pec_block_position, 0)
+    PecReader.read_pec(f, read_object, threadlist)
 
 
 def read_pes_string(f):

@@ -6,11 +6,10 @@ TRIM_CODE = 0x20
 FLAG_LONG = 0x80
 
 
-def read(file, read_object):
-    with open(file, "rb") as f:
-        pec_string = helper.read_string_8(f, 8)
-        # pec_string must equal #PEC0001
-        read_pec(f, read_object, None);
+def read(f, read_object):
+    pec_string = helper.read_string_8(f, 8)
+    # pec_string must equal #PEC0001
+    read_pec(f, read_object, None);
 
 
 def read_pec(f, read_object, threadlist):
@@ -22,7 +21,7 @@ def read_pec(f, read_object, threadlist):
     map_pec_colors(color_bytes, read_object, threadlist)
 
     f.seek(0x200 - (0x30 + color_changes), 1)
-    f.seek(0x13,1)  # 2 bytes size, 17 bytes cruft
+    f.seek(0x13, 1)  # 2 bytes size, 17 bytes cruft
     read_pec_stitches(f, read_object)
 
 

@@ -9,9 +9,12 @@ END = 4
 COLOR_CHANGE = 5
 INIT = 6
 SEQUIN = 7
-STITCH_NEW_LOCATION = 0xF0
-STITCH_NEW_COLOR = 0xF1
-STITCH_FINAL_LOCATION = 0xF2
+
+
+BREAK = 0xE1
+BREAK_COLOR = 0xE2
+FRAME_EJECT = 0xE9
+STITCH_FINAL = 0xF2
 STITCH_FINAL_COLOR = 0xF3
 COMMAND_MASK = 0xFF
 
@@ -98,7 +101,20 @@ class EmbPattern():
             return self.threadlist[index]
 
     def get_as_stitchblock(self):
-        pass  # This should generate, stitchblocks
+        stitchblock = []
+        thread = self.get_thread_or_filler(0)
+        thread_index = 1;
+        for stitch in self.stitches:
+            flags = stitch[2]
+            if flags == STITCH:
+                stitchblock.append(stitch);
+            else:
+                if len(stitchblock) > 0:
+                    yield (stitchblock, thread)
+                    stitchblock.clear()
+                if flags == COLOR_CHANGE:
+                    thread = self.get_thread_or_filler(thread_index)
+                    thread_index += 1;
 
     def get_as_colorblock(self):
         pass  # This should generate, colorblocks

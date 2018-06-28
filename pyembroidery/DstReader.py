@@ -32,26 +32,25 @@ def decode_dy(b0, b1, b2):
     return -y
 
 
-def read(file, read_object):
-    with open(file, "rb") as f:
-        f.seek(512)
-        sequin_mode = False
-        while True:
-            byte = f.read(3)
-            if len(byte) != 3:
-                break
-            dx = decode_dx(byte[0], byte[1], byte[2])
-            dy = decode_dy(byte[0], byte[1], byte[2])
-            if ((byte[2] & 0b11110011) == 0b11110011):
-                read_object.stop(dx, dy)
-            elif ((byte[2] & 0b11000011) == 0b11000011):
-                read_object.color_change(dx, dy)
-            elif ((byte[2] & 0b01000011) == 0b01000011):
-                sequin_mode = not sequin_mode
-            elif ((byte[2] & 0b10000011) == 0b10000011):
-                if sequin_mode:
-                    read_object.sequin(dx, dy)
-                else:
-                    read_object.move(dx, dy)
+def read(f, read_object):
+    f.seek(512)
+    sequin_mode = False
+    while True:
+        byte = f.read(3)
+        if len(byte) != 3:
+            break
+        dx = decode_dx(byte[0], byte[1], byte[2])
+        dy = decode_dy(byte[0], byte[1], byte[2])
+        if ((byte[2] & 0b11110011) == 0b11110011):
+            read_object.stop(dx, dy)
+        elif ((byte[2] & 0b11000011) == 0b11000011):
+            read_object.color_change(dx, dy)
+        elif ((byte[2] & 0b01000011) == 0b01000011):
+            sequin_mode = not sequin_mode
+        elif ((byte[2] & 0b10000011) == 0b10000011):
+            if sequin_mode:
+                read_object.sequin(dx, dy)
             else:
-                read_object.stitch(dx, dy)
+                read_object.move(dx, dy)
+        else:
+            read_object.stitch(dx, dy)
