@@ -1,21 +1,16 @@
 # pyembroidery
-libembroidery/EmbroideryFormats converted to python
+Python library for the reading and writing of embroidery files.
 
-pyembroidery is a embroidery format reader and writer utility. It can read
-* DST
-* EXP
-* JEF
-* (BROKEN) VP3
+It can currently read and write: PES, PEC, DST, EXP, JEF, VP3, with varying degrees of stablity.
 
-it can write:
-* DST
-* EXP
-* PEC (blank graphics)
-* PES (truncated)
-* JEF
-* VP3
+Current goals:
+* Improve the stablity of these particular formats.
+* Improve the API interfacing for the library.
+* Add a layer-based stablized middle-format
+* Add simple interface for direct file format conversion.
 
-It's a conversion of Embroidermodder/MobileViewer Java code,
+This code is an advancement of converted Embroidermodder/MobileViewer Java code,
 Which in turn is a conversion of Embroidermodder/libembroidery C++ code.
 
-It's largely intended for use in lexelby/inkstitch but is entirely reasonable for any python embroidery project.
+pyembroidery's largely intended for eventual use in lexelby/inkstitch but shall be 
+entirely reasonable for any python embroidery project.
