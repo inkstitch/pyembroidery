@@ -195,7 +195,6 @@ def write(pattern, f):
         f.write(b'\x00\x05\x00')
         placeholder_jump_to_next_block = f.tell();
         helper.write_int_32be(f, 0)  # placeholder
-        # Place holder is off by 11. In next area.
 
         current_thread = pattern.get_thread_or_filler(thread_index)
         # current_thread = pattern.threadlist[thread_index]
@@ -289,7 +288,7 @@ def write(pattern, f):
         helper.write_int_32be(f, 0)  # placeholder
         # Place holder differs by 6, 3 is missing count.
 
-        f.write(b'\x0A\xF6')
+        f.write(b'\x0A\xF6\x00')
         # helper.write_int_8(f, 10)
         # helper.write_int_8(f, 246)
         # helper.write_int_8(f, 0)
@@ -300,8 +299,6 @@ def write(pattern, f):
         # Frame shift distance. I specifically adjusted by x+50.
         # 0 32, 00 00  == 50,0
         # So it's likely a frameshift.
-
-        helper.write_int_8(f, 0)
 
         # helper.write_int_16be(f, frameshift_x)
         # helper.write_int_16be(f, frameshift_y)
