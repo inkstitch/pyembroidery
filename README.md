@@ -44,7 +44,9 @@ where rather than commands you simply give it a coordinate set, and it'll do the
 For now, 
 * pattern.add_stitch_absolute(x, y, EmbPattern.STITCH)
 * pattern.add_stitch_relative(x, y, EmbPattern.STITCH)
-* pattern.add_stitch_absolute(x, y, EmbPattern.BREAK) -- Note, the position doesn't matter for a break command.
+
+Note, for a break commands, the position doesn't matter nor the absolute/relative nature of the command
+* pattern.add_stitch_absolute(x, y, EmbPattern.BREAK)
 * pattern.add_stitch_absolute(x, y, EmbPattern.BREAK_COLOR)
 
 After writing in the higher level stuff to the pattern, call the render()
@@ -54,3 +56,6 @@ After writing in the higher level stuff to the pattern, call the render()
 * pyemb.encode.tie_off = True
 * pattern = pyemb.render(pattern)
 
+
+Any suggestions or comments please raise an issue. It should still be a bit before everything solidifies.
+And somethings like reading vp3s might still be broken.
