@@ -42,15 +42,15 @@ There's also clearly a need for pattern.add_stitchblock(stitches)
 where rather than commands you simply give it a coordinate set, and it'll do the jumping, cutting, trimming, and colorchanges for you.
 
 For now, 
-pattern.add_stitch_absolute(x, y, EmbPattern.STITCH)
-pattern.add_stitch_relative(x, y, EmbPattern.STITCH)
-pattern.add_stitch_absolute(x, y, EmbPattern.BREAK) -- Note, the position doesn't matter for a break command.
-pattern.add_stitch_absolute(x, y, EmbPattern.BREAK_COLOR)
+* pattern.add_stitch_absolute(x, y, EmbPattern.STITCH)
+* pattern.add_stitch_relative(x, y, EmbPattern.STITCH)
+* pattern.add_stitch_absolute(x, y, EmbPattern.BREAK) -- Note, the position doesn't matter for a break command.
+* pattern.add_stitch_absolute(x, y, EmbPattern.BREAK_COLOR)
 
 After writing in the higher level stuff to the pattern, call the render()
-pyemb.encode.max_stitch = dstWriter.MAX_STITCH_DISTANCE
-pyemb.encode.max_jump = dstWriter.MAX_JUMP_DISTANCE
-pyemb.encode.tie_on = True
-pyemb.encode.tie_off = True
-pattern = pyemb.render(pattern)
+* pyemb.encode.max_stitch = dstWriter.MAX_STITCH_DISTANCE
+* pyemb.encode.max_jump = dstWriter.MAX_JUMP_DISTANCE
+* pyemb.encode.tie_on = True
+* pyemb.encode.tie_off = True
+* pattern = pyemb.render(pattern)
 
