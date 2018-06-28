@@ -31,3 +31,19 @@ class PatternReader():
 
     def add_thread(self, thread):
         self.pattern.add_thread(thread)
+
+    def metadata(self, name, data):
+        if name == "name":
+            self.pattern.name = data
+        elif name == "filename":
+            self.pattern.filename = data
+        elif name == "author":
+            self.pattern.author = data
+        elif name == "copyright":
+            self.pattern.copyright = data
+        elif name == "category":
+            self.pattern.category = data
+        elif name == "comment":
+            self.pattern.comments = data
+        elif name == "keywords":
+            self.pattern.keywords = data

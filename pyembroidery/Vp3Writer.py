@@ -198,7 +198,8 @@ def write(pattern, file):
             helper.write_int_32be(f, 0)  # placeholder
             # Place holder is off by 11. In next area.
 
-            current_thread = pattern.threadlist[thread_index]
+            current_thread = pattern.get_thread_or_filler(thread_index)
+            # current_thread = pattern.threadlist[thread_index]
             thread_index += 1;
 
             # In embroidermodder this is wrong.

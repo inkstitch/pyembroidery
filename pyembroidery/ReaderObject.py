@@ -28,3 +28,6 @@ class ReaderObject():
 
     def add_thread(self,thread):
         pass
+
+    def metadata(self, name, data):
+        pass

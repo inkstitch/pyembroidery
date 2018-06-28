@@ -11,6 +11,7 @@ class CountReader():
         self.sequins = 0
         self.ends = 0
         self.threads = 0
+        self.metadatas = 0
 
     def move(self, dx, dy):
         self.moves += 1;
@@ -36,6 +37,9 @@ class CountReader():
     def end(self, dx, dy):
         self.ends += 1
 
+    def metadata(self, name, data):
+        self.metadatas += 1
+
     def add_thread(self, thread):
         self.threads += 1
 
@@ -48,3 +52,4 @@ class CountReader():
         print("Sequins:       ", self.sequins)
         print("End:           ", self.ends)
         print("Threads:       ", self.threads)
+        print("Metadata:      ", self.metadatas)

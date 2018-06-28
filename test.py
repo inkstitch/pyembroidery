@@ -1,12 +1,14 @@
 import pyembroidery.ExpReader as expReader
-import pyembroidery.ExpWriter as expWriter
 import pyembroidery.DstReader as dstReader
+import pyembroidery.JefReader as jefReader
+import pyembroidery.Vp3Reader as vp3Reader
+import pyembroidery.PecReader as pecReader
+import pyembroidery.PesReader as pesReader
+import pyembroidery.ExpWriter as expWriter
 import pyembroidery.DstWriter as dstWriter
 import pyembroidery.PecWriter as pecWriter
 import pyembroidery.PesWriter as pesWriter
 import pyembroidery.JefWriter as jefWriter
-import pyembroidery.JefReader as jefReader
-import pyembroidery.Vp3Reader as vp3Reader
 import pyembroidery.Vp3Writer as vp3Writer
 import pyembroidery.CountReader as count_reader
 import pyembroidery.PatternReader as pattern_reader
@@ -35,7 +37,6 @@ encoder.set_translation(0, -20)
 
 expReader.read("BN00883_A.EXP", reader0)
 dstReader.read("tree.dst", reader1)
-
 dstWriter.write(reader0.pattern, "bn-convert.dst")
 expWriter.write(reader1.pattern, "tree-covnert.exp")
 
@@ -44,7 +45,6 @@ pesWriter.write(reader2.pattern, "sequin-convert.pes")
 
 # GENERATES A FRACTAL
 pattern = EmbPattern.EmbPattern()
-
 
 # Proper Testing needs threads.
 
@@ -124,8 +124,8 @@ initial: [a],
     b: [a,r,b,r,a]
 }
 
-turtle.x += 50
-pattern.add_stitch_relative(50, 0, EmbPattern.STITCH_NEW_COLOR)
+turtle.x += 500
+pattern.add_stitch_relative(500, 0, EmbPattern.STITCH_NEW_COLOR)
 
 evaluate_lsystem(initial,rules,7)
 pattern.add_stitch_relative(0, 0, EmbPattern.STITCH_FINAL_COLOR)
@@ -135,13 +135,13 @@ pattern.add_stitch_absolute(0, 0, EmbPattern.END)
 
 counter = count_reader.CountReader();
 pattern.list_commands(counter)
-counter.print_counts()
+#counter.print_counts()
 
 pattern = encoder.process(pattern)  # invokes the encoder, to convert this to standard forms.
 
 counter = count_reader.CountReader();
 pattern.list_commands(counter)
-counter.print_counts()
+#counter.print_counts()
 
 pecWriter.write(pattern, "generated.pec")
 pesWriter.write(pattern, "generated.pes")
@@ -152,6 +152,16 @@ dstWriter.write(pattern, "generated-eh.dst")
 jefWriter.write(pattern, "generated.jef")
 vp3Writer.write(pattern, "generated.vp3")
 
+
+
+
+reader = pattern_reader.PatternReader()
+expReader.read("P.EXP", reader);
+counter = count_reader.CountReader();
+reader.pattern.list_commands(counter);
+
+vp3Writer.write(reader.pattern,"Panda-Converted.vp3")
+dstWriter.write(reader.pattern,"Panda-Converted.dst")
 
 # vp3Reader.read("Panda.VP3", reader3)
 # vp3Reader.read("SP0068.VP3", reader3)

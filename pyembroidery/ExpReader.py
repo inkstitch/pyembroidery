@@ -1,3 +1,5 @@
+import pyembroidery.ReadHelper as helper
+
 def signed(b):
     if b > 127:
         return -256 + b
@@ -8,6 +10,7 @@ def signed(b):
 def read(file, read_object):
     with open(file, "rb") as f:
         while True:
+            # b = helper.read_signed(2);
             b = f.read(2)
             if len(b) != 2:
                 break
@@ -16,7 +19,7 @@ def read(file, read_object):
                     b = f.read(2)
                     if len(b) != 2:
                         break
-                    read_object.stop()
+                    read_object.stop(0,0,)
                 elif b[1] == 0x02:
                     read_object.stitch(signed(b[0]), -(signed(b[1])))
                 elif b[1] == 0x04:
@@ -29,13 +32,13 @@ def read(file, read_object):
                         b = f.read(2)
                         if len(b) != 2:
                             break
-                        read_object.color_change()
+                        read_object.color_change(0,0)
                         read_object.move(signed(b[0]), signed(b[1]))
                     else:
                         b = f.read(2)
                         if len(b) != 2:
                             break
-                        read_object.stop()
+                        read_object.stop(0,0)
                         read_object.move(signed(b[0]), signed(b[1]))
             else:
                 read_object.stitch(signed(b[0]), -signed(b[1]))
