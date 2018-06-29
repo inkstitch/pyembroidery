@@ -92,7 +92,7 @@ def read_pec_stitches(f, read_object):
             return;
         if val1 == 0xFE and val2 == 0xB0:
             f.seek(1, 1)
-            read_object.change_color(0, 0)
+            read_object.color_change(0, 0)
         x = 0;
         y = 0;
         jump = False

@@ -72,6 +72,11 @@ for stitchblock in read_dst.get_as_stitchblock():
     print(thread.hex_color());
     print(len(block))
 
+pyemb.convert("SP0068.VP3", "zzz.dst")
+pyemb.convert("generated.pes", "g-cov.dst")
+
+pyemb.write_svg(read_dst, "test.svg")
+
 # vp3Reader.read("Panda.VP3", reader3)
 # vp3Reader.read("SP0068.VP3", reader3)
 # pesWriter.write(reader3.pattern, "vp3convert.pes")
