@@ -31,6 +31,8 @@ def read(f, read_object):
     skip_vp3_string(f)
 
     count_colors = helper.read_int_16be(f)
+    if count_colors == None:
+        return;
     for i in range(0, count_colors):
         thread = EmbThread.EmbThread()
         f.seek(3, 1) # \x00\x05\x00

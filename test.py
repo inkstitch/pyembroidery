@@ -11,37 +11,35 @@ import math
 pattern = EmbPattern.EmbPattern()
 
 # Proper Testing needs threads.
-thread0 = EmbThread.EmbThread()
-thread0.brand = "Wilcom";
-thread0.description = "Blue"
-thread0.chart = "Debug";
-thread0.catalog_number = "1"
-thread0.details = "Details"
-thread0.set_color(0x28, 0x16, 0x6f)
 
-# thread0 = EmbThread.EmbThread()
-# thread0.brand = "RandomGoogleBrand"
-# thread0.description = "Fairy Orange"
-# thread0.chart = "Fairy Floss";
-# thread0.catalog_number = "0045"
-# thread0.details = "Details"
-# thread0.set_color(255,218,185)
+thread0 = EmbThread.EmbThread()
+thread0.brand = "PyEmbroidery"
+thread0.description = "Red"
+thread0.chart = "Test Threads";
+thread0.catalog_number = "0099"
+thread0.details = "TestingRed"
+thread0.set_color(255,0,0)
 pattern.add_thread(thread0)
 
 thread1 = EmbThread.EmbThread()
-thread1.brand = "Wilcom";
-thread1.description = "Cyan"
-thread1.chart = "Debug";
-thread1.catalog_number = "2"
-thread1.details = "Details"
-thread1.set_color(0xff, 0, 0)
-# thread1.brand = "RandomGoogleBrand"
-# thread1.description = "Fairy Green"
-# thread1.chart = "Fairy Floss";
-# thread1.catalog_number = "0101"
-# thread1.details = "Det check"
-# thread1.set_color(185,255,218)
+thread1.brand = "PyEmbroidery"
+thread1.description = "Blue"
+thread1.chart = "Test Threads";
+thread1.catalog_number = "0066"
+thread1.details = "TestingBlue"
+thread1.set_color(0,255,0)
 pattern.add_thread(thread1)
+
+thread2 = EmbThread.EmbThread()
+thread2.brand = "PyEmbroidery"
+thread2.description = "Green"
+thread2.chart = "Test Threads";
+thread2.catalog_number = "0033"
+thread2.details = "TestingGreen"
+thread2.set_color(0,0,255)
+pattern.add_thread(thread2)
+
+# Note I added two overt thread and generate 3 items.
 
 import test_fractals
 test_fractals.generate(pattern)
@@ -63,22 +61,19 @@ pyemb.write(pattern,"generated-eh.dst")
 pyemb.write(pattern,"generated.jef")
 pyemb.write(pattern,"generated.vp3")
 
-pyemb.convert("generated.jef", "conv.dst");
 
-read_dst = pyemb.read("generated.dst")
-for stitchblock in read_dst.get_as_stitchblock():
+pyemb.write_svg(pyemb.read("generated.pec"), "zpec.svg")
+pyemb.write_svg(pyemb.read("generated.pes"), "zpes.svg")
+pyemb.write_svg(pyemb.read("generated.exp"), "zexp.svg")
+pyemb.write_svg(pyemb.read("generated.dst"), "zdst.svg")
+pyemb.write_svg(pyemb.read("generated-eh.dst"), "zdst-eh.svg")
+pyemb.write_svg(pyemb.read("generated.jef"), "zjef.svg")
+pyemb.write_svg(pyemb.read("generated.vp3"), "zvp3.svg")
+
+
+for stitchblock in pyemb.read("generated.vp3").get_as_stitchblock():
     block = stitchblock[0]
     thread = stitchblock[1]
     print(thread.hex_color());
     print(len(block))
 
-pyemb.convert("SP0068.VP3", "zzz.dst")
-pyemb.convert("generated.pes", "g-cov.dst")
-
-pyemb.write_svg(read_dst, "test.svg")
-
-# vp3Reader.read("Panda.VP3", reader3)
-# vp3Reader.read("SP0068.VP3", reader3)
-# pesWriter.write(reader3.pattern, "vp3convert.pes")
-# printer = print_reader.PrintReader()
-# jefReader.read("generated.jef",printer)
