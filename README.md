@@ -28,8 +28,8 @@ Current goals:
 
 Conversion:
 
-import pyembroidery.PyEmbroidery as pyemb
-pyemb.convert("embroidery.jef", "converted.dst");
+* import pyembroidery.PyEmbroidery as pyemb
+* pyemb.convert("embroidery.jef", "converted.dst");
 
 This will the embroidery.jef file in JEF format and will export it as converted.dst in DST format.
 
@@ -39,7 +39,7 @@ Loading:
 
 You load a pattern from disk:
 
-pattern = pyemb.load("myembroidery.exp)
+* pattern = pyemb.load("myembroidery.exp)
 
 ---
 
@@ -47,7 +47,7 @@ Saving:
 
 You write to a pattern, then save the pattern out:
 
-pyemb.save(pattern,"myembroidery.dst")
+* pyemb.save(pattern,"myembroidery.dst")
 
 ---
 
