@@ -116,9 +116,6 @@ class EmbPattern():
                     thread = self.get_thread_or_filler(thread_index)
                     thread_index += 1;
 
-    def get_as_colorblock(self):
-        pass  # This should generate, colorblocks
-
     def get_unique_threadlist(self):
         return set(self.threadlist)
 
