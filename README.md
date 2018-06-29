@@ -17,14 +17,14 @@ pyembroidery read and write: PES, PEC, DST, EXP, JEF, VP3, with varying degrees 
 pyembroidery supports STITCH, JUMP, TRIM, STOP, END, COLOR_CHANGE and SEQUIN. 
 (only dsts have sequin, and they currently only read in.)
 
---
+---
 
 Current goals:
 * Improve the stablity of these particular formats.
 * Improve the API interfacing for the library.
 * Add a layer-based stablized middle-format, for conversion.
 
---
+---
 
 Conversion:
 
@@ -32,7 +32,8 @@ import pyembroidery.PyEmbroidery as pyemb
 pyemb.convert("embroidery.jef", "converted.dst");
 
 This will the embroidery.jef file in JEF format and will export it as converted.dst in DST format.
---
+
+---
 
 Loading:
 
@@ -40,7 +41,7 @@ You load a pattern from disk:
 
 pattern = pyemb.load("myembroidery.exp)
 
---
+---
 
 Saving:
 
@@ -48,7 +49,7 @@ You write to a pattern, then save the pattern out:
 
 pyemb.save(pattern,"myembroidery.dst")
 
---
+---
 
 Composing a pattern needs to give fine grain control of the embroidery core commands: stitch, jump, trim, color_change, stop, sequin, end
 These are what embroidery machines can actually do as a practical matter.
@@ -61,7 +62,7 @@ The pattern composing therefore must allow the user to:
 * Use bulk dump ability, give pattern a list of points and colors, then encode that into lower level commands.
 * Mix these different command levels. So write overt stitches/sequins to the pattern, tell it perform a frame_eject, dump a bulk set of points, and encode that.
 
----
+----
 
 The middle-level commands, as they currently stand:
 * BREAK - Break the stitches. Inserts a trim and jumps to the next stitch in the sequence.
@@ -87,7 +88,7 @@ After writing middle level commands to the pattern, call the render()
 * pyemb.encode.tie_off = True
 * pattern = pyemb.render(pattern)
 
---
+---
 
 This code is based on Embroidermodder/MobileViewer Java code,
 Which in turn is based on Embroidermodder/libembroidery C++ code.
