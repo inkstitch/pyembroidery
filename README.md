@@ -51,6 +51,13 @@ You write to a pattern, then save the pattern out:
 
 ---
 
+SVG Export:
+* pyemb.write_svg(pattern, filename):
+
+This is largely for testing purposes, it's not a binary writing format. But, it's entirely needed for testing purposes. There is some notable irony in writing an SVG file in a library, whose main genesis is to help another program that *already* writes them. But, without some provably flawless method of exporting the data read, there's no clear way to guarentee a problem is within a reader or a writer.
+
+---
+
 Composing a pattern needs to give fine grain control of the embroidery core commands: stitch, jump, trim, color_change, stop, sequin, end
 These are what embroidery machines can actually do as a practical matter.
 
