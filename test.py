@@ -68,12 +68,14 @@ pyemb.write_svg(pyemb.read("generated.exp"), "zexp.svg")
 pyemb.write_svg(pyemb.read("generated.dst"), "zdst.svg")
 pyemb.write_svg(pyemb.read("generated-eh.dst"), "zdst-eh.svg")
 pyemb.write_svg(pyemb.read("generated.jef"), "zjef.svg")
-pyemb.write_svg(pyemb.read("generated.vp3"), "zvp3.svg")
+#pyemb.write_svg(pyemb.read("generated.vp3"), "zvp3.svg")
 
 
-for stitchblock in pyemb.read("generated.vp3").get_as_stitchblock():
-    block = stitchblock[0]
-    thread = stitchblock[1]
-    print(thread.hex_color());
-    print(len(block))
+# for stitchblock in pyemb.read("generated.vp3").get_as_stitchblock():
+#     block = stitchblock[0]
+#     thread = stitchblock[1]
+#     print(thread.hex_color());
+#     print(len(block))
+
+pyemb.convert("SP0068.VP3", "sp.svg" )
 

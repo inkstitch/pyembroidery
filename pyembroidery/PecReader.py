@@ -69,15 +69,15 @@ def map_pec_colors(colorbytes, read_object, threadlist):
 
 def signed12(b):
     b = b & 0xFFF;
-    if b > 2047:
-        return -4096 + b;
+    if b > 0x7FF:
+        return - 0x1000 + b;
     else:
         return b
 
 
 def signed7(b):
     if b > 63:
-        return -128 + b
+        return - 128 + b
     else:
         return b
 
@@ -93,6 +93,7 @@ def read_pec_stitches(f, read_object):
         if val1 == 0xFE and val2 == 0xB0:
             f.seek(1, 1)
             read_object.color_change(0, 0)
+            continue
         x = 0;
         y = 0;
         jump = False

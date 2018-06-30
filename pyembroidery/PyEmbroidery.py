@@ -61,6 +61,8 @@ def write(pattern, file):
         elif extension == "jef":
             import pyembroidery.JefWriter
             pyembroidery.JefWriter.write(pattern, file)
+        elif extension == "svg":
+            write_svg(pattern,file)
         else:
             pass
         file.close()

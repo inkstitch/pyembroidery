@@ -115,6 +115,9 @@ class EmbPattern():
                 if flags == COLOR_CHANGE:
                     thread = self.get_thread_or_filler(thread_index)
                     thread_index += 1;
+        if len(stitchblock) > 0:
+            yield (stitchblock,thread)
+
 
     def get_unique_threadlist(self):
         return set(self.threadlist)

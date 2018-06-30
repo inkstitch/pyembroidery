@@ -77,7 +77,6 @@ def write(pattern, f):
 
     vp3_write_string_16(f, "");
     # vp3_write_string_16(f, "PyEmboridery");
-
     count_stitches = len(pattern.stitches)
     count_threads = len(pattern.threadlist)
 
@@ -136,6 +135,7 @@ def write(pattern, f):
     helper.write_int_32be(f, int(width) * 100)
     helper.write_int_32be(f, int(height) * 100)
 
+
     vp3_write_string_16(f, "");
 
     f.write(b'\x64\x64')  # helper.write_int_16be(f, 25700)
@@ -188,8 +188,8 @@ def write(pattern, f):
         block_shift_y = block_end_stitch[1] - block_shift_y
 
         # this element goes between stitch blocks.
-        if not first_stitch_block:
-            helper.write_int_8(f, 0)
+        # if not first_stitch_block:
+        #     helper.write_int_8(f, 0)
 
         # position of the end of this block.
         f.write(b'\x00\x05\x00')

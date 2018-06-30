@@ -2,11 +2,6 @@ import pyembroidery.PecReader as PecReader
 import pyembroidery.EmbThread as EmbThread
 import pyembroidery.ReadHelper as helper
 
-JUMP_CODE = 0x10
-TRIM_CODE = 0x20
-FLAG_LONG = 0x80
-
-
 def read(f, read_object):
     threadlist = []
     pes_string = helper.read_string_8(f, 8)
