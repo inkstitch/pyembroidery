@@ -96,11 +96,13 @@ def pec_encode(pattern, f):
                 f.write(b'\x02')
             else:
                 f.write(b'\x01')
+            color_two = not color_two
         elif data == EmbPattern.STOP:
-            if jumping:
-                f.write(b'\x00\x00')
-                jumping = False
-            f.write(b'\x80\x01\x00\x00')
+            # if jumping:
+            #     f.write(b'\x00\x00')
+            #     jumping = False
+            # f.write(b'\x80\x01\x00\x00')
+            pass
         elif data == EmbPattern.END:
             if jumping:
                 f.write(b'\x00\x00')

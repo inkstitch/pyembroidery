@@ -90,7 +90,7 @@ def encode_record(x, y, flags):
     elif flags is EmbPattern.COLOR_CHANGE:
         b2 = 0b11000011
     elif flags is EmbPattern.STOP:
-        b2 = 0b11110011
+        b2 = 0b11000011
     elif flags is EmbPattern.END:
         b2 = 0b11110011
     elif flags is EmbPattern.SEQUIN:

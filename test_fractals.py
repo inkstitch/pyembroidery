@@ -69,6 +69,7 @@ def generate(pattern):
     turtle.move(50)
     turtle.add_serp()
     pattern.add_stitch_relative(0, 0, EmbPattern.BREAK)
+    pattern.add_stitch_relative(0,0, EmbPattern.STOP)
     turtle.turn(-math.pi / 3)
     turtle.move(500)
     turtle.add_serp()

@@ -252,6 +252,7 @@ def write_vp3_block(f, first, center_x, center_y, stitches, thread):
             continue;
         elif flags == EmbPattern.STOP:
             # Not sure what to do here.
+            #f.write(b'\x80\x04')
             continue;
         elif flags == EmbPattern.JUMP:
             # Since VP3.Jump == VP3.Stitch, we combine jumps.
