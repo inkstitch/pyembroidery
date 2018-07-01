@@ -205,7 +205,6 @@ def write_vp3_block(f, first, center_x, center_y, stitches, thread):
     # blockshift - centerx; 00 00 AD D4 00 00 C7 9C, 44500, 51100
 
     vp3_write_thread(f, thread);
-    print("p", str(f.tell()))
     # Block 1: 00 00 2A F8 FF FF DE 04. 11000, -8700
     # Block 2: 00 01 86 A0 00 00 C4 7C. 100000, 50300
     # Block 3: FF FF A6 28 00 00 DF 0C. -23000, 57100
@@ -233,7 +232,6 @@ def write_vp3_block(f, first, center_x, center_y, stitches, thread):
     placeholder_distance_to_block_end_010 = f.tell()
     helper.write_int_32be(f, 0)  # placeholder
 
-    print("a", str(f.tell()))
     f.write(b'\x0A\xF6\x00')
     last_x = first_pos_x
     last_y = first_pos_y

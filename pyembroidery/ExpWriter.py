@@ -28,20 +28,24 @@ def write(pattern, f):
             delta_y = -round(dy) & 0xFF
             f.write(b'\x80\x04')
             f.write(bytes([delta_x, delta_y]))
+        elif data == EmbPattern.TRIM:
+            f.write(b'\x80\x80\x07\x00')
+            f.write(b'\x80\x04\x00\x00')
+            continue
         elif data == EmbPattern.COLOR_CHANGE:
             if jumping:
                 f.write(b'\x00\x00')
                 jumping = False
             f.write(b'\x80\x01\x00\x00')
+            f.write(b'\x80\x80\x07\x00')
+            continue
         elif data == EmbPattern.STOP:
             if jumping:
                 f.write(b'\x00\x00')
                 jumping = False
             f.write(b'\x80\x01\x00\x00')
+            continue
         elif data == EmbPattern.END:
             pass
-        if jumping:
-            f.write(b'\x00\x00')
-            jumping = False
         xx = x
         yy = y
