@@ -27,71 +27,91 @@ def signed32(b):
         return b
 
 
+def signed16(b0, b1):
+    b0 = b0 & 0xFF
+    b1 = b1 & 0xFF;
+    b = (b0 << 8) | b1
+    if b > 0x7FFF:
+        return - 0x10000 + b;
+    else:
+        return b
+
+
 def read(f, read_object):
     b = f.read(5)
     # magic code: %vsm%
     f.seek(1, 1)  # \x00
-    skip_vp3_string(f)
-    f.seek(7, 1)  # 0,2,0 pos data (4 bytes)
-    skip_vp3_string(f)
-    f.seek(67, 1)  # 4 extends, stitch count, 1, threads, 3, 3, 4
-    skip_vp3_string(f)
+    skip_vp3_string(f)  # "Produced by     Software Ltd"
+    f.seek(7, 1)
+    skip_vp3_string(f)  # ""
+    f.seek(32, 1)
+    center_x = (signed32(helper.read_int_32be(f)) / 100);
+    center_y = -(signed32(helper.read_int_32be(f)) / 100);
+    f.seek(27, 1)
+    skip_vp3_string(f)  # ""
     f.seek(24, 1)
-    skip_vp3_string(f)
+    skip_vp3_string(f)  # "Produced by     Software Ltd"
 
     count_colors = helper.read_int_16be(f)
+
     for i in range(0, count_colors):
-        thread = EmbThread.EmbThread()
-        # f.seek(3, 1) # \x00\x05\x00
-        bytescheck = f.read(3);
+        colorblock = vp3_read_colorblock(f, read_object, center_x, center_y)
 
-        if bytescheck == b'\x80\x03\x00':
-            break
-        block_end_value = helper.read_int_32be(f)
-        block_end_position = block_end_value + f.tell();
 
-        start_x = signed32(helper.read_int_32be(f))
-        if start_x is None:
-            break;
-        start_y = signed32(helper.read_int_32be(f))
-        read_object.move_abs(start_x / 100, start_y / -100);
+def vp3_read_colorblock(f, read_object, center_x, center_y):
+    bytescheck = f.read(3);  # \x00\x05\x00
+    distance_to_next_block_050 = helper.read_int_32be(f)
+    block_end_position = distance_to_next_block_050 + f.tell();
 
-        # table_size = helper.read_int_8(f);
-        f.seek(2, 1)
+    start_position_x = (signed32(helper.read_int_32be(f)) / 100);
+    start_position_y = -(signed32(helper.read_int_32be(f)) / 100);
+    abs_x = start_position_x + center_x
+    abs_y = start_position_y + center_y;
+    if abs_x != 0 and abs_y != 0:
+        read_object.move_abs(abs_x, abs_y)
+    thread = vp3_read_thread(f)
+    read_object.add_thread(thread)
+    f.seek(15, 1);
+    bytescheck = f.read(3);  # \x0A\xF6\x00
+    stitch_byte_length = block_end_position - f.tell();
+    stitch_bytes = helper.read_signed(f, stitch_byte_length)
 
-        thread.color = helper.read_int_24be(f)
-        f.seek(5,1)
-        # f.seek((6 * table_size) - 1, 1)
-        thread.catalog_number = read_vp3_string_8(f)
-        thread.description = read_vp3_string_8(f)
-        thread.brand = read_vp3_string_8(f)
-        if i != 0:
-            read_object.trim(0,0)
-            read_object.color_change(0, 0)
-        read_object.add_thread(thread)
+    i = 0
+    ended = False;
+    while i < len(stitch_bytes) - 1:
+        x = stitch_bytes[i]
+        y = stitch_bytes[i + 1]
+        i += 2;
+        if (x & 0xFF) == 0x80:
+            if y == 0x01:
+                x = signed16(stitch_bytes[i], stitch_bytes[i + 1])
+                i += 2
+                y = signed16(stitch_bytes[i], stitch_bytes[i + 1])
+                i += 2
 
-        f.seek(11, 1)
-        # next_block_seek_distance = helper.read_int_32be(f)
-        f.seek(4, 1)
-        f.seek(3, 1);  # 0A F6 00
-        stitch_byte_length = block_end_position - f.tell();
-        stitch_bytes = helper.read_signed(f, stitch_byte_length)
-        i = 0
-        while i < len(stitch_bytes) - 1:
-            x = stitch_bytes[i]
-            y = stitch_bytes[i + 1]
-            i += 2;
-            if x == 0x80 or x == -127:
-                if y == 0x01:
-                    x = (stitch_bytes[i] << 24) & stitch_bytes[i + 1] << 16
-                    x >>= 16
-                    i += 2
-                    y = (stitch_bytes[i] << 24) & stitch_bytes[i + 1] << 16
-                    y >>= 16
-                    i += 2
-                    i += 2
-                    read_object.trim(x, y)
-                if y == 0x02:
-                    pass  # ends long stitch mode.
-            else:
-                read_object.stitch(x, y)
+
+                if abs(x) > 255 or abs(y) > 255:
+                    read_object.trim(0, 0)
+                    read_object.move(x, y)
+                else:
+                    read_object.stitch(x, y)
+            elif y == 0x02:
+                pass  # ends long stitch mode.
+            elif y == 0x03:
+                read_object.end(0, 0);
+                return
+        else:
+            read_object.stitch(x, y)
+    read_object.trim(0, 0)
+    read_object.color_change(0, 0)
+
+
+def vp3_read_thread(f):
+    thread = EmbThread.EmbThread()
+    f.seek(2, 1)
+    thread.color = helper.read_int_24be(f)
+    f.seek(5, 1)
+    thread.catalog_number = read_vp3_string_8(f)
+    thread.description = read_vp3_string_8(f)
+    thread.brand = read_vp3_string_8(f)
+    return thread;

@@ -43,8 +43,7 @@ class Turtle:
             a: [a, l, b, l, l, b, r, a, r, r, a, a, r, b, l],
             b: [r, a, l, b, b, l, l, b, l, a, r, r, a, r, b]
         }
-        evaluate_lsystem(initial, rules, 5)
-        self.pattern.add_stitch_relative(0, 0, EmbPattern.BREAK_COLOR)
+        evaluate_lsystem(initial, rules, 3) #4
 
     def add_serp(self):
         a = lambda: self.forward(20)
@@ -57,15 +56,24 @@ class Turtle:
             a: [b, l, a, l, b],
             b: [a, r, b, r, a]
         }
-        evaluate_lsystem(initial, rules, 6)
-        self.pattern.add_stitch_relative(0, 0, EmbPattern.BREAK_COLOR)
+        evaluate_lsystem(initial, rules, 3) #6
 
 
 def generate(pattern):
     turtle = Turtle(pattern);
     turtle.add_gosper()
+    pattern.add_stitch_relative(0, 0, EmbPattern.BREAK_COLOR)
     turtle.move(500)
     turtle.add_serp()
+    pattern.add_stitch_relative(0, 0, EmbPattern.BREAK)
+    turtle.move(50)
+    turtle.add_serp()
+    pattern.add_stitch_relative(0, 0, EmbPattern.BREAK)
+    turtle.turn(-math.pi / 3)
     turtle.move(500)
+    turtle.add_serp()
+    pattern.add_stitch_relative(0, 0, EmbPattern.BREAK_COLOR)
+    turtle.turn(-math.pi / 3)
+    turtle.move(500) # 260, -450
     turtle.add_gosper()
-    pattern.add_stitch_absolute(0, 0, EmbPattern.END)
+    pattern.add_stitch_relative(0, 0, EmbPattern.END)

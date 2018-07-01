@@ -12,34 +12,69 @@ pattern = EmbPattern.EmbPattern()
 
 # Proper Testing needs threads.
 
+# thread0 = EmbThread.EmbThread()
+# thread0.brand = "PyEmbroidery"
+# thread0.description = "Red"
+# thread0.chart = "Test Threads";
+# thread0.catalog_number = "0099"
+# thread0.details = "TestingRed"
+# thread0.set_color(255,0,0)
+# pattern.add_thread(thread0)
+#
+# thread1 = EmbThread.EmbThread()
+# thread1.brand = "PyEmbroidery"
+# thread1.description = "Blue"
+# thread1.chart = "Test Threads";
+# thread1.catalog_number = "0066"
+# thread1.details = "TestingBlue"
+# thread1.set_color(0,255,0)
+# pattern.add_thread(thread1)
+#
+# thread2 = EmbThread.EmbThread()
+# thread2.brand = "PyEmbroidery"
+# thread2.description = "Green"
+# thread2.chart = "Test Threads";
+# thread2.catalog_number = "0033"
+# thread2.details = "TestingGreen"
+# thread2.set_color(0,0,255)
+# pattern.add_thread(thread2)
+
 thread0 = EmbThread.EmbThread()
-thread0.brand = "PyEmbroidery"
+thread0.brand = "Janome"
 thread0.description = "Red"
 thread0.chart = "Test Threads";
-thread0.catalog_number = "0099"
+thread0.catalog_number = "225"
 thread0.details = "TestingRed"
 thread0.set_color(255,0,0)
 pattern.add_thread(thread0)
 
-thread1 = EmbThread.EmbThread()
-thread1.brand = "PyEmbroidery"
-thread1.description = "Blue"
-thread1.chart = "Test Threads";
-thread1.catalog_number = "0066"
-thread1.details = "TestingBlue"
-thread1.set_color(0,255,0)
-pattern.add_thread(thread1)
-
 thread2 = EmbThread.EmbThread()
-thread2.brand = "PyEmbroidery"
-thread2.description = "Green"
+thread2.brand = "Janome"
+thread2.description = "Meadow Green"
 thread2.chart = "Test Threads";
-thread2.catalog_number = "0033"
+thread2.catalog_number = "247"
 thread2.details = "TestingGreen"
 thread2.set_color(0,0,255)
 pattern.add_thread(thread2)
 
-# Note I added two overt thread and generate 3 items.
+thread1 = EmbThread.EmbThread()
+thread1.brand = "Janome"
+thread1.description = "Blue"
+thread1.chart = "Test Threads";
+thread1.catalog_number = "207"
+thread1.details = "TestingBlue"
+thread1.set_color(0,255,0)
+pattern.add_thread(thread1)
+
+thread1 = EmbThread.EmbThread()
+thread1.brand = "Janome"
+thread1.description = "Peacock Green"
+thread1.chart = "Test Threads";
+thread1.catalog_number = "251"
+thread1.details = "TestingBlue"
+thread1.set_color(0,255,0)
+pattern.add_thread(thread1)
+
 
 import test_fractals
 test_fractals.generate(pattern)
@@ -68,7 +103,7 @@ pyemb.write_svg(pyemb.read("generated.exp"), "zexp.svg")
 pyemb.write_svg(pyemb.read("generated.dst"), "zdst.svg")
 pyemb.write_svg(pyemb.read("generated-eh.dst"), "zdst-eh.svg")
 pyemb.write_svg(pyemb.read("generated.jef"), "zjef.svg")
-#pyemb.write_svg(pyemb.read("generated.vp3"), "zvp3.svg")
+pyemb.write_svg(pyemb.read("generated.vp3"), "zvp3.svg")
 
 
 # for stitchblock in pyemb.read("generated.vp3").get_as_stitchblock():
@@ -77,5 +112,4 @@ pyemb.write_svg(pyemb.read("generated.jef"), "zjef.svg")
 #     print(thread.hex_color());
 #     print(len(block))
 
-pyemb.convert("SP0068.VP3", "sp.svg" )
 
