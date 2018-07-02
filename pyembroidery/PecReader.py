@@ -19,8 +19,8 @@ def read_pec(f, read_object, threadlist):
 
     color_bytes = f.read(count_colors)
     map_pec_colors(color_bytes, read_object, threadlist)
-
-    f.seek(0x200 - (0x30 + color_changes), 1)
+    to_stitches = 0x200 - 0x30 - color_changes + 0x13
+    f.seek(to_stitches, 1)
     f.seek(0x13, 1)  # 2 bytes size, 17 bytes cruft
     read_pec_stitches(f, read_object)
 
@@ -86,10 +86,9 @@ def read_pec_stitches(f, read_object):
     while True:
         val1 = helper.read_int_8(f)
         val2 = helper.read_int_8(f)
-        code = (val1 << 8) | val2
-        if val1 == 0xFF:
+        if (val1 == 0xFF and val2 == 0x00) or val2 == None:
             read_object.end(0, 0)
-            return;
+            return
         if val1 == 0xFE and val2 == 0xB0:
             f.seek(1, 1)
             read_object.color_change(0, 0)
@@ -103,6 +102,7 @@ def read_pec_stitches(f, read_object):
                 trim = True
             if val1 & JUMP_CODE != 0:
                 jump = True
+            code = (val1 << 8) | val2
             x = signed12(code);
             val2 = helper.read_int_8(f)
         else:
@@ -118,10 +118,12 @@ def read_pec_stitches(f, read_object):
             y = signed12(code)
         else:
             y = signed7(val2)
+
         if jump:
             read_object.move(x, y)
         elif trim:
             read_object.trim(x, y)
         else:
             read_object.stitch(x, y)
+
     read_object.end(0, 0)
