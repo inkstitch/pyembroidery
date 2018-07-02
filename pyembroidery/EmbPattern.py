@@ -161,34 +161,3 @@ class EmbPattern():
         x = self._previousX + dx
         y = self._previousY + dy
         self.add_stitch_absolute(x, y, cmd)
-
-    def list_commands(self, read_object):
-        last_x = 0
-        last_y = 0
-        for thread in self.threadlist:
-            read_object.add_thread(thread)
-        stitch_position = 0;
-        for stitch in self.stitches:
-            x = stitch[0]
-            y = stitch[1]
-            flags = stitch[2]
-            dx = x - last_x
-            dy = y - last_y
-            if flags == STITCH:
-                read_object.stitch(dx, dy);
-            elif flags == JUMP:
-                read_object.move(dx, dy);
-            elif flags == COLOR_CHANGE:
-                read_object.color_change(dx, dy);
-            elif flags == STOP:
-                read_object.stop(dx, dy);
-            elif flags == TRIM:
-                read_object.trim(dx, dy);
-            elif flags == SEQUIN:
-                read_object.sequin(dx, dy);
-            elif flags == END:
-                read_object.end(dx, dy)
-            else:
-                pass
-            stitch_position += 1
-

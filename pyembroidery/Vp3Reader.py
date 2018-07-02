@@ -38,12 +38,11 @@ def signed16(b0, b1):
 
 
 def read(f, read_object):
-    b = f.read(5)
-    # magic code: %vsm%
-    f.seek(1, 1)  # \x00
+    b = f.read(6)
+    # magic code: %vsm%\0
     skip_vp3_string(f)  # "Produced by     Software Ltd"
     f.seek(7, 1)
-    skip_vp3_string(f)  # ""
+    skip_vp3_string(f)  # "" comments and note string.
     f.seek(32, 1)
     center_x = (signed32(helper.read_int_32be(f)) / 100);
     center_y = -(signed32(helper.read_int_32be(f)) / 100);
@@ -51,9 +50,7 @@ def read(f, read_object):
     skip_vp3_string(f)  # ""
     f.seek(24, 1)
     skip_vp3_string(f)  # "Produced by     Software Ltd"
-
     count_colors = helper.read_int_16be(f)
-
     for i in range(0, count_colors):
         colorblock = vp3_read_colorblock(f, read_object, center_x, center_y)
 
@@ -88,8 +85,6 @@ def vp3_read_colorblock(f, read_object, center_x, center_y):
                 i += 2
                 y = signed16(stitch_bytes[i], stitch_bytes[i + 1])
                 i += 2
-
-
                 if abs(x) > 255 or abs(y) > 255:
                     read_object.trim(0, 0)
                     read_object.move(x, y)
@@ -108,9 +103,14 @@ def vp3_read_colorblock(f, read_object, center_x, center_y):
 
 def vp3_read_thread(f):
     thread = EmbThread.EmbThread()
-    f.seek(2, 1)
-    thread.color = helper.read_int_24be(f)
-    f.seek(5, 1)
+    colors = helper.read_int_8(f);
+    transition = helper.read_int_8(f);
+    for m in range(0,colors):
+        thread.color = helper.read_int_24be(f)
+        parts = helper.read_int_8(f);
+        color_length = helper.read_int_16be(f)
+    thread_type = helper.read_int_8(f)
+    weight = helper.read_int_8(f)
     thread.catalog_number = read_vp3_string_8(f)
     thread.description = read_vp3_string_8(f)
     thread.brand = read_vp3_string_8(f)

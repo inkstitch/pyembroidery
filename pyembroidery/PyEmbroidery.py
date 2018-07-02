@@ -4,8 +4,10 @@ import pyembroidery.WriteEncoder as encode
 
 encode = encode.WriteEncoder()
 
+
 def render(pattern):
     return encode.process(pattern)
+
 
 def get_extension_by_filename(filename):
     import os.path
@@ -16,27 +18,30 @@ def read(filename):
     reader = PatternReader.PatternReader();
     extension = get_extension_by_filename(filename)
     extension = extension.lower()
-    with open(filename, "rb") as f:
-        if extension == "dst":
-            import pyembroidery.DstReader
-            pyembroidery.DstReader.read(f, reader)
-        elif extension == "pec":
-            import pyembroidery.PecReader
-            pyembroidery.PecReader.read(f, reader)
-        elif extension == "pes":
-            import pyembroidery.PesReader
-            pyembroidery.PesReader.read(f, reader)
-        elif extension == "exp":
-            import pyembroidery.ExpReader
-            pyembroidery.ExpReader.read(f, reader)
-        elif extension == "vp3":
-            import pyembroidery.Vp3Reader
-            pyembroidery.Vp3Reader.read(f, reader)
-        elif extension == "jef":
-            import pyembroidery.JefReader
-            pyembroidery.JefReader.read(f, reader)
-        f.close()
-        return reader.pattern;
+    try:
+        with open(filename, "rb") as f:
+            if extension == "dst":
+                import pyembroidery.DstReader
+                pyembroidery.DstReader.read(f, reader)
+            elif extension == "pec":
+                import pyembroidery.PecReader
+                pyembroidery.PecReader.read(f, reader)
+            elif extension == "pes":
+                import pyembroidery.PesReader
+                pyembroidery.PesReader.read(f, reader)
+            elif extension == "exp":
+                import pyembroidery.ExpReader
+                pyembroidery.ExpReader.read(f, reader)
+            elif extension == "vp3":
+                import pyembroidery.Vp3Reader
+                pyembroidery.Vp3Reader.read(f, reader)
+            elif extension == "jef":
+                import pyembroidery.JefReader
+                pyembroidery.JefReader.read(f, reader)
+            f.close()
+            return reader.pattern
+    except PermissionError:
+        pass
 
 
 def write(pattern, file):
@@ -62,23 +67,30 @@ def write(pattern, file):
             import pyembroidery.JefWriter
             pyembroidery.JefWriter.write(pattern, file)
         elif extension == "svg":
-            write_svg(pattern,file)
+            write_svg(pattern, file)
         else:
             pass
         file.close()
+
 
 def convert(filename_from, filename_to):
     pattern = read(filename_from);
     if pattern == None:
         return
-    # Stablize Pattern Data.
-    write(pattern, filename_to)
+    stablepattern = EmbPattern.EmbPattern();
+    for stitchblock in pattern.get_as_stitchblock():
+        block = stitchblock[0]
+        thread = stitchblock[1]
+        stablepattern.add_thread(thread)
+        for thread in block:
+            stablepattern.add_stitch_absolute(thread[0], thread[1], EmbPattern.STITCH)
+        stablepattern.add_stitch_relative(0, 0, EmbPattern.BREAK_COLOR)
+    stablepattern = encode.process(stablepattern);
+    write(stablepattern, filename_to)
 
 
 def write_svg(pattern, filename):
-    """Writes an svg file of the stitchblocks.
-    This is generally for testing purposes.
-    Yes, lexelby, I get the irony."""
+    """Writes an svg file of the stitchblocks."""
 
     NAME_SVG = "svg"
     ATTR_VERSION = "version"

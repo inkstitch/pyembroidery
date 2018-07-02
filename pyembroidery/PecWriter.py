@@ -158,7 +158,6 @@ def write_pec_stitches(pattern, f):
     helper.write_int_16le(f, 0x9000 | -round(extends[0]))
     helper.write_int_16le(f, 0x9000 | -round(extends[1]))
     pec_encode(pattern, f)
-    # shutil.copyfileobj(encodef, f)
 
     blank = PecGraphics.blank
 
