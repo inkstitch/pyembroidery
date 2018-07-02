@@ -108,5 +108,5 @@ pattern = EmbPattern.EmbPattern()
 import os
 for file in os.listdir("convert"):
     convert_file = os.path.join("convert", file)
-    results_file = os.path.join("results", file) + ".vp3";
+    results_file = os.path.join("results", file) + ".svg";
     pyemb.convert(convert_file, results_file)

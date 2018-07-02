@@ -19,9 +19,8 @@ def read_pec(f, read_object, threadlist):
 
     color_bytes = f.read(count_colors)
     map_pec_colors(color_bytes, read_object, threadlist)
-    to_stitches = 0x200 - 0x30 - color_changes + 0x13
+    to_stitches = 0x1E2 - color_changes
     f.seek(to_stitches, 1)
-    f.seek(0x13, 1)  # 2 bytes size, 17 bytes cruft
     read_pec_stitches(f, read_object)
 
 
