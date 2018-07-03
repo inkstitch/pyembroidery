@@ -11,10 +11,6 @@ def convert(filename_from, filename_to, encode_settings=None):
     write(pattern, filename_to, encode_settings)
 
 
-def write(pattern_from, filename_to, encoder_settings=None):
-    encoder.write(filename_to, encoder_settings)
-
-
 def get_extension_by_filename(filename):
     """extracts he extension from a filename"""
     import os.path
