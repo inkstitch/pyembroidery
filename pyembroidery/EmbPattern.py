@@ -46,12 +46,24 @@ class EmbPattern():
     def add_thread(self, thread):
         """Adds thread to design.
         Note: this has no effect on stitching and can be done at any point."""
-        if isinstance(thread,EmbThread.EmbThread):
+        if isinstance(thread, EmbThread.EmbThread):
             self.threadlist.append(thread)
-        elif isinstance(thread,dict):
+        elif isinstance(thread, int):
             thread_object = EmbThread.EmbThread()
+            thread_object.color = thread;
+            self.threadlist.append(thread_object)
+        elif isinstance(thread, dict):
+            thread_object = EmbThread.EmbThread()
+            if "name" in thread:
+                thread_object.description = thread["name"]
+            if "description" in thread:
+                thread_object.description = thread["description"]
+            if "desc" in thread:
+                thread_object.description = thread["desc"]
             if "brand" in thread:
                 thread_object.brand = thread["brand"]
+            if "manufacturer" in thread:
+                thread_object.brand = thread["manufacturer"]
             if "color" in thread:
                 thread_object.color = thread["color"]
             if "rgb" in thread:
