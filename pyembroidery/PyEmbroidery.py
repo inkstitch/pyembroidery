@@ -1,5 +1,4 @@
 import pyembroidery.EmbPattern as EmbPattern
-import pyembroidery.PatternReader as PatternReader
 from pyembroidery.EmbConstant import *
 import math
 
