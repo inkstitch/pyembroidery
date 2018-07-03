@@ -1,51 +1,74 @@
 import pyembroidery.EmbThread as EmbThread
-
-NO_COMMAND = -1
-STITCH = 0
-JUMP = 1
-TRIM = 2
-STOP = 3
-END = 4
-COLOR_CHANGE = 5
-INIT = 6
-SEQUIN = 7
-
-
-BREAK = 0xE1
-BREAK_COLOR = 0xE2
-FRAME_EJECT = 0xE9
-STITCH_FINAL = 0xF2
-STITCH_FINAL_COLOR = 0xF3
-COMMAND_MASK = 0xFF
-
-
-def set(p, copy):
-    copy.stitches = p.stitches
-    copy.threadlist = p.threadlist
-    copy.filename = p.filename
-    copy.name = p.name
-    copy.category = p.category
-    copy.author = p.author
-    copy.keywords = p.keywords
-    copy.comments = p.comments
-    copy.copyright = p.copyright
+from pyembroidery.EmbConstant import *
 
 
 class EmbPattern():
     def __init__(self):
         self.stitches = []  # type: list
         self.threadlist = []  # type: list
-        self.filename = None  # type: str
-        self.name = None  # type: str
-        self.category = None  # type: str
-        self.author = None  # type: str
-        self.keywords = None  # type: str
-        self.comments = None  # type: str
-        self.copyright = None  # type: str
+        self.extras = {}
+        # filename, name, category, author, keywords, comments, are typical
         self._previousX = 0  # type: float
         self._previousY = 0  # type: float
-        # filename, name, category, author, keywords, comments, are typical
-        # metadata.
+
+    def move(self, dx=0, dy=0):
+        """Move dx, dy"""
+        self.add_stitch_relative(JUMP, dx, dy)
+
+    def move_abs(self, x, y):
+        """Move absolute x, y"""
+        self.add_stitch_absolute(JUMP, x, y)
+
+    def stitch(self, dx=0, dy=0):
+        """Stitch dx, dy"""
+        self.add_stitch_relative(STITCH, dx, dy)
+
+    def stop(self, dx=0, dy=0):
+        """Stop dx, dy"""
+        self.add_stitch_relative(STOP, dx, dy)
+
+    def trim(self, dx=0, dy=0):
+        """Trim dx, dy"""
+        self.add_stitch_relative(TRIM, dx, dy)
+
+    def color_change(self, dx=0, dy=0):
+        """Color Change dx, dy"""
+        self.add_stitch_relative(COLOR_CHANGE, dx, dy)
+
+    def sequin(self, dx=0, dy=0):
+        """Add Sequin dx, dy"""
+        self.add_stitch_relative(SEQUIN, dx, dy)
+
+    def end(self, dx=0, dy=0):
+        """End Design dx, dy"""
+        self.add_stitch_relative(END, dx, dy)
+
+    def add_thread(self, thread):
+        """Adds thread to design.
+        Note: this has no effect on stitching and can be done at any point."""
+        if isinstance(thread,EmbThread.EmbThread):
+            self.threadlist.append(thread)
+        elif isinstance(thread,dict):
+            thread_object = EmbThread.EmbThread()
+            if "brand" in thread:
+                thread_object.brand = thread["brand"]
+            if "color" in thread:
+                thread_object.color = thread["color"]
+            if "rgb" in thread:
+                thread_object.color = thread["rgb"]
+            if "id" in thread:
+                thread_object.catalog_number = thread["id"]
+            if "catalog" in thread:
+                thread_object.catalog_number = thread["catalog"]
+            self.threadlist.append(thread_object)
+
+    def metadata(self, name, data):
+        """Adds select metadata to design.
+        Note: this has no effect on stitching and can be done at any point."""
+        self.extras[name] = data
+
+    def get_metadata(self, name, default=None):
+        return self.extras.get(name, default)
 
     def extends(self):
         min_x = float('inf')
@@ -81,12 +104,6 @@ class EmbPattern():
     def count_threads(self):
         return len(self.threadlist)
 
-    def add(self, x, y, cmd):
-        self.stitches.append([x, y, cmd])
-
-    def add_thread(self, thread):
-        self.threadlist.append(thread)
-
     def get_random_thread(self):
         import random
         thread = EmbThread.EmbThread()
@@ -116,8 +133,7 @@ class EmbPattern():
                     thread = self.get_thread_or_filler(thread_index)
                     thread_index += 1;
         if len(stitchblock) > 0:
-            yield (stitchblock,thread)
-
+            yield (stitchblock, thread)
 
     def get_unique_threadlist(self):
         return set(self.threadlist)
@@ -152,12 +168,73 @@ class EmbPattern():
         while len(self.threadlist) < thread_index:
             self.add_thread(self.get_thread_or_filler(len(self.threadlist)))
 
-    def add_stitch_absolute(self, x, y, cmd):
-        self.add(x, y, cmd)
+    def add_stitch_absolute(self, cmd, x=0, y=0):
+        self.stitches.append([x, y, cmd])
         self._previousX = x
         self._previousY = y
 
-    def add_stitch_relative(self, dx, dy, cmd):
+    def add_stitch_relative(self, cmd, dx=0, dy=0):
         x = self._previousX + dx
         y = self._previousY + dy
-        self.add_stitch_absolute(x, y, cmd)
+        self.add_stitch_absolute(cmd, x, y)
+
+    def command(self, cmd):
+        self.add_stitch_relative(cmd)
+
+    def add_stitchblock(self, stitchblock):
+        threadlist = self.threadlist
+        stitches = self.stitches;
+        block = stitchblock[0]
+        thread = stitchblock[1]
+        if len(threadlist) == 0 or thread is not threadlist[-1]:
+            threadlist.append(thread);
+            self.add_stitch_relative(COLOR_BREAK)
+        else:
+            self.add_stitch_relative(SEQUENCE_BREAK)
+
+        for stitch in block:
+            try:
+                self.add_stitch_absolute(stitch.command, stitch.x, stitch.y)
+            except AttributeError:
+                self.add_stitch_absolute(stitch[2], stitch[0], stitch[1])
+
+    def get_stable_pattern(self):
+        """Gets a stablized version of the pattern."""
+        stable_pattern = EmbPattern()
+        for stitchblock in self.get_as_stitchblock():
+            stable_pattern.add_stitchblock(stitchblock);
+        return stable_pattern
+
+    def get_normalized_pattern(self, encode_settings=None):
+        """Encodes"""
+        normal_pattern = EmbPattern()
+        import pyembroidery.EmbEncoder as normalizer
+        transcoder = normalizer.Transcoder(encode_settings)
+        transcoder.transcode(self, normal_pattern)
+        return normal_pattern
+
+    def append_translation(self, x, y):
+        """Appends translation to the pattern.
+        All commands will be translated by the given amount,
+        including absolute location commands."""
+        self.add_stitch_relative(TRANSLATE, x, y, )
+
+    def append_enable_tie_on(self, x=0, y=0):
+        """Appends enable tie on.
+        All starts of new stitching will be tied on"""
+        self.add_stitch_relative(ENABLE_TIE_ON, x, y)
+
+    def append_enable_tie_off(self, x=0, y=0):
+        """Appends enable tie off.
+        All ends of stitching will be tied off"""
+        self.add_stitch_relative(ENABLE_TIE_OFF, x, y)
+
+    def append_disable_tie_on(self, x=0, y=0):
+        """Appends disable tie on.
+        New stitching will no longer be tied on"""
+        self.add_stitch_relative(DISABLE_TIE_ON, x, y)
+
+    def append_disable_tie_off(self, x=0, y=0):
+        """Appends enable tie off.
+        Ends of stitching will no longer be tied off"""
+        self.add_stitch_relative(DISABLE_TIE_OFF, x, y)

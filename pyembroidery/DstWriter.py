@@ -103,9 +103,7 @@ def write(pattern, f):
     width = extends[2] - extends[0]
     height = extends[3] - extends[1]
 
-    name = pattern.name
-    if name is None:
-        name = "Untitled"
+    name = pattern.get_metadata("name","Untitled");
     f.write(bytes("LA:%-16s\r" % (name), 'utf8'))
     f.write(bytes("ST:%7d\r" % (pattern.count_stitches()), 'utf8'))
     f.write(bytes("CO:%3d\r" % (pattern.count_color_changes()), 'utf8'))
@@ -121,10 +119,12 @@ def write(pattern, f):
     f.write(bytes("AY:+%5d\r" % (0), 'utf8'))
     f.write(bytes("PD:%6s\r" % ("******"), 'utf8'))
     if extended_header:
-        if pattern.author != None:
-            f.write(bytes("AU:%s\r" % (pattern.author), 'utf8'))
-        if pattern.copyright != None:
-            f.write(bytes("CP:%s\r" % (pattern.copyright), 'utf8'))
+        author = pattern.get_metadata("author")
+        if author != None:
+            f.write(bytes("AU:%s\r" % (author), 'utf8'))
+        author = pattern.get_metadata("copyright")
+        if copyright != None:
+            f.write(bytes("CP:%s\r" % (copyright), 'utf8'))
         if len(pattern.threadlist) > 0:
             for thread in pattern.threadlist:
                 f.write(

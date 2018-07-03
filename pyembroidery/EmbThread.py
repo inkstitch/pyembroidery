@@ -1,3 +1,4 @@
+
 def find_nearest_color_index(find_color, values):
     red = (find_color >> 16) & 0xff
     green = (find_color >> 8) & 0xff
@@ -23,18 +24,14 @@ def find_nearest_color_index(find_color, values):
 
 
 def color_distance_red_mean(
-        r1,
-        g1,
-        b1,
-        r2,
-        g2,
-        b2):
+        r1, g1, b1,
+        r2, g2, b2):
     rmean = round((r1 + r2) / 2)
     r = int(r1 - r2)
     g = int(g1 - g2)
     b = int(b1 - b2)
     return (((512 + rmean) * r * r) >> 8) + 4 * \
-        g * g + (((767 - rmean) * b * b) >> 8)
+           g * g + (((767 - rmean) * b * b) >> 8)
     # See the very good color distance paper:
     # https://www.compuphase.com/cmetric.htm
 
@@ -53,9 +50,9 @@ class EmbThread:
 
     def set_color(self, r, g, b):
         self.color = 0xFF000000 | (
-            (r & 255) << 16) | (
-            (g & 255) << 8) | (
-            b & 255)
+                (r & 255) << 16) | (
+                             (g & 255) << 8) | (
+                             b & 255)
 
     def get_opaque_color(self):
         return 0xFF000000 | self.color

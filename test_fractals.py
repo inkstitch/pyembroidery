@@ -1,5 +1,6 @@
-import math
 import pyembroidery.EmbPattern as EmbPattern
+from pyembroidery.EmbConstant import *
+import math
 
 
 def evaluate_lsystem(symbol, rules, depth):
@@ -22,7 +23,7 @@ class Turtle:
     def forward(self, distance):
         self.x += distance * math.cos(self.angle)
         self.y += distance * math.sin(self.angle)
-        self.pattern.add_stitch_absolute(self.x, self.y, EmbPattern.STITCH)
+        self.pattern.add_stitch_absolute(EmbPattern.STITCH, self.x, self.y)
 
     def turn(self, angle):
         self.angle += angle
@@ -30,7 +31,6 @@ class Turtle:
     def move(self, distance):
         self.x += distance * math.cos(self.angle)
         self.y += distance * math.sin(self.angle)
-
 
     def add_gosper(self):
         a = lambda: self.forward(20)
@@ -43,7 +43,7 @@ class Turtle:
             a: [a, l, b, l, l, b, r, a, r, r, a, a, r, b, l],
             b: [r, a, l, b, b, l, l, b, l, a, r, r, a, r, b]
         }
-        evaluate_lsystem(initial, rules, 3) #4
+        evaluate_lsystem(initial, rules, 3)  # 4
 
     def add_serp(self):
         a = lambda: self.forward(20)
@@ -56,25 +56,25 @@ class Turtle:
             a: [b, l, a, l, b],
             b: [a, r, b, r, a]
         }
-        evaluate_lsystem(initial, rules, 3) #6
+        evaluate_lsystem(initial, rules, 3)  # 6
 
 
 def generate(pattern):
     turtle = Turtle(pattern);
     turtle.add_gosper()
-    pattern.add_stitch_relative(0, 0, EmbPattern.BREAK_COLOR)
+    pattern.command(COLOR_BREAK)
     turtle.move(500)
     turtle.add_serp()
-    pattern.add_stitch_relative(0, 0, EmbPattern.BREAK)
+    pattern.command(SEQUENCE_BREAK)
     turtle.move(50)
     turtle.add_serp()
-    pattern.add_stitch_relative(0, 0, EmbPattern.BREAK)
-    pattern.add_stitch_relative(0,0, EmbPattern.STOP)
+    pattern.command(SEQUENCE_BREAK)
+    pattern.command(STOP)
     turtle.turn(-math.pi / 3)
     turtle.move(500)
     turtle.add_serp()
-    pattern.add_stitch_relative(0, 0, EmbPattern.BREAK_COLOR)
+    pattern.command(COLOR_BREAK)
     turtle.turn(-math.pi / 3)
-    turtle.move(500) # 260, -450
+    turtle.move(500)  # 260, -450
     turtle.add_gosper()
-    pattern.add_stitch_relative(0, 0, EmbPattern.END)
+    pattern.command(END)
