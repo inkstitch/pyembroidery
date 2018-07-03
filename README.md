@@ -2,98 +2,155 @@
 
 Python library for the reading and writing of embroidery files.
 
-Any suggestions or comments please raise an issue. It should still be a bit before everything solidifies.
+Any suggestions or comments please raise an issue.
 
 pyembroidery is largely intended for eventual use in lexelby/inkstitch. However, it includes a lot of higher level and middle level pattern composition abilities that might not be eventually used there. It duplicates some of the functionalities already present there in order to be entirely reasonable for *any* python embroidery project. You shouldn't have to rewrite the tie_on code yourself if you're converting some vector guilloches to embroidery or wrote a fun cyclocycloid program and want to sew the output, or for some reason sew circuit boards on fabric with electricity conductive thread. That's not my department.
 
 It should be complex enough to go very easily from points to stitches, fine grained enough to let you control everything, and good enough that you shouldn't want to.
 
-The current mandate for formats is: PES, DST, EXP, JEF, VP3
 
+Mandate
 ---
+pyembroidery is supposed to be small enough to be finished in short order and big enough to pack a punch.
 
-pyembroidery read and write: PES, PEC, DST, EXP, JEF, VP3, with varying degrees of stablity.
+* The minimum required formats within the mandate are PES, DST, EXP, JEF, VP3.
+* It reads and writes all of these.
+  * PES was short handed to allow for PES block nulling. If you try to load a PES file in Brother Software it will show up blank.
+  * PEC has graphics files. These are simply written to be blank. PES files have PEC blocks. These will show up blank.
 
-pyembroidery supports STITCH, JUMP, TRIM, STOP, END, COLOR_CHANGE and SEQUIN. 
-(only dsts have sequin, and they currently only read in.)
-
----
+* The current mandate for core commands is: STITCH, JUMP, TRIM, STOP, END, COLOR_CHANGE and SEQUIN.
+  * SEQUIN is only in DST and it only currently loads, but I'm not really checked what happens after that.
 
 Current goals:
-* Improve the stablity of these particular formats.
-* Improve the API interfacing for the library.
-* Add a layer-based stablized middle-format, for conversion.
-
 ---
+No goals currently exist. Mostly done. It needs testings and issues at this point.
+
 
 Conversion:
+---
+
+As pyembroidery is a fully fleshed out reader/writer within the mandate, it also does conversion.
 
 * import pyembroidery.PyEmbroidery as pyemb
 * pyemb.convert("embroidery.jef", "converted.dst");
 
 This will the embroidery.jef file in JEF format and will export it as converted.dst in DST format.
 
+Reading:
 ---
-
-Loading:
 
 You load a pattern from disk:
 
-* pattern = pyemb.load("myembroidery.exp)
+* pattern = pyemb.read("myembroidery.exp)
+If only a file name is given it detects by the extension what reader it should use.
 
+For the descrete readers, the file may be a FileObject or a string of the path.
+
+* pattern = pyemb.read_dst(file)
+* pattern = pyemb.read_pec(file)
+* pattern = pyemb.read_pes(file)
+* pattern = pyemb.read_exp(file)
+* pattern = pyemb.read_vp3(file)
+* pattern = pyemb.read_jef(file)
+
+You can optionally add a pattern object to these readers.
+* pattern = pyemb.read_pes(file,pattern)
+* pattern = pyemb.read("secondread.dst", pyemb.read("firstread.jef"))
+
+This should cause the pattern to have the stitches from both files.
+*Might need some testing.*
+
+Writing:
 ---
-
-Saving:
 
 You write to a pattern, then save the pattern out:
 
-* pyemb.save(pattern,"myembroidery.dst")
+* pyemb.write(pattern,"myembroidery.dst")
 
----
+For the descrete writers, the file may be a FileObject or a string of the path.
+And the descrete writers:
+* pyemb.write_dst(pattern, file)
+* pyemb.write_pec(pattern, file)
+* pyemb.write_pes(pattern, file)
+* pyemb.write_exp(pattern, file)
+* pyemb.write_vp3(pattern, file)
+* pyemb.write_jef(pattern, file)
+* pyemb.write_svg(pattern, file)
 
-SVG Export:
-* pyemb.write_svg(pattern, filename):
+In addition, you can add a dict object to the writer with various settings.
+* pyemb.write(pattern, file.dst, { "tie_on": True, "tie_off": true, "translate_x": 40, "max_stitch"=50 }
 
+The encoding parameters currently have recognized values for:
+* "translate_x"
+* "translate_y"
+* "tie_on"
+* "tie_off"
+* "max_stitch"
+* "max_jump"
+
+The max_stitch and max_jump properties are appended by default depending on the format you are writing with to the max allowed by that format. If you set these it will override those values. If you set them low on a format such as .dst with a limited length stitch, you can have it permit overly long stitches to be fed into the reader.
+
+Writing to SVG:
 This is largely for testing purposes, it's not a binary writing format. But, it's entirely needed for testing purposes. There is some notable irony in writing an SVG file in a library, whose main genesis is to help another program that *already* writes them. But, without some provably flawless method of exporting the data read, there's no clear way to guarentee a problem is within a reader or a writer.
 
+
+Composing a pattern:
 ---
 
-Composing a pattern needs to give fine grain control of the embroidery core commands: stitch, jump, trim, color_change, stop, sequin, end
-These are what embroidery machines can actually do as a practical matter.
+The constants for the stitch types are located in the EmbConstants.py
 
-These are augmented with higher level bulk utility commands to render into coherent embroidery files.
+To compose a pattern you will typically use:
+* import pyemboridery.EmbPattern as EmbPattern
+* pattern = EmbPattern.EmbPattern()
+* pattern.add_stitch_relative(command, dx, dy)
+* pattern.add_stitch_absolute(command, x, y)
+* pattern.command(command)
+* pattern.add_stitchblock(stitchblock)
 
-The pattern composing therefore must allow the user to:
+You can:
 * Make overt: stitch, jump, trim, color_change, stop, end, and sequin commands
-* Use shorthand commands compose a pattern using: STITCH, BREAK and BREAK_COLOR, then encode that into lower level commands.
-* Use bulk dump ability, give pattern a list of points and colors, then encode that into lower level commands.
-* Mix these different command levels. So write overt stitches/sequins to the pattern, tell it perform a frame_eject, dump a bulk set of points, and encode that.
+* Use shorthand commands compose a pattern using: STITCH, SEQUENCE_BREAK and COLOR_BREAK, FRAME_EJECT
+* Use bulk dump.
+* Mix these different command levels.
 
+A stitch block currently has two parts a block and thread.
+
+The block is a list of lists, with each 3 values. x, y, command. iterable set of objects with stitch.command, stitch.x, stitch.y also works for the stitch part of the block.
+
+Calling add_stitchblock:
+The thread is needed so that we can know whether the current thread is different than the previous one. Each time it detects a different thread it appends COLOR_BREAK rather than SEQUENCE_BREAK and then tosses the stitches into the pattern. You could always implement your own version of this.
+
+COLOR_BREAK and SEQUENCE_BREAK:
+The main two high level commands simply serve as dividers for series of stitches.
+* pattern.command(COLOR_BREAK)
+* (add a bunch of stitches)
+* pattern.command(SEQUENCE_BREAK)
+* (add a bunch of stitches)
+* pattern.command(COLOR_BREAK)
+* (add a bunch of stitches)
+* pattern.command(SEQUENCE_BREAK)
+
+It will by default ignore any COLOR_BREAK that occurs before any stitches have been put down. So you don't have to worry about the order you put them in. They work expressly as breaks that divide one block of stitches from another, and gives information as to whether this change also requires we use a new color.
+
+You can expressly add any of the core commands to the patterns. These are generalized and try to play nice with other commands. When the patterns are written to disk, they call pattern.get_normalized_pattern() and save the normalized pattern. Saving to any format does not modify the pattern, ever. It writes the modified pattern out. It adds the max_jump and max_stitch to the encoding when it normalizes this to save. So each format can compile to a different set of stitches due to the max_jump etc.
+
+After a load, the pattern will be filled with raw basic stitch data, it's perfectly reasonable call .get_stable_pattern() on this which will make it into a series of stitches, color_breaks, sequence_breaks. Or to iterate through the data with .get_as_stitchblocks() which is a generator that will produce stitch blocks from the raw loaded data. The stablized pattern simply makes a new pattern, iterates through the current pattern by the stitchblocks and feeds that into add_stitch_block(). This results in a pattern without any jumps, trims, etc.
+
+Middle-Level Commands:
 ----
 
 The middle-level commands, as they currently stand:
-* BREAK - Break the stitches. Inserts a trim and jumps to the next stitch in the sequence.
-* BREAK_COLOR - Breaks the stitches. Changes to the next color.
-* STITCH_FINAL - Stitches the current location, and applies a Break.
-* STITCH_FINAL_COLOR - Stitches the current location, and applies a break_color
-* FRAME_EJECT(x,y) - breaks the stitches, jumps to the given location, performs a stop, then goes to next stitch accordingly.
+* SEQUENCE_BREAK - Break between stitches. Inserts a trim and jumps to the next stitch in the sequence.
+* COLOR_BREAK - Breaks between stitches. Changes to the next color (unless called before anything was stitched)
+* FRAME_EJECT(x,y) - Breaks the stitches, jumps to the given location, performs a stop, then goes to next stitch accordingly.
+* TRANSLATE(x,y) - Applies an inline translation shift for the encoder. It will treat all future stitches translated from here.
+* ENABLE_TIE_ON - Enables Tie_on on the fly.
+* ENABLE_TIE_OFF - Enables Tie_off on the fly.
+* DISABLE_TIE_ON - Disables Tie_on on the fly.
+* DISABLE_TIE_OFF - Disables Tie_off on the fly.
 
-Note: these do not need to have a 1 to 1 conversion to stitches. They could be anything, if something is needed and within scope of the project raise an issue.
-
-Using the middle-level commands as they currently stand:
-* pattern.add_stitch_absolute(x, y, EmbPattern.STITCH)
-* pattern.add_stitch_relative(x, y, EmbPattern.STITCH)
-
-Note, for a break commands, the position doesn't matter nor the absolute/relative nature of coord:
-* pattern.add_stitch_absolute(x, y, EmbPattern.BREAK)
-* pattern.add_stitch_absolute(x, y, EmbPattern.BREAK_COLOR)
-
-After writing middle level commands to the pattern, call the render()
-* pyemb.encode.max_stitch = dstWriter.MAX_STITCH_DISTANCE
-* pyemb.encode.max_jump = dstWriter.MAX_JUMP_DISTANCE
-* pyemb.encode.tie_on = True
-* pyemb.encode.tie_off = True
-* pattern = pyemb.render(pattern)
+Note: these do not need to have a 1 to 1 conversion to stitches.
+They could be anything, if something is needed and within scope of the project, raise an issue.
 
 ---
 
