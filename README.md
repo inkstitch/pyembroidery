@@ -26,25 +26,29 @@ Current goals:
 No goals currently exist. Mostly done. It needs testings and issues at this point.
 
 
-Conversion:
+
+How it works:
 ---
+The reader sends a readerobject, namely an EmbPattern object to one of the several embroider readers. This results in producing metadata, threads, stitches with raw commands.
 
-As pyembroidery is a fully fleshed out reader/writer within the mandate, it also does conversion.
+On EmbPattern objects you can iterate stitch blocks .get_as_stitchblocks() or access the raw-stitches.
 
-* import pyembroidery.PyEmbroidery as pyemb
-* pyemb.convert("embroidery.jef", "converted.dst");
+When a writer is called to save a pattern to disk. It encodes a low level version of the commands in the pattern. So all middle-level commands are implemented with the encoder, into low-level commands. The writer also sets the encoder settings to the correct max_jump and max_stitch. These can be accessed by calling .get_normalized_pattern() on the pattern which returns a new pattern. Saving cannot modify a pattern, so there is a level of isolation between the lossy operation of writing the embroidery and the current pattern in memory.
 
-This will the embroidery.jef file in JEF format and will export it as converted.dst in DST format.
+* File -> Reader -> Pattern
+* Pattern -> Encoder -> Writer -> File
+
 
 Reading:
 ---
 
-You load a pattern from disk:
+To load a pattern from disk:
 
 * pattern = pyemb.read("myembroidery.exp)
+
 If only a file name is given it detects by the extension what reader it should use.
 
-For the descrete readers, the file may be a FileObject or a string of the path.
+For the descrete readers, the file may be a FileObject or a the string of the path.
 
 * pattern = pyemb.read_dst(file)
 * pattern = pyemb.read_pec(file)
@@ -53,22 +57,22 @@ For the descrete readers, the file may be a FileObject or a string of the path.
 * pattern = pyemb.read_vp3(file)
 * pattern = pyemb.read_jef(file)
 
-You can optionally add a pattern object to these readers.
+You can optionally add a pattern to these readers, it will use that object and append the new stitches to the end.
+
 * pattern = pyemb.read_pes(file,pattern)
 * pattern = pyemb.read("secondread.dst", pyemb.read("firstread.jef"))
 
 This should cause the pattern to have the stitches from both files.
-*Might need some testing.*
 
 Writing:
 ---
 
-You write to a pattern, then save the pattern out:
+To write to a pattern do disk:
 
 * pyemb.write(pattern,"myembroidery.dst")
 
 For the descrete writers, the file may be a FileObject or a string of the path.
-And the descrete writers:
+
 * pyemb.write_dst(pattern, file)
 * pyemb.write_pec(pattern, file)
 * pyemb.write_pes(pattern, file)
@@ -88,10 +92,26 @@ The encoding parameters currently have recognized values for:
 * "max_stitch"
 * "max_jump"
 
-The max_stitch and max_jump properties are appended by default depending on the format you are writing with to the max allowed by that format. If you set these it will override those values. If you set them low on a format such as .dst with a limited length stitch, you can have it permit overly long stitches to be fed into the reader.
+The max_stitch and max_jump properties are appended by default depending on the format you are writing to. If you overtly set these it will override those values. If you set them low on a format such as .dst with a limited length stitch, you can have it permit overly long stitches to be fed into the reader.
 
 Writing to SVG:
 This is largely for testing purposes, it's not a binary writing format. But, it's entirely needed for testing purposes. There is some notable irony in writing an SVG file in a library, whose main genesis is to help another program that *already* writes them. But, without some provably flawless method of exporting the data read, there's no clear way to guarentee a problem is within a reader or a writer.
+
+Conversion:
+---
+
+As pyembroidery is a fully fleshed out reader/writer within the mandate, it also does conversion.
+
+* import pyembroidery.PyEmbroidery as pyemb
+
+* pyemb.convert("embroidery.jef", "converted.dst");
+
+This will the embroidery.jef file in JEF format and will export it as converted.dst in DST format.
+
+Internally this stablizes the format:
+* Reader -> Pattern -> Pattern.get_stablized_pattern() -> Encoder -> Writer
+
+The stablized pattern clips out the order of the particlar trims, jumps, colorchanges, stops, and turns it into middle-level commands of STITCH, COLOR_BREAK, SEQUENCE_BREAK. 
 
 
 Composing a pattern:
@@ -100,6 +120,7 @@ Composing a pattern:
 The constants for the stitch types are located in the EmbConstants.py
 
 To compose a pattern you will typically use:
+
 * import pyemboridery.EmbPattern as EmbPattern
 * pattern = EmbPattern.EmbPattern()
 * pattern.add_stitch_relative(command, dx, dy)
@@ -107,34 +128,23 @@ To compose a pattern you will typically use:
 * pattern.command(command)
 * pattern.add_stitchblock(stitchblock)
 
+NOTE: the order here is command, x, y, not x,y command. Python is good with letting you omit values at the end. And the command is *always* needed but the dx,dy can be dropped quite reasonably.
+
 You can:
 * Make overt: stitch, jump, trim, color_change, stop, end, and sequin commands
 * Use shorthand commands compose a pattern using: STITCH, SEQUENCE_BREAK and COLOR_BREAK, FRAME_EJECT
-* Use bulk dump.
+* Use bulk dump stitchblock
 * Mix these different command levels.
+
+StitchBlocks:
+---
 
 A stitch block currently has two parts a block and thread.
 
 The block is a list of lists, with each 3 values. x, y, command. iterable set of objects with stitch.command, stitch.x, stitch.y also works for the stitch part of the block.
 
-Calling add_stitchblock:
-The thread is needed so that we can know whether the current thread is different than the previous one. Each time it detects a different thread it appends COLOR_BREAK rather than SEQUENCE_BREAK and then tosses the stitches into the pattern. You could always implement your own version of this.
+When you call add_stitchblock(), the thread is needed so that we can know whether the current thread is different than the previous one. Each time it detects a different thread it appends COLOR_BREAK rather than SEQUENCE_BREAK and then tosses the stitches into the pattern. You could always implement your own version of this, depending on your use case.
 
-COLOR_BREAK and SEQUENCE_BREAK:
-The main two high level commands simply serve as dividers for series of stitches.
-* pattern.command(COLOR_BREAK)
-* (add a bunch of stitches)
-* pattern.command(SEQUENCE_BREAK)
-* (add a bunch of stitches)
-* pattern.command(COLOR_BREAK)
-* (add a bunch of stitches)
-* pattern.command(SEQUENCE_BREAK)
-
-It will by default ignore any COLOR_BREAK that occurs before any stitches have been put down. So you don't have to worry about the order you put them in. They work expressly as breaks that divide one block of stitches from another, and gives information as to whether this change also requires we use a new color.
-
-You can expressly add any of the core commands to the patterns. These are generalized and try to play nice with other commands. When the patterns are written to disk, they call pattern.get_normalized_pattern() and save the normalized pattern. Saving to any format does not modify the pattern, ever. It writes the modified pattern out. It adds the max_jump and max_stitch to the encoding when it normalizes this to save. So each format can compile to a different set of stitches due to the max_jump etc.
-
-After a load, the pattern will be filled with raw basic stitch data, it's perfectly reasonable call .get_stable_pattern() on this which will make it into a series of stitches, color_breaks, sequence_breaks. Or to iterate through the data with .get_as_stitchblocks() which is a generator that will produce stitch blocks from the raw loaded data. The stablized pattern simply makes a new pattern, iterates through the current pattern by the stitchblocks and feeds that into add_stitch_block(). This results in a pattern without any jumps, trims, etc.
 
 Middle-Level Commands:
 ----
@@ -151,6 +161,25 @@ The middle-level commands, as they currently stand:
 
 Note: these do not need to have a 1 to 1 conversion to stitches.
 They could be anything, if something is needed and within scope of the project, raise an issue.
+
+---
+
+COLOR_BREAK and SEQUENCE_BREAK:
+
+The main two middle-level commands simply serve as dividers for series of stitches.
+* pattern.command(COLOR_BREAK)
+* (add a bunch of stitches)
+* pattern.command(SEQUENCE_BREAK)
+* (add a bunch of stitches)
+* pattern.command(COLOR_BREAK)
+* (add a bunch of stitches)
+* pattern.command(SEQUENCE_BREAK)
+
+It will by default ignore any COLOR_BREAK that occurs before any stitches have been put down. So you don't have to worry about the order you put them in. They work expressly as breaks that divide one block of stitches from another, and gives information as to whether this change also requires we use a new color.
+
+You can expressly add any of the core commands to the patterns. These are generalized and try to play nice with other commands. When the patterns are written to disk, they call pattern.get_normalized_pattern() and save the normalized pattern. Saving to any format does not modify the pattern, ever. It writes the modified pattern out. It adds the max_jump and max_stitch to the encoding when it normalizes this to save. So each format can compile to a different set of stitches due to the max_jump etc.
+
+After a load, the pattern will be filled with raw basic stitch data, it's perfectly reasonable call .get_stable_pattern() on this which will make it into a series of stitches, color_breaks, sequence_breaks. Or to iterate through the data with .get_as_stitchblocks() which is a generator that will produce stitch blocks from the raw loaded data. The stablized pattern simply makes a new pattern, iterates through the current pattern by the stitchblocks and feeds that into add_stitch_block(). This results in a pattern without any jumps, trims, etc.
 
 ---
 
