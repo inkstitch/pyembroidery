@@ -72,3 +72,12 @@ class EmbThread:
     def hex_color(self):
         return "#%02x%02x%02x" % (
             self.get_red(), self.get_green(), self.get_blue())
+
+    def set_hex_color(self,hex_string):
+        h = hex_string.lstrip('#')
+        size = len(h);
+        if size == 6 or size == 8:
+            self.color = int(h[:6],16);
+        elif size == 4 or size == 3:
+            self.color = int(h[2]+h[2]+h[1]+h[1]+h[0]+h[0],16)
+

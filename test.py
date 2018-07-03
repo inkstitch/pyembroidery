@@ -59,9 +59,13 @@ import os
 
 for file in os.listdir("convert"):
     convert_file = os.path.join("convert", file)
+    pattern = pyemb.read(convert_file)
+    if pattern == None:
+        continue
+    pattern = pattern.get_stable_pattern()
     for suffix in [".svg", ".pec", ".pes", ".exp", ".dst", ".jef", ".vp3"]:
         results_file = os.path.join("results", file) + suffix;
-        pyemb.convert(convert_file, results_file, {
+        pyemb.write(pattern,results_file, {
             "tie_on": True,
             "tie_off": True,
             # "translate_x": 500,

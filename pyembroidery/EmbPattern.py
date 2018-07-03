@@ -56,6 +56,8 @@ class EmbPattern():
                 thread_object.color = thread["color"]
             if "rgb" in thread:
                 thread_object.color = thread["rgb"]
+            if "hex" in thread:
+                thread_object.set_hex_color(thread["hex"])
             if "id" in thread:
                 thread_object.catalog_number = thread["id"]
             if "catalog" in thread:

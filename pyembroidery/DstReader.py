@@ -32,8 +32,30 @@ def decode_dy(b0, b1, b2):
     return -y
 
 
-def read(f, read_object):
-    f.seek(512)
+def process_header_info(out, prefix, value):
+    if prefix == "LA":
+        out.metadata("name", value)
+    elif prefix == "AU":
+        out.metadata("author", value)
+    elif prefix == "CP":
+        out.metadata("copyright", value)
+    elif prefix == "TC":
+        values = [x.strip() for x in value.split(',')]
+        out.add_thread({
+            "hex": values[0],
+            "description": value[1],
+            "catalog": value[2]
+        })
+    else:
+        out.metadata(prefix,value)
+
+
+def read(f, out):
+    header = f.read(512);
+    header_string = header.decode('utf8');
+    for line in [x.strip() for x in header_string.split('\r')]:
+        if (len(line) > 3):
+            process_header_info(out, line[0:2].strip(), line[3:].strip())
     sequin_mode = False
     while True:
         byte = f.read(3)
@@ -42,15 +64,15 @@ def read(f, read_object):
         dx = decode_dx(byte[0], byte[1], byte[2])
         dy = decode_dy(byte[0], byte[1], byte[2])
         if ((byte[2] & 0b11110011) == 0b11110011):
-            read_object.stop(dx, dy)
+            out.stop(dx, dy)
         elif ((byte[2] & 0b11000011) == 0b11000011):
-            read_object.color_change(dx, dy)
+            out.color_change(dx, dy)
         elif ((byte[2] & 0b01000011) == 0b01000011):
             sequin_mode = not sequin_mode
         elif ((byte[2] & 0b10000011) == 0b10000011):
             if sequin_mode:
-                read_object.sequin(dx, dy)
+                out.sequin(dx, dy)
             else:
-                read_object.move(dx, dy)
+                out.move(dx, dy)
         else:
-            read_object.stitch(dx, dy)
+            out.stitch(dx, dy)

@@ -116,8 +116,7 @@ def write_pec_stitches(pattern, f):
     extends = pattern.extends()
     width = extends[2] - extends[0]
     height = extends[3] - extends[1]
-
-    name = pattern.get_metadata("name","Untitled")
+    name = pattern.get_metadata("name", "Untitled")
     f.write(bytes("LA:%-16s\r" % (name[:8]), 'utf8'))
     f.write(b'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\xFF\x00\x06\x26')
 
