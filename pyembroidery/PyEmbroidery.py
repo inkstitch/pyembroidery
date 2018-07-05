@@ -1,19 +1,19 @@
 import os.path
 
-from EmbPattern import EmbPattern
-import DstWriter
-import PecWriter
-import PesWriter
-import ExpWriter
-import Vp3Writer
-import JefWriter
-import SvgWriter
-import DstReader
-import PecReader
-import PesReader
-import ExpReader
-import Vp3Reader
-import JefReader
+from .EmbPattern import EmbPattern
+import pyembroidery.DstWriter as DstWriter
+import pyembroidery.PecWriter as PecWriter
+import pyembroidery.PesWriter as PesWriter
+import pyembroidery.ExpWriter as ExpWriter
+import pyembroidery.Vp3Writer as Vp3Writer
+import pyembroidery.JefWriter as JefWriter
+import pyembroidery.SvgWriter as SvgWriter
+import pyembroidery.DstReader as DstReader
+import pyembroidery.PecReader as PecReader
+import pyembroidery.PesReader as PesReader
+import pyembroidery.ExpReader as ExpReader
+import pyembroidery.Vp3Reader as Vp3Reader
+import pyembroidery.JefReader as JefReader
 
 
 def convert(filename_from, filename_to, encode_settings=None):

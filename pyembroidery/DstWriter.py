@@ -1,7 +1,7 @@
 import math
 
-from EmbConstant import *
-from WriteHelper import write_string_utf8
+from .EmbConstant import *
+from .WriteHelper import write_string_utf8
 
 MAX_JUMP_DISTANCE = 121
 MAX_STITCH_DISTANCE = 121

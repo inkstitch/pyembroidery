@@ -1,6 +1,6 @@
 import math
 
-from EmbConstant import *
+from .EmbConstant import *
 
 
 class Transcoder:

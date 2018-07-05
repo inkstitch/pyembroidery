@@ -1,5 +1,5 @@
-from EmbThreadJef import get_thread_set
-from ReadHelper import read_signed, read_int_32le, signed
+from .EmbThreadJef import get_thread_set
+from .ReadHelper import read_signed, read_int_32le, signed
 
 
 def read(f, read_object):

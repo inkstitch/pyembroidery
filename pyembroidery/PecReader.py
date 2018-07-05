@@ -1,5 +1,5 @@
-from pyembroidery.EmbThreadPec import get_thread_set
-from pyembroidery.ReadHelper import read_string_8, read_int_8, read_int_24le
+from .EmbThreadPec import get_thread_set
+from .ReadHelper import read_string_8, read_int_8, read_int_24le
 
 JUMP_CODE = 0x10
 TRIM_CODE = 0x20

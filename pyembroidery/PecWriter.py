@@ -1,8 +1,8 @@
 
-from EmbConstant import *
-from EmbThreadPec import get_thread_set
-from PecGraphics import get_blank, draw_scaled
-from WriteHelper import write_int_8, write_int_16le, write_int_24le
+from .EmbConstant import *
+from .EmbThreadPec import get_thread_set
+from .PecGraphics import get_blank, draw_scaled
+from .WriteHelper import write_int_8, write_int_16le, write_int_24le, write_string_utf8
 
 
 MAX_JUMP_DISTANCE = 2047
@@ -32,7 +32,7 @@ def write_pec(pattern, f):
 
 def write_pec_header(pattern, f):
     name = pattern.get_metadata("name", "Untitled")
-    f.write(bytes("LA:%-16s\r" % (name[:8])).encode('utf8'))
+    write_string_utf8(f,"LA:%-16s\r" % name[:8])
     f.write(b'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\xFF\x00')
     write_int_8(f, int(PEC_ICON_WIDTH / 8))  # PEC BYTE STRIDE
     write_int_8(f, int(PEC_ICON_HEIGHT))  # PEC ICON HEIGHT

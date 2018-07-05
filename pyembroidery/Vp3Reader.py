@@ -1,5 +1,5 @@
-from EmbThread import EmbThread
-from ReadHelper import read_int_16be, read_int_8, read_int_32be, read_int_24be, read_signed, read_string_8, read_string_16
+from .EmbThread import EmbThread
+from .ReadHelper import read_int_16be, read_int_8, read_int_32be, read_int_24be, read_signed, read_string_8, read_string_16
 
 
 def read_vp3_string_16(stream):

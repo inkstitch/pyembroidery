@@ -1,8 +1,8 @@
 import random
 
-from EmbThread import EmbThread
-from EmbEncoder import Transcoder as Normalizer
-from EmbConstant import *
+from .EmbThread import EmbThread
+from .EmbEncoder import Transcoder as Normalizer
+from .EmbConstant import *
 
 
 class EmbPattern:

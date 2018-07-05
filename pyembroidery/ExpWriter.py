@@ -1,4 +1,4 @@
-from EmbConstant import *
+from .EmbConstant import *
 
 MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127

@@ -1,5 +1,5 @@
-from EmbConstant import *
-from WriteHelper import write_int_8, write_int_24be,write_int_32be, write_int_16be, write_string_utf8
+from .EmbConstant import *
+from .WriteHelper import write_int_8, write_int_24be, write_int_32be, write_int_16be, write_string_utf8, write_string
 
 # Vp3 can encode signed 16 bit deltas.
 MAX_JUMP_DISTANCE = 3200
@@ -8,13 +8,15 @@ MAX_STITCH_DISTANCE = 255
 
 
 def vp3_write_string_8(stream, string):
-    bytestring = bytes(string).encode("utf-8")
-    vp3_write_length_and_bytes(stream, bytestring)
+    write_int_16be(stream, len(string))
+    write_string_utf8(stream,string)
+    # vp3_write_length_and_bytes(stream, bytestring)
 
 
 def vp3_write_string_16(stream, string):
-    bytestring = bytes(string).encode("UTF-16BE")
-    vp3_write_length_and_bytes(stream, bytestring)
+    write_int_16be(stream, len(string) * 2)
+    write_string(stream, string, "UTF-16BE")
+    # vp3_write_length_and_bytes(stream, bytestring)
 
 
 def vp3_write_length_and_bytes(stream, bytestring):
