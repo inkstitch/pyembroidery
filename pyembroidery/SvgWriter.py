@@ -2,7 +2,7 @@ MAX_JUMP_DISTANCE = float('inf')
 MAX_STITCH_DISTANCE = float('inf')
 
 
-def write(pattern, f):
+def write(pattern, f, settings=None):
     """Writes an svg file of the stitchblocks."""
 
     NAME_SVG = "svg"

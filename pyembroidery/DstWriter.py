@@ -6,9 +6,6 @@ MAX_STITCH_DISTANCE = 121
 PPMM = 10
 DSTHEADERSIZE = 512
 
-extended_header = False
-
-
 def bit(b):
     return 1 << b
 
@@ -98,7 +95,11 @@ def encode_record(x, y, flags):
     return bytes([b0, b1, b2])
 
 
-def write(pattern, f):
+def write(pattern, f, settings=None):
+    extended_header = False;
+    if settings != None:
+        extended_header = settings.get("extended header", extended_header)
+
     extends = pattern.extends()
     width = extends[2] - extends[0]
     height = extends[3] - extends[1]

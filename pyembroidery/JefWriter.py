@@ -16,7 +16,7 @@ HOOP_126X110 = 3
 HOOP_200X200 = 4
 
 
-def write(pattern, f):
+def write(pattern, f, settings=None):
     pattern.fix_color_count();
     color_count = pattern.count_threads();
     point_count = pattern.count_stitches();

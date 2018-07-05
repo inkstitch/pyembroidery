@@ -36,10 +36,12 @@ pyemb.write(pattern, "generated.pec", settings)
 pyemb.write(pattern, "generated.pes",settings)
 pyemb.write(pattern, "generated.exp",settings)
 pyemb.write(pattern, "generated.dst",settings)
-dstWriter.extended_header = True
+settings["extended header"] = True
 pyemb.write(pattern, "generated-eh.dst",settings)
 pyemb.write(pattern, "generated.jef",settings)
 pyemb.write(pattern, "generated.vp3",settings)
+settings["pes version"] = 1
+pyemb.write(pattern, "generatedv1.pes",settings)
 
 # Do not emulate the following pattern
 pattern2 = EmbPattern.EmbPattern();

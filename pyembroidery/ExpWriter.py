@@ -4,7 +4,7 @@ MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127
 
 
-def write(pattern, f):
+def write(pattern, f, settings=None):
     stitches = pattern.stitches
     jumping = False
     xx = 0

@@ -10,9 +10,9 @@ from pyembroidery.EmbConstant import *
 MAX_JUMP_DISTANCE = 2047
 MAX_STITCH_DISTANCE = 2047
 
-VERSION_1 = 0
+VERSION_1 = 1
 VERSION_6 = 6
-VERSION_1_TRUNCATED = 0x100
+VERSION_1_TRUNCATED = 0x101
 VERSION_6_TRUNCATED = 0x106
 
 PES_VERSION_1_SIGNATURE = "#PES0001"
@@ -21,10 +21,11 @@ PES_VERSION_6_SIGNATURE = "#PES0060"
 EMB_ONE = "CEmbOne";
 EMB_SEG = "CSewSeg";
 
-version = VERSION_6_TRUNCATED
+def write(pattern, f, settings=None):
+    version = VERSION_6
+    if settings != None:
+        version = settings.get("pes version", version)
 
-
-def write(pattern, f):
     if version == VERSION_1:
         write_version_1(pattern, f)
     elif version == VERSION_6:

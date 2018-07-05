@@ -49,12 +49,11 @@ def get_as_colorblocks(pattern):
     yield (pattern.stitches[last_pos:end], thread)
 
 
-def write(pattern, f):
+def write(pattern, f, settings=None):
     pattern.fix_color_count();
 
     helper.write(f, "%vsm%")
     helper.write_int_8(f, 0)
-    # vp3_write_string_16(f, "PyEmboridery");
     vp3_write_string_16(f, "Produced by     Software Ltd");
     write_file(pattern, f)
 
@@ -69,7 +68,6 @@ def write_file(pattern, f):
     # This is global notes and settings string.
     # "Setting:" followed by settings text.
 
-    # vp3_write_string_16(f, "PyEmboridery");
     count_stitches = len(pattern.stitches)
     colorblocks = [i for i in get_as_colorblocks(pattern)]
 

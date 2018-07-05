@@ -116,7 +116,7 @@ def write_embroidery(writer, pattern, stream, encode_settings=None):
             writer.write(normalpattern, stream)
     else:
         normalpattern = pattern.get_normalized_pattern(encode_settings);
-        writer.write(normalpattern, stream)
+        writer.write(normalpattern, stream, encode_settings)
 
 
 def write_dst(pattern, stream, encode_settings=None):
