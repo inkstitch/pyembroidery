@@ -22,7 +22,7 @@ def read_pec(f, read_object, threadlist):
     f.seek(0xC, 1)
     color_changes = read_int_8(f)
     count_colors = color_changes + 1  # PEC uses cc - 1, 0xFF means 0.
-    color_bytes = f.read(count_colors)
+    color_bytes = bytearray(f.read(count_colors))
     map_pec_colors(color_bytes, read_object, threadlist)
     f.seek(0x1D0 - color_changes, 1)
     stitch_block_end = read_int_24le(f) - 5 + f.tell()
@@ -44,9 +44,9 @@ def read_pec(f, read_object, threadlist):
 
 def read_pec_graphics(f, read_object, size, stride, count):
     for i in range(0, count):
-        graphic = f.read(size)
+        graphic = bytearray(f.read(size))
         if f is not None:
-            read_object.metadata(i, graphic)
+            read_object.metadata(i, (graphic, stride))
 
 
 def process_pec_colors(colorbytes, read_object):

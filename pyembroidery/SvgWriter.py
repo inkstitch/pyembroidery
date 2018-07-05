@@ -3,28 +3,28 @@ from xml.etree.cElementTree import Element, ElementTree, SubElement
 MAX_JUMP_DISTANCE = float('inf')
 MAX_STITCH_DISTANCE = float('inf')
 
+NAME_SVG = "svg"
+ATTR_VERSION = "version"
+VALUE_SVG_VERSION = "1.1"
+ATTR_XMLNS = "xmlns"
+VALUE_XMLNS = "http://www.w3.org/2000/svg"
+ATTR_XMLNS_LINK = "xmlns:xlink"
+VALUE_XLINK = "http://www.w3.org/1999/xlink"
+ATTR_XMLNS_EV = "xmlns:ev"
+VALUE_XMLNS_EV = "http://www.w3.org/2001/xml-events"
+ATTR_WIDTH = "width"
+ATTR_HEIGHT = "height"
+ATTR_VIEWBOX = "viewBox"
+NAME_PATH = "path"
+ATTR_DATA = "d"
+ATTR_FILL = "fill"
+ATTR_STROKE = "stroke"
+ATTR_STROKE_WIDTH = "stroke-width"
+VALUE_NONE = "none"
+
 
 def write(pattern, f, settings=None):
     """Writes an svg file of the stitchblocks."""
-
-    NAME_SVG = "svg"
-    ATTR_VERSION = "version"
-    VALUE_SVG_VERSION = "1.1"
-    ATTR_XMLNS = "xmlns"
-    VALUE_XMLNS = "http://www.w3.org/2000/svg"
-    ATTR_XMLNS_LINK = "xmlns:xlink"
-    VALUE_XLINK = "http://www.w3.org/1999/xlink"
-    ATTR_XMLNS_EV = "xmlns:ev"
-    VALUE_XMLNS_EV = "http://www.w3.org/2001/xml-events"
-    ATTR_WIDTH = "width"
-    ATTR_HEIGHT = "height"
-    ATTR_VIEWBOX = "viewBox"
-    NAME_PATH = "path"
-    ATTR_DATA = "d"
-    ATTR_FILL = "fill"
-    ATTR_STROKE = "stroke"
-    ATTR_STROKE_WIDTH = "stroke-width"
-    VALUE_NONE = "none"
 
     root = Element(NAME_SVG)
     root.set(ATTR_VERSION, VALUE_SVG_VERSION)
@@ -37,7 +37,7 @@ def write(pattern, f, settings=None):
     root.set(ATTR_WIDTH, str(width))
     root.set(ATTR_HEIGHT, str(height))
     viewbox = str(extends[0]) + " " + str(extends[1]) + \
-        " " + str(width) + " " + str(height)
+              " " + str(width) + " " + str(height)
     root.set(ATTR_VIEWBOX, viewbox)
 
     for stitchblock in pattern.get_as_stitchblock():

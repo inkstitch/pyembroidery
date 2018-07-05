@@ -1,6 +1,7 @@
 import math
 
-from pyembroidery.EmbConstant import *
+from EmbConstant import *
+from WriteHelper import write_string_utf8
 
 MAX_JUMP_DISTANCE = 121
 MAX_STITCH_DISTANCE = 121
@@ -94,7 +95,7 @@ def encode_record(x, y, flags):
         b2 = 0b11110011
     elif flags is SEQUIN:
         b2 = 0b01000011
-    return bytes([b0, b1, b2])
+    return bytes(bytearray([b0, b1, b2]))
 
 
 def write(pattern, f, settings=None):
@@ -107,36 +108,34 @@ def write(pattern, f, settings=None):
     height = extends[3] - extends[1]
 
     name = pattern.get_metadata("name", "Untitled")
-    f.write(bytes("LA:%-16s\r" % (name), 'utf8'))
-    f.write(bytes("ST:%7d\r" % (pattern.count_stitches()), 'utf8'))
-    f.write(bytes("CO:%3d\r" % (pattern.count_color_changes()), 'utf8'))
+
+    write_string_utf8(f,"LA:%-16s\r" % name)
+    write_string_utf8(f,"ST:%7d\r" % pattern.count_stitches())
+    write_string_utf8(f,"CO:%3d\r" % pattern.count_color_changes())
     x_extend = math.ceil(PPMM * width / 2)
     y_extend = math.ceil(PPMM * height / 2)
-    f.write(bytes("+X:%5d\r" % (x_extend), 'utf8'))
-    f.write(bytes("-X:%5d\r" % (x_extend), 'utf8'))
-    f.write(bytes("+Y:%5d\r" % (y_extend), 'utf8'))
-    f.write(bytes("-Y:%5d\r" % (y_extend), 'utf8'))
-    f.write(bytes("AX:+%5d\r" % (0), 'utf8'))
-    f.write(bytes("AY:+%5d\r" % (0), 'utf8'))
-    f.write(bytes("MX:+%5d\r" % (0), 'utf8'))
-    f.write(bytes("AY:+%5d\r" % (0), 'utf8'))
-    f.write(bytes("PD:%6s\r" % ("******"), 'utf8'))
+    write_string_utf8(f,"+X:%5d\r" % x_extend)
+    write_string_utf8(f,"-X:%5d\r" % x_extend)
+    write_string_utf8(f,"+Y:%5d\r" % y_extend)
+    write_string_utf8(f,"-Y:%5d\r" % y_extend)
+    write_string_utf8(f,"AX:+%5d\r" % 0)
+    write_string_utf8(f,"AY:+%5d\r" % 0)
+    write_string_utf8(f,"MX:+%5d\r" % 0)
+    write_string_utf8(f,"AY:+%5d\r" % 0)
+    write_string_utf8(f,"PD:%6s\r" % "******")
     if extended_header:
         author = pattern.get_metadata("author")
         if author is not None:
-            f.write(bytes("AU:%s\r" % (author), 'utf8'))
+            write_string_utf8(f,"AU:%s\r" % author)
         meta_copyright = pattern.get_metadata("copyright")
         if meta_copyright is not None:
-            f.write(bytes("CP:%s\r" % (meta_copyright), 'utf8'))
+            write_string_utf8(f,"CP:%s\r" % meta_copyright)
         if len(pattern.threadlist) > 0:
             for thread in pattern.threadlist:
-                f.write(
-                    bytes(
-                        "TC:%s,%s,%s\r" %
-                        (thread.hex_color(),
-                         thread.description,
-                         thread.catalog_number),
-                        'utf8'))
+                write_string_utf8(f,"TC:%s,%s,%s\r" %
+                                  (thread.hex_color(),
+                                   thread.description,
+                                   thread.catalog_number))
     f.write(b'\x1a')
     for i in range(f.tell(), DSTHEADERSIZE):
         f.write(b'\x20')  # space

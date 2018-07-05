@@ -1,4 +1,4 @@
-import math
+from math import floor
 
 blank = [
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -43,27 +43,27 @@ blank = [
 
 
 def get_blank():
-    return blank.copy()
+    return [m for m in blank]
 
 
 def create(width, height):
-    width = width / 8
+    width /= 8
     return [0x00] * width * height
 
 
-def draw(points, graphics, stride=6):
+def draw(points, graphic, stride=6):
     for point in points:
         try:
             try:
-                set(graphic,
-                    int(point.x),
-                    int(point.y),
-                    stride)
+                graphic_mark_bit(graphic,
+                                 int(point.x),
+                                 int(point.y),
+                                 stride)
             except AttributeError:
-                set(graphic,
-                    int(point[0]),
-                    int(point[1]),
-                    stride)
+                graphic_mark_bit(graphic,
+                                 int(point[0]),
+                                 int(point[1]),
+                                 stride)
         except IndexError:
             pass
 
@@ -72,10 +72,6 @@ def draw_scaled(extends, points, graphic, stride, buffer=5):
     if extends is None:
         draw(points, graphic, stride)
         return
-    left = 0
-    top = 0
-    right = 0
-    bottom = 0
     try:
         left = extends.left
         top = extends.top
@@ -113,18 +109,16 @@ def draw_scaled(extends, points, graphic, stride, buffer=5):
     for point in points:
         try:
             try:
-                set(graphic,
-                    math.floor((point.x * scale) + translate_x),
-                    math.floor((point.y * scale) + translate_y),
-                    stride)
+                graphic_mark_bit(graphic,
+                                 int(floor((point.x * scale) + translate_x)),
+                                 int(floor((point.y * scale) + translate_y)),
+                                 stride)
             except AttributeError:
-                set(graphic,
-                    math.floor((point[0] * scale) + translate_x),
-                    math.floor((point[1] * scale) + translate_y),
-                    stride)
+                graphic_mark_bit(graphic,
+                                 int(floor((point[0] * scale) + translate_x)),
+                                 int(floor((point[1] * scale) + translate_y)),
+                                 stride)
         except IndexError:
-            print("pos: " + str(math.floor((point[0] * scale) + translate_x)),
-                  " " + str(math.floor((point[1] * scale) + translate_y)))
             pass
 
 
@@ -133,25 +127,33 @@ def clear(graphic):
         b = 0
 
 
-def set(graphic, x, y, stride=6):
+def graphic_mark_bit(graphic, x, y, stride=6):
     """expressly sets the bit in the give graphic object"""
     graphic[(y * stride) + int(x / 8)] |= 1 << (x % 8)
 
 
-def unset(graphic, x, y, stride=6):
+def graphic_unmark_bit(graphic, x, y, stride=6):
     """expressly unsets the bit in the give graphic object"""
     graphic[(y * stride) + int(x / 8)] &= ~(1 << (x % 8))
 
 
-def get_graphic_as_string(graphic, stride=6, one="#", zero=" "):
+def get_graphic_as_string(graphic, one="#", zero=" "):
     """Prints graphic object in text."""
-    mylist = [
+    stride = 6
+    if isinstance(graphic,tuple):
+        stride = graphic[1]
+        graphic = graphic[0]
+
+    if isinstance(graphic,str):
+        graphic = bytearray(graphic)
+
+    list_string = [
         one if (byte >> i) & 1 else zero
         for byte in graphic
         for i in range(0, 8)
     ]
-    bitstride = 8 * stride
-    bitlength = 8 * len(graphic)
+    bit_stride = 8 * stride
+    bit_length = 8 * len(graphic)
     return '\n'.join(
-        ''.join(mylist[m:m + bitstride])
-        for m in range(0, bitlength, bitstride))
+        ''.join(list_string[m:m + bit_stride])
+        for m in range(0, bit_length, bit_stride))

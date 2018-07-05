@@ -28,12 +28,12 @@ def find_nearest_color_index(find_color, values):
 def color_distance_red_mean(
         r1, g1, b1,
         r2, g2, b2):
-    rmean = round((r1 + r2) / 2)
+    red_mean = int(round((r1 + r2) / 2))
     r = int(r1 - r2)
     g = int(g1 - g2)
     b = int(b1 - b2)
-    return (((512 + rmean) * r * r) >> 8) + 4 * \
-        g * g + (((767 - rmean) * b * b) >> 8)
+    return (((512 + red_mean) * r * r) >> 8) + 4 * g * g + \
+           (((767 - red_mean) * b * b) >> 8)
     # See the very good color distance paper:
     # https://www.compuphase.com/cmetric.htm
 

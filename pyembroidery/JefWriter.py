@@ -1,9 +1,7 @@
-import math
-import io
 
-from pyembroidery.EmbConstant import *
-from pyembroidery.EmbThreadJef import get_thread_set
-from pyembroidery.WriteHelper import write_string_utf8, write_int_32le, write_int_8, write_int_array_8
+from EmbConstant import *
+from EmbThreadJef import get_thread_set
+from WriteHelper import write_string_utf8, write_int_32le, write_int_8, write_int_array_8
 
 MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127
@@ -29,11 +27,11 @@ def write(pattern, f, settings=None):
     write_int_32le(f, color_count)
     write_int_32le(f, point_count)
     extends = pattern.extends()
-    design_width = round(extends[2] - extends[0])
-    design_height = round(extends[3] - extends[1])
+    design_width = int(round(extends[2] - extends[0]))
+    design_height = int(round(extends[3] - extends[1]))
     write_int_32le(f, get_jef_hoop_size(design_width, design_width))
-    half_width = round(design_width / 2)
-    half_height = round(design_height / 2)
+    half_width = int(round(design_width / 2))
+    half_height = int(round(design_height / 2))
 
     # distance from center of hoop.
     write_int_32le(f, half_width)
@@ -86,7 +84,7 @@ def write(pattern, f, settings=None):
         f.write(b'\x80\x10')
 
 
-def get_jef_hoop_size(width: int, height: int) -> int:
+def get_jef_hoop_size(width,height):
     if width < 500 and height < 500:
         return HOOP_50X50
     if width < 1100 and height < 1100:
@@ -98,17 +96,17 @@ def get_jef_hoop_size(width: int, height: int) -> int:
 
 def jef_encode(dx, dy, data):
     if data == STITCH:
-        return [dx, dy]
+        return [int(dx), int(dy)]
     if data == COLOR_CHANGE:
-        return [0x80, 0x01, dx, dy]
+        return [0x80, 0x01, int(dx), int(dy)]
     if data == STOP:
-        return [0x80, 0x01, dx, dy]
+        return [0x80, 0x01, int(dx), int(dy)]
     if data == END:
-        return [0x80, 0x10, dx, dy]
+        return [0x80, 0x10, int(dx), int(dy)]
     if data == JUMP:
-        return [0x80, 0x02, dx, dy]
+        return [0x80, 0x02, int(dx), int(dy)]
     if data == TRIM:
-        return [0x80, 0x02, dx, dy]
+        return [0x80, 0x02, int(dx), int(dy)]
     return [dx, dy]
 
 

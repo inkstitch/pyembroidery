@@ -1,10 +1,8 @@
-import math
-import io
 
-from pyembroidery.PecWriter import write_pec
-from pyembroidery.EmbThreadPec import get_thread_set
-from pyembroidery.WriteHelper import write_string_utf8, write_int_32le, write_int_16le, write_int_8, write_float_32le
-from pyembroidery.EmbConstant import *
+from PecWriter import write_pec
+from EmbThreadPec import get_thread_set
+from WriteHelper import write_string_utf8, write_int_32le, write_int_16le, write_int_8, write_float_32le
+from EmbConstant import *
 
 MAX_JUMP_DISTANCE = 2047
 MAX_STITCH_DISTANCE = 2047
@@ -37,13 +35,12 @@ def write(pattern, f, settings=None):
 
 
 def write_truncated_version_1(pattern, f):
-    f.write(bytes(PES_VERSION_1_SIGNATURE, 'utf8'))
+    write_string_utf8(f,PES_VERSION_1_SIGNATURE)
     f.write(b'\x16\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
     write_pec(pattern, f)
 
 
 def write_truncated_version_6(pattern, f):
-    chart = pattern.threadlist
     write_string_utf8(f, PES_VERSION_6_SIGNATURE)
     placeholder_pec_block = f.tell()
     write_int_32le(f, 0)  # Placeholder for PEC BLOCK
@@ -69,9 +66,6 @@ def write_version_1(pattern, f):
     top = extends[1]
     right = extends[2]
     bottom = extends[3]
-
-    width = round(right - left)
-    height = round(bottom - top)
 
     placeholder_pec_block = f.tell()
     write_int_32le(f, 0)  # Placeholder for PEC BLOCK
@@ -106,9 +100,6 @@ def write_version_6(pattern, f):
     top = extends[1]
     right = extends[2]
     bottom = extends[3]
-
-    width = round(right - left)
-    height = round(bottom - top)
 
     placeholder_pec_block = f.tell()
     write_int_32le(f, 0)  # Placeholder for PEC BLOCK

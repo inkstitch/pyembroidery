@@ -55,22 +55,22 @@ def read(f, out):
     header = f.read(512)
     header_string = header.decode('utf8')
     for line in [x.strip() for x in header_string.split('\r')]:
-        if (len(line) > 3):
+        if len(line) > 3:
             process_header_info(out, line[0:2].strip(), line[3:].strip())
     sequin_mode = False
     while True:
-        byte = f.read(3)
+        byte = bytearray(f.read(3))
         if len(byte) != 3:
             break
         dx = decode_dx(byte[0], byte[1], byte[2])
         dy = decode_dy(byte[0], byte[1], byte[2])
-        if ((byte[2] & 0b11110011) == 0b11110011):
+        if byte[2] & 0b11110011 == 0b11110011:
             out.stop(dx, dy)
-        elif ((byte[2] & 0b11000011) == 0b11000011):
+        elif byte[2] & 0b11000011 == 0b11000011:
             out.color_change(dx, dy)
-        elif ((byte[2] & 0b01000011) == 0b01000011):
+        elif byte[2] & 0b01000011 == 0b01000011:
             sequin_mode = not sequin_mode
-        elif ((byte[2] & 0b10000011) == 0b10000011):
+        elif byte[2] & 0b10000011 == 0b10000011:
             if sequin_mode:
                 out.sequin(dx, dy)
             else:

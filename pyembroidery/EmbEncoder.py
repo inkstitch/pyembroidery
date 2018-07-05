@@ -1,8 +1,6 @@
 import math
 
-from pyembroidery.EmbConstant import *
-
-
+from EmbConstant import *
 
 
 class Transcoder:
@@ -20,6 +18,9 @@ class Transcoder:
         self.position = 0
         self.color_index = -1
         self.stitch = None
+        self.state_trimmed = True
+        self.needle_x = 0
+        self.needle_y = 0
 
     def transcode(self, source_pattern, destination_pattern):
         self.source_pattern = source_pattern
@@ -235,14 +236,14 @@ class Transcoder:
         distance_x = x1 - x0
         distance_y = y1 - y0
         if abs(distance_x) > max_length or abs(distance_y) > max_length:
-            stepsX = math.ceil(abs(distance_x / max_length))
-            stepsY = math.ceil(abs(distance_y / max_length))
-            if (stepsX > stepsY):
-                steps = stepsX
+            steps_x = math.ceil(abs(distance_x / max_length))
+            steps_y = math.ceil(abs(distance_y / max_length))
+            if steps_x > steps_y:
+                steps = steps_x
             else:
-                steps = stepsY
-            stepSizeX = distance_x / steps
-            stepSizeY = distance_y / steps
+                steps = steps_y
+            step_size_x = distance_x / steps
+            step_size_y = distance_y / steps
 
             q = 0
             qe = steps
@@ -251,8 +252,8 @@ class Transcoder:
             while q < qe:
                 transcode.append([round(qx), round(qy), data])
                 q += 1
-                qx += stepSizeX
-                qy += stepSizeY
+                qx += step_size_x
+                qy += step_size_y
 
     def lock_stitch(self, x, y, anchor_x, anchor_y, max_length=None):
         """Tie-on, Tie-off. Lock stitch from current location towards
@@ -292,12 +293,12 @@ def towards(a, b, amount):
     return (amount * (b - a)) + a
 
 
-def angleR(x0, y0, x1, y1):
+def angle_radians(x0, y0, x1, y1):
     """Angle in radians between x0,y0 and x1,y1"""
     return math.atan2(y1 - y0, x1 - x0)
 
 
 def oriented(x0, y0, x1, y1, r):
     """from x0,y0 in the direction of x1,y1 in the distance of r"""
-    radians = angleR(x0, y0, x1, y1)
-    return (x0 + (r * math.cos(radians)), y0 + (r * math.sin(radians)))
+    radians = angle_radians(x0, y0, x1, y1)
+    return x0 + (r * math.cos(radians)), y0 + (r * math.sin(radians))

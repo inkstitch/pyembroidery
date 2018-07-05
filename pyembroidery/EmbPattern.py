@@ -1,11 +1,11 @@
 import random
 
-from pyembroidery.EmbThread import EmbThread
-from pyembroidery.EmbEncoder import Transcoder as Normalizer
-from pyembroidery.EmbConstant import *
+from EmbThread import EmbThread
+from EmbEncoder import Transcoder as Normalizer
+from EmbConstant import *
 
 
-class EmbPattern():
+class EmbPattern:
     def __init__(self):
         self.stitches = []  # type: list
         self.threadlist = []  # type: list
@@ -102,7 +102,7 @@ class EmbPattern():
                 max_y = stitch[1]
             if stitch[1] < min_y:
                 min_y = stitch[1]
-        return (min_x, min_y, max_x, max_y)
+        return min_x, min_y, max_x, max_y
 
     def count_stitch_commands(self, command):
         count = 0
@@ -121,14 +121,15 @@ class EmbPattern():
     def count_threads(self):
         return len(self.threadlist)
 
-    def get_random_thread(self):
+    @staticmethod
+    def get_random_thread():
         thread = EmbThread()
         thread.color = 0xFF000000 | random.randint(0, 0xFFFFFF)
         thread.description = "Random"
         return thread
 
     def get_thread_or_filler(self, index):
-        if (len(self.threadlist) <= index):
+        if len(self.threadlist) <= index:
             return self.get_random_thread()
         else:
             return self.threadlist[index]
@@ -144,7 +145,7 @@ class EmbPattern():
             else:
                 if len(stitchblock) > 0:
                     yield (stitchblock, thread)
-                    stitchblock.clear()
+                    stitchblock = []
                 if flags == COLOR_CHANGE:
                     thread = self.get_thread_or_filler(thread_index)
                     thread_index += 1
@@ -231,7 +232,6 @@ class EmbPattern():
 
     def add_stitchblock(self, stitchblock):
         threadlist = self.threadlist
-        stitches = self.stitches
         block = stitchblock[0]
         thread = stitchblock[1]
         if len(threadlist) == 0 or thread is not threadlist[-1]:

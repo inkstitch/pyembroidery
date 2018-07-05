@@ -1,4 +1,4 @@
-from pyembroidery.EmbConstant import *
+from EmbConstant import *
 
 MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127
@@ -19,15 +19,15 @@ def write(pattern, f, settings=None):
             if jumping:
                 f.write(b'\x00\x00')
                 jumping = False
-            delta_x = round(dx) & 0xFF
-            delta_y = -round(dy) & 0xFF
-            f.write(bytes([delta_x, delta_y]))
+            delta_x = int(round(dx)) & 0xFF
+            delta_y = -int(round(dy)) & 0xFF
+            f.write(bytes(bytearray([delta_x, delta_y])))
         elif data == JUMP:
             jumping = True
-            delta_x = round(dx) & 0xFF
-            delta_y = -round(dy) & 0xFF
+            delta_x = int(round(dx)) & 0xFF
+            delta_y = -int(round(dy)) & 0xFF
             f.write(b'\x80\x04')
-            f.write(bytes([delta_x, delta_y]))
+            f.write(bytes(bytearray([delta_x, delta_y])))
         elif data == TRIM:
             f.write(b'\x80\x80\x07\x00')
             f.write(b'\x80\x04\x00\x00')

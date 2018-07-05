@@ -1,6 +1,6 @@
-from pyembroidery.PecReader import read_pec
-from pyembroidery.EmbThread import EmbThread
-from pyembroidery.ReadHelper import read_string_8, read_int_8, read_int_32le, read_int_24be, read_int_16le
+from PecReader import read_pec
+from EmbThread import EmbThread
+from ReadHelper import read_string_8, read_int_8, read_int_32le, read_int_24be, read_int_16le
 
 
 def read(f, read_object):

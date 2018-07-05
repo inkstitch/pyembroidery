@@ -1,5 +1,5 @@
-from pyembroidery.EmbThread import EmbThread
-from pyembroidery.ReadHelper import read_int_16be, read_int_8, read_int_32be, read_int_24be, read_signed, read_string_8, read_string_16
+from EmbThread import EmbThread
+from ReadHelper import read_int_16be, read_int_8, read_int_32be, read_int_24be, read_signed, read_string_8, read_string_16
 
 
 def read_vp3_string_16(stream):
@@ -21,7 +21,7 @@ def skip_vp3_string(stream):
 
 
 def signed32(b):
-    b = b & 0xFFFFFFFF
+    b &= 0xFFFFFFFF
     if b > 0x7FFFFFFF:
         return - 0x100000000 + b
     else:
@@ -29,8 +29,8 @@ def signed32(b):
 
 
 def signed16(b0, b1):
-    b0 = b0 & 0xFF
-    b1 = b1 & 0xFF
+    b0 &= 0xFF
+    b1 &= 0xFF
     b = (b0 << 8) | b1
     if b > 0x7FFF:
         return - 0x10000 + b
@@ -75,7 +75,6 @@ def vp3_read_colorblock(f, read_object, center_x, center_y):
     stitch_bytes = read_signed(f, stitch_byte_length)
 
     i = 0
-    ended = False
     while i < len(stitch_bytes) - 1:
         x = stitch_bytes[i]
         y = stitch_bytes[i + 1]

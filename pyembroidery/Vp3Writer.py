@@ -1,8 +1,5 @@
-import math
-import io
-
-from pyembroidery.EmbConstant import *
-from pyembroidery.WriteHelper import write_int_8, write_int_24be,write_int_32be, write_int_16be, write_string_utf8
+from EmbConstant import *
+from WriteHelper import write_int_8, write_int_24be,write_int_32be, write_int_16be, write_string_utf8
 
 # Vp3 can encode signed 16 bit deltas.
 MAX_JUMP_DISTANCE = 3200
@@ -11,12 +8,12 @@ MAX_STITCH_DISTANCE = 255
 
 
 def vp3_write_string_8(stream, string):
-    bytestring = bytes(string, "utf-8")
+    bytestring = bytes(string).encode("utf-8")
     vp3_write_length_and_bytes(stream, bytestring)
 
 
 def vp3_write_string_16(stream, string):
-    bytestring = bytes(string, "UTF-16BE")
+    bytestring = bytes(string).encode("UTF-16BE")
     vp3_write_length_and_bytes(stream, bytestring)
 
 
@@ -240,7 +237,6 @@ def write_stitches_block(f, stitches, first_pos_x, first_pos_y):
         last_x = last_x + dx
         last_y = last_y + dy
         if flags == STITCH:
-            trimmed = False
             if -127 <= dx <= 127 and -127 <= dy <= 127:
                 write_int_8(f, dx)
                 write_int_8(f, dy)

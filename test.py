@@ -1,16 +1,17 @@
 from __future__ import print_function
+import os
 
-import math
+import test_fractals
 
-import pyembroidery.DstWriter as dstWriter
-import pyembroidery.EmbPattern as EmbPattern
-import pyembroidery.EmbThread as EmbThread
+from pyembroidery.EmbPattern import EmbPattern
 import pyembroidery.PyEmbroidery as pyemb
+from pyembroidery.EmbConstant import *
+import pyembroidery.PecGraphics as pg
 
 
 # Initial test code. pyembroidery
 
-pattern = EmbPattern.EmbPattern()
+pattern = EmbPattern()
 
 pattern.add_thread({
     "rgb": 0x0000FF,
@@ -25,8 +26,6 @@ pattern.add_thread({
     "catalog": "0034",
     "brand": "PyEmbroidery Brand Thread"
 })
-
-import test_fractals
 
 test_fractals.generate(pattern)
 
@@ -45,24 +44,25 @@ pyemb.write(pattern, "generated.jef", settings)
 pyemb.write(pattern, "generated.vp3", settings)
 settings["pes version"] = 1
 pyemb.write(pattern, "generatedv1.pes", settings)
+settings["pes version"] = 0x101
+pyemb.write(pattern, "generatedv1t.pes", settings)
+settings["pes version"] = 0x106
+pyemb.write(pattern, "generatedv6t.pes", settings)
 
 # Do not emulate the following pattern
-pattern2 = EmbPattern.EmbPattern()
-pattern2.command(EmbPattern.STITCH)
-pattern2.add_stitch_relative(EmbPattern.TRANSLATE, 500, 0)
-pattern2.command(EmbPattern.STITCH)
-pattern2.add_stitch_relative(EmbPattern.TRANSLATE, 0, 500)
-pattern2.command(EmbPattern.STITCH)
-pattern2.add_stitch_relative(EmbPattern.TRANSLATE, -500, 0)
-pattern2.command(EmbPattern.STITCH)
-pattern2.add_stitch_relative(EmbPattern.TRANSLATE, 0, -500)
-pattern2.command(EmbPattern.STITCH)
+pattern2 = EmbPattern()
+pattern2.command(STITCH)
+pattern2.add_stitch_relative(TRANSLATE, 500, 0)
+pattern2.command(STITCH)
+pattern2.add_stitch_relative(TRANSLATE, 0, 500)
+pattern2.command(STITCH)
+pattern2.add_stitch_relative(TRANSLATE, -500, 0)
+pattern2.command(STITCH)
+pattern2.add_stitch_relative(TRANSLATE, 0, -500)
+pattern2.command(STITCH)
 
 pyemb.write_dst(pattern2, "test.dst")
 
-import pyembroidery.PecGraphics as pg
-
-import os
 for file in os.listdir("convert"):
     convert_file = os.path.join("convert", file)
     pattern = pyemb.read(convert_file)
@@ -83,12 +83,3 @@ for file in os.listdir("convert"):
             # "translate_x": 500,
             # "translate_y": 500
         })
-
-#
-# read_pes = pyemb.read("results/Panda Freebie.pes.pes")
-# i = 0
-# while read_pes.get_metadata(i) != None:
-#     pg.print_graphic(read_pes.get_metadata(i))
-#     print("")
-#     print("")
-#     i += 1;

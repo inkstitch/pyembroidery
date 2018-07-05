@@ -1,10 +1,8 @@
-import math
-import io
 
-from pyembroidery.EmbConstant import *
-from pyembroidery.EmbThreadPec import get_thread_set
-from pyembroidery.PecGraphics import get_blank, draw_scaled
-from pyembroidery.WriteHelper import write_int_8, write_int_16le, write_int_24le
+from EmbConstant import *
+from EmbThreadPec import get_thread_set
+from PecGraphics import get_blank, draw_scaled
+from WriteHelper import write_int_8, write_int_16le, write_int_24le
 
 
 MAX_JUMP_DISTANCE = 2047
@@ -19,7 +17,7 @@ PEC_ICON_HEIGHT = 38
 
 
 def write(pattern, f, settings=None):
-    f.write(bytes("#PEC0001", 'utf8'))
+    f.write(bytes("#PEC0001".encode('utf8')))
     write_pec(pattern, f)
 
 
@@ -34,7 +32,7 @@ def write_pec(pattern, f):
 
 def write_pec_header(pattern, f):
     name = pattern.get_metadata("name", "Untitled")
-    f.write(bytes("LA:%-16s\r" % (name[:8]), 'utf8'))
+    f.write(bytes("LA:%-16s\r" % (name[:8])).encode('utf8'))
     f.write(b'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\xFF\x00')
     write_int_8(f, int(PEC_ICON_WIDTH / 8))  # PEC BYTE STRIDE
     write_int_8(f, int(PEC_ICON_HEIGHT))  # PEC ICON HEIGHT
@@ -55,7 +53,7 @@ def write_pec_header(pattern, f):
     if current_thread_count is not 0:
         f.write(b'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20')
         colorlist.insert(0, current_thread_count - 1)
-        f.write(bytes(colorlist))
+        f.write(bytes(bytearray(colorlist)))
     else:
         f.write(b'\x20\x20\x20\x20\x64\x20\x00\x20\x00\x20\x20\x20\xFF')
 
@@ -71,13 +69,13 @@ def write_pec_block(pattern, f, extends):
     f.write(b'\x00\x00')
     write_int_24le(f, 0)  # Space holder.
     f.write(b'\x31\xff\xf0')
-    write_int_16le(f, round(width))
-    write_int_16le(f, round(height))
+    write_int_16le(f, int(round(width)))
+    write_int_16le(f, int(round(height)))
     write_int_16le(f, 0x1E0)
     write_int_16le(f, 0x1B0)
 
-    write_int_16le(f, 0x9000 | -round(extends[0]))
-    write_int_16le(f, 0x9000 | -round(extends[1]))
+    write_int_16le(f, 0x9000 | -int(round(extends[0])))
+    write_int_16le(f, 0x9000 | -int(round(extends[1])))
 
     pec_encode(pattern, f)
 
@@ -94,13 +92,13 @@ def write_pec_graphics(pattern, f, extends):
     for block in pattern.get_as_stitchblock():
         stitches = block[0]
         draw_scaled(extends, stitches, blank, 6, 4)
-    f.write(bytes(blank))
+    f.write(bytes(bytearray(blank)))
 
     for block in pattern.get_as_colorblocks():
         stitches = [s for s in block[0] if s[2] == STITCH]
         blank = get_blank()  # [ 0 ] * 6 * 38
         draw_scaled(extends, stitches, blank, 6)
-        f.write(bytes(blank))
+        f.write(bytes(bytearray(blank)))
 
 
 def encode_long_form(value):
@@ -131,13 +129,13 @@ def pec_encode(pattern, f):
         dx = x - xx
         dy = y - yy
         if data is STITCH:
-            delta_x = round(dx)
-            delta_y = round(dy)
+            delta_x = int(round(dx))
+            delta_y = int(round(dy))
             if jumping and delta_x is not 0 and delta_y is not 0:
                 f.write(b'\x00\x00')
                 jumping = False
             if -64 < delta_x < 63 and -64 < delta_y < 63:
-                f.write(bytes([delta_x & MASK_07_BIT, delta_y & MASK_07_BIT]))
+                f.write(bytes(bytearray([delta_x & MASK_07_BIT, delta_y & MASK_07_BIT])))
             else:
                 delta_x = encode_long_form(delta_x)
                 delta_y = encode_long_form(delta_y)
@@ -146,27 +144,27 @@ def pec_encode(pattern, f):
                     delta_x & 0xFF,
                     (delta_y >> 8) & 0xFF,
                     delta_y & 0xFF]
-                f.write(bytes(data))
+                f.write(bytes(bytearray(data)))
         elif data == JUMP:
             jumping = True
-            delta_x = round(dx)
+            delta_x = int(round(dx))
             delta_x = encode_long_form(delta_x)
             if color_change_jump:
                 delta_x = flag_jump(delta_x)
             else:
                 delta_x = flag_trim(delta_x)
-            delta_y = round(dy)
+            delta_y = int(round(dy))
             delta_y = encode_long_form(delta_y)
             if color_change_jump:
                 delta_y = flag_jump(delta_y)
             else:
                 delta_y = flag_trim(delta_y)
-            f.write(bytes([
+            f.write(bytes(bytearray([
                 (delta_x >> 8) & 0xFF,
                 delta_x & 0xFF,
                 (delta_y >> 8) & 0xFF,
                 delta_y & 0xFF
-            ]))
+            ])))
             color_change_jump = False
         elif data == COLOR_CHANGE:
             if jumping:
