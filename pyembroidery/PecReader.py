@@ -13,15 +13,41 @@ def read(f, read_object):
 
 
 def read_pec(f, read_object, threadlist):
-    f.seek(0x30, 1)
+    f.seek(3, 1)  # LA:
+    label = helper.read_string_8(f,16).strip()  # Label
+    read_object.metadata("Label", label)
+    f.seek(0xF, 1)  # Dunno, spaces then 0xFF 0x00
+    pec_graphic_byte_stride = helper.read_int_8(f)
+    pec_graphic_icon_height = helper.read_int_8(f)
+    f.seek(0xC, 1)
     color_changes = helper.read_int_8(f);
     count_colors = color_changes + 1  # PEC uses cc - 1, 0xFF means 0.
-
     color_bytes = f.read(count_colors)
     map_pec_colors(color_bytes, read_object, threadlist)
-    to_stitches = 0x1E2 - color_changes
-    f.seek(to_stitches, 1)
+    f.seek(0x1D0 - color_changes, 1)
+    stitch_block_end = helper.read_int_24le(f) -5 + f.tell();
+    # The end of this value is already 5 into the stitchblock.
+
+    f.seek(0x0E, 1)
     read_pec_stitches(f, read_object)
+    f.seek(stitch_block_end,0)
+
+    byte_size = pec_graphic_byte_stride * pec_graphic_icon_height
+
+    read_pec_graphics(f,
+                      read_object,
+                      byte_size,
+                      pec_graphic_byte_stride,
+                      count_colors + 1
+                      )
+
+
+def read_pec_graphics(f, read_object, size, stride, count):
+    for i in range(0, count):
+        graphic = f.read(size);
+        if f != None:
+            read_object.metadata(i,graphic)
+
 
 
 def process_pec_colors(colorbytes, read_object):
@@ -59,7 +85,7 @@ def map_pec_colors(colorbytes, read_object, threadlist):
 
     elif len(threadlist) >= len(colorbytes):
         # Reading threads in 1 : 1 mode.
-        for threads in threadlist:
+        for thread in threadlist:
             read_object.add_thread(thread)
     else:
         # Reading tabled mode threads.

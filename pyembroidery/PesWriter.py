@@ -39,7 +39,7 @@ def write(pattern, f, settings=None):
 def write_truncated_version_1(pattern, f):
     f.write(bytes(PES_VERSION_1_SIGNATURE, 'utf8'))
     f.write(b'\x16\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
-    writer.write_pec_stitches(pattern, f)
+    writer.write_pec(pattern, f)
 
 
 def write_truncated_version_6(pattern, f):
@@ -54,7 +54,7 @@ def write_truncated_version_6(pattern, f):
     f.seek(placeholder_pec_block, 0)
     helper.write_int_32le(f, current_position)
     f.seek(current_position, 0);
-    writer.write_pec_stitches(pattern, f);
+    writer.write_pec(pattern, f);
 
 
 def write_version_1(pattern, f):
@@ -91,7 +91,7 @@ def write_version_1(pattern, f):
     helper.write_int_32le(f, current_position)
     f.seek(current_position, 0);
 
-    writer.write_pec_stitches(pattern, f);
+    writer.write_pec(pattern, f);
 
 
 def write_version_6(pattern, f):
@@ -133,7 +133,7 @@ def write_version_6(pattern, f):
     f.seek(placeholder_pec_block, 0)
     helper.write_int_32le(f, current_position)
     f.seek(current_position, 0);
-    writer.write_pec_stitches(pattern, f);
+    writer.write_pec(pattern, f);
 
 
 def write_pes_header_v1(f, distinct_block_objects):
