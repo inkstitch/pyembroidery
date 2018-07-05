@@ -149,6 +149,32 @@ class EmbPattern():
         if len(stitchblock) > 0:
             yield (stitchblock, thread)
 
+    def get_as_command_blocks(self):
+        last_pos = 0
+        last_command = NO_COMMAND
+        for pos, stitch in enumerate(self.stitches):
+            command = stitch[2]
+            if command == last_command or last_command == NO_COMMAND:
+                last_command = command;
+                continue
+            last_command = command;
+            yield self.stitches[last_pos:pos]
+            last_pos = pos;
+        yield self.stitches[last_pos:]
+
+    def get_as_colorblocks(self):
+        thread_index = 0;
+        last_pos = 0;
+        for pos, stitch in enumerate(self.stitches):
+            if stitch[2] != COLOR_CHANGE:
+                continue
+            thread = self.get_thread_or_filler(thread_index)
+            thread_index += 1;
+            yield (self.stitches[last_pos:pos], thread)
+            last_pos = pos;
+        thread = self.get_thread_or_filler(thread_index)
+        yield (self.stitches[last_pos:], thread)
+
     def get_unique_threadlist(self):
         return set(self.threadlist)
 
@@ -160,6 +186,12 @@ class EmbPattern():
                 singleton.append(thread)
             last_thread = thread
         return singleton
+
+    def move_center_to_origin(self):
+        extends = self.extends()
+        cx = (extends[2] - extends[0]) / 2
+        cy = (extends[3] - extends[1]) / 2
+        self.translate(-cx, -cy)
 
     def translate(self, dx, dy):
         for stitch in self.stitches:

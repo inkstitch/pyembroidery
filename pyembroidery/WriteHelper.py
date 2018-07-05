@@ -34,6 +34,11 @@ def write_int_32be(stream, value):
     stream.write(bytes([(value >> 24) & 0xFF, (value >> 16) & 0xFF,
                         (value >> 8) & 0xFF, value & 0xFF]))
 
+def write_float_32le(stream, value):
+    import struct
+    stream.write(struct.pack("<f",float(value)))
+
+
 def write(stream, string):
     stream.write(bytes(string, 'utf8'))
     

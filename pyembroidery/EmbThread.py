@@ -1,5 +1,7 @@
 
 def find_nearest_color_index(find_color, values):
+    if isinstance(find_color,EmbThread):
+        find_color = find_color.color
     red = (find_color >> 16) & 0xff
     green = (find_color >> 8) & 0xff
     blue = find_color & 0xff

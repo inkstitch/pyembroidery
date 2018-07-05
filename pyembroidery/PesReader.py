@@ -2,6 +2,7 @@ import pyembroidery.PecReader as PecReader
 import pyembroidery.EmbThread as EmbThread
 import pyembroidery.ReadHelper as helper
 
+
 def read(f, read_object):
     threadlist = []
     pes_string = helper.read_string_8(f, 8)
@@ -46,19 +47,19 @@ def read_pes_string(f):
 
 def read_pes_metadata(f, read_object):
     v = read_pes_string(f)
-    if v != None:
+    if v != None and len(v) > 0:
         read_object.metadata("name", v)
     v = read_pes_string(f)
-    if v != None:
+    if v != None and len(v) > 0:
         read_object.metadata("category", v)
     v = read_pes_string(f)
-    if v != None:
+    if v != None and len(v) > 0:
         read_object.metadata("author", v)
     v = read_pes_string(f)
-    if v != None:
+    if v != None and len(v) > 0:
         read_object.metadata("keywords", v)
     v = read_pes_string(f)
-    if v != None:
+    if v != None and len(v) > 0:
         read_object.metadata("comments", rv)
 
 
@@ -86,11 +87,11 @@ def read_pes_header_version_4(f, read_object):
 def read_pes_header_version_5(f, read_object, threadlist):
     f.seek(4, 1)
     read_pes_metadata(f, read_object);
-    f.seek(24, 1)
-    v = read_pes_string(f)
-    if v != None:
-        read_object.metadata("image", v)
     f.seek(24, 1)  # this is 36 in version 6 and 24 in version 5
+    v = read_pes_string(f)
+    if v != None and len(v) > 0:
+        read_object.metadata("image", v)
+    f.seek(24, 1)
     count_programmable_fills = helper.read_int_16le(f)
     if count_programmable_fills != 0:
         return
@@ -108,11 +109,11 @@ def read_pes_header_version_5(f, read_object, threadlist):
 def read_pes_header_version_6(f, read_object, threadlist):
     f.seek(4, 1)
     read_pes_metadata(f, read_object);
-    f.seek(24, 1)
-    v = read_pes_string(f)
-    if v != None:
-        read_object.metadata("image", v)
     f.seek(36, 1)  # this is 36 in version 6 and 24 in version 5
+    v = read_pes_string(f)
+    if v != None and len(v) > 0:
+        read_object.metadata("image_file", v)
+    f.seek(24, 1)
     count_programmable_fills = helper.read_int_16le(f)
     if count_programmable_fills != 0:
         return
