@@ -2,9 +2,12 @@
 
 Python library for the reading and writing of embroidery files.
 
+To install:
+* pip -install pyembroidery
+
 Any suggestions or comments please raise an issue.
 
-pyembroidery is largely intended for eventual use in lexelby/inkstitch. However, it includes a lot of higher level and middle level pattern composition abilities that might not be eventually used there. It duplicates some of the functionalities already present there in order to be entirely reasonable for *any* python embroidery project. You shouldn't have to rewrite the tie_on code yourself if you're converting some vector guilloches to embroidery or wrote a fun cyclocycloid program and want to sew the output, or for some reason sew circuit boards on fabric with electricity conductive thread. That's not my department.
+pyembroidery is largely intended for eventual use in inkscape/inkstitch. However, it includes a lot of higher level and middle level pattern composition abilities that might not be eventually used there. It duplicates some of the functionalities already present there in order to be entirely reasonable for *any* python embroidery project. You shouldn't have to rewrite the tie_on code yourself if you're converting some vector guilloches to embroidery or wrote a fun cyclocycloid program and want to sew the output, or for some reason sew circuit boards on fabric with electricity conductive thread. That's not my department.
 
 It should be complex enough to go very easily from points to stitches, fine grained enough to let you control everything, and good enough that you shouldn't want to.
 
