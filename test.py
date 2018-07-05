@@ -1,10 +1,12 @@
 from __future__ import print_function
 
+import math
+
 import pyembroidery.DstWriter as dstWriter
 import pyembroidery.EmbPattern as EmbPattern
 import pyembroidery.EmbThread as EmbThread
 import pyembroidery.PyEmbroidery as pyemb
-import math
+
 
 # Initial test code. pyembroidery
 
@@ -45,7 +47,7 @@ settings["pes version"] = 1
 pyemb.write(pattern, "generatedv1.pes", settings)
 
 # Do not emulate the following pattern
-pattern2 = EmbPattern.EmbPattern();
+pattern2 = EmbPattern.EmbPattern()
 pattern2.command(EmbPattern.STITCH)
 pattern2.add_stitch_relative(EmbPattern.TRANSLATE, 500, 0)
 pattern2.command(EmbPattern.STITCH)
@@ -64,17 +66,17 @@ import os
 for file in os.listdir("convert"):
     convert_file = os.path.join("convert", file)
     pattern = pyemb.read(convert_file)
-    if pattern == None:
+    if pattern is None:
         continue
 
     i = 0
-    while pattern.get_metadata(i) != None:
+    while pattern.get_metadata(i) is not None:
         print(pg.get_graphic_as_string(pattern.get_metadata(i)))
-        i += 1;
+        i += 1
 
     pattern = pattern.get_stable_pattern()
     for suffix in [".svg", ".pec", ".pes", ".exp", ".dst", ".jef", ".vp3"]:
-        results_file = os.path.join("results", file) + suffix;
+        results_file = os.path.join("results", file) + suffix
         pyemb.write(pattern, results_file, {
             "tie_on": True,
             "tie_off": True,

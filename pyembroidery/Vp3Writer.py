@@ -1,8 +1,8 @@
 import math
 import io
-import pyembroidery.EmbPattern as EmbPattern
-import pyembroidery.EmbThread as EmbThread
-import pyembroidery.WriteHelper as helper
+
+from pyembroidery.EmbConstant import *
+from pyembroidery.WriteHelper import write_int_8, write_int_24be,write_int_32be, write_int_16be, write_string_utf8
 
 # Vp3 can encode signed 16 bit deltas.
 MAX_JUMP_DISTANCE = 3200
@@ -21,50 +21,50 @@ def vp3_write_string_16(stream, string):
 
 
 def vp3_write_length_and_bytes(stream, bytestring):
-    helper.write_int_16be(stream, len(bytestring))
+    write_int_16be(stream, len(bytestring))
     stream.write(bytestring)
 
 
 def vp3_patch_byte_offset(stream, offset):
-    currentPos = stream.tell();
+    currentPos = stream.tell()
     stream.seek(offset, 0)  # Absolute position seek.
     position = currentPos - offset - 4  # 4 bytes int32
-    helper.write_int_32be(stream, position);
+    write_int_32be(stream, position)
     stream.seek(currentPos, 0)  # Absolute position seek.
 
 
 def get_as_colorblocks(pattern):
-    thread_index = 0;
-    last_pos = 0;
+    thread_index = 0
+    last_pos = 0
     end = len(pattern.stitches)
     for pos, stitch in enumerate(pattern.stitches):
-        if stitch[2] != EmbPattern.COLOR_CHANGE:
+        if stitch[2] != COLOR_CHANGE:
             continue
         thread = pattern.get_thread_or_filler(thread_index)
-        thread_index += 1;
+        thread_index += 1
         yield (pattern.stitches[last_pos:pos], thread)
-        last_pos = pos;
+        last_pos = pos
     thread = pattern.get_thread_or_filler(thread_index)
-    thread_index += 1;
+    thread_index += 1
     yield (pattern.stitches[last_pos:end], thread)
 
 
 def write(pattern, f, settings=None):
-    pattern.fix_color_count();
+    pattern.fix_color_count()
 
-    helper.write(f, "%vsm%")
-    helper.write_int_8(f, 0)
-    vp3_write_string_16(f, "Produced by     Software Ltd");
+    write_string_utf8(f, "%vsm%")
+    write_int_8(f, 0)
+    vp3_write_string_16(f, "Produced by     Software Ltd")
     write_file(pattern, f)
 
 
 def write_file(pattern, f):
     f.write(b'\x00\x02\x00')
     placeholder_distance_end_of_file_block_020 = f.tell()
-    helper.write_int_32le(f, 0)  # placeholder
+    write_int_32be(f, 0)  # placeholder
     # This refers to the end of the final block, not entire bytes.
 
-    vp3_write_string_16(f, "");
+    vp3_write_string_16(f, "")
     # This is global notes and settings string.
     # "Setting:" followed by settings text.
 
@@ -74,26 +74,26 @@ def write_file(pattern, f):
     count_colorblocks_total = len(colorblocks)
 
     extends = pattern.extends()
-    helper.write_int_32be(f, int(extends[2] * 100))  # right
-    helper.write_int_32be(f, int(extends[1] * -100))  # -top
-    helper.write_int_32be(f, int(extends[0] * 100))  # left
-    helper.write_int_32be(f, int(extends[3] * -100))  # -bottom
+    write_int_32be(f, int(extends[2] * 100))  # right
+    write_int_32be(f, int(extends[1] * -100))  # -top
+    write_int_32be(f, int(extends[0] * 100))  # left
+    write_int_32be(f, int(extends[3] * -100))  # -bottom
 
     # EmbroiderModder Comment:
     # "this would be some(unknown) function of thread length"
     # Wilcom: 0C 54 == 3156
     # Note, this is the total stitch count, sans end command.
-    ends = pattern.count_stitch_commands(EmbPattern.END);
+    ends = pattern.count_stitch_commands(END)
     count_just_stitches = count_stitches - ends
 
-    helper.write_int_32be(f, count_just_stitches);
-    helper.write_int_8(f, 0);
-    helper.write_int_8(f, count_colorblocks_total)
-    helper.write_int_8(f, 12)  # 0xC
-    helper.write_int_8(f, 0)
+    write_int_32be(f, count_just_stitches)
+    write_int_8(f, 0)
+    write_int_8(f, count_colorblocks_total)
+    write_int_8(f, 12)  # 0xC
+    write_int_8(f, 0)
 
     count_designs = 1
-    helper.write_int_8(f, count_designs)  # Number of designs.
+    write_int_8(f, count_designs)  # Number of designs.
     for i in range(0, count_designs):
         write_design_block(f, extends, colorblocks)
     vp3_patch_byte_offset(f, placeholder_distance_end_of_file_block_020)
@@ -102,7 +102,7 @@ def write_file(pattern, f):
 def write_design_block(f, extends, colorblocks):
     f.write(b'\x00\x03\x00')
     placeholder_distance_end_of_design_block_030 = f.tell()
-    helper.write_int_32be(f, 0)
+    write_int_32be(f, 0)
 
     count_colorblocks_total = len(colorblocks)
 
@@ -113,48 +113,48 @@ def write_design_block(f, extends, colorblocks):
     center_x = extends[2] - half_width
     center_y = extends[3] - half_height
 
-    helper.write_int_32be(f, int(center_x) * 100)  # initial x
-    helper.write_int_32be(f, int(center_y) * -100)  # initial y
-    helper.write_int_8(f, 0)
-    helper.write_int_8(f, 0)
-    helper.write_int_8(f, 0)
+    write_int_32be(f, int(center_x) * 100)  # initial x
+    write_int_32be(f, int(center_y) * -100)  # initial y
+    write_int_8(f, 0)
+    write_int_8(f, 0)
+    write_int_8(f, 0)
 
     # extends 2
-    helper.write_int_32be(f, int(half_width) * -100)
-    helper.write_int_32be(f, int(half_width) * 100)
-    helper.write_int_32be(f, int(half_height) * -100)
-    helper.write_int_32be(f, int(half_height) * 100)
+    write_int_32be(f, int(half_width) * -100)
+    write_int_32be(f, int(half_width) * 100)
+    write_int_32be(f, int(half_height) * -100)
+    write_int_32be(f, int(half_height) * 100)
 
-    helper.write_int_32be(f, int(width) * 100)
-    helper.write_int_32be(f, int(height) * 100)
+    write_int_32be(f, int(width) * 100)
+    write_int_32be(f, int(height) * 100)
     vp3_write_string_16(f, "")  # This is notes and settings string.
 
-    f.write(b'\x64\x64')  # helper.write_int_16be(f, 25700)
+    f.write(b'\x64\x64')  # write_int_16be(f, 25700)
     # maybe b'dd', maybe 100, 100
-    helper.write_int_32be(f, 4096)  # b'\x00\x00\x10\x00'
-    helper.write_int_32be(f, 0)  # b'\x00\x00\x00\x00'
-    helper.write_int_32be(f, 0)  # b'\x00\x00\x10\x00'
-    helper.write_int_32be(f, 4096)  # b'\x00\x00\x10\x00'
+    write_int_32be(f, 4096)  # b'\x00\x00\x10\x00'
+    write_int_32be(f, 0)  # b'\x00\x00\x00\x00'
+    write_int_32be(f, 0)  # b'\x00\x00\x10\x00'
+    write_int_32be(f, 4096)  # b'\x00\x00\x10\x00'
 
     f.write(b'xxPP\x01\x00')
 
-    vp3_write_string_16(f, "Produced by     Software Ltd");
+    vp3_write_string_16(f, "Produced by     Software Ltd")
 
-    helper.write_int_16be(f, count_colorblocks_total)
+    write_int_16be(f, count_colorblocks_total)
 
-    first = True;
+    first = True
     for colorblock in colorblocks:
         stitches = colorblock[0]
         thread = colorblock[1]
         write_vp3_colorblock(f, first, center_x, center_y, stitches, thread)
-        first = False;
+        first = False
     vp3_patch_byte_offset(f, placeholder_distance_end_of_design_block_030)
 
 
 def write_vp3_colorblock(f, first, center_x, center_y, stitches, thread):
     f.write(b'\x00\x05\x00')
-    placeholder_distance_end_of_color_block_050 = f.tell();
-    helper.write_int_32be(f, 0)
+    placeholder_distance_end_of_color_block_050 = f.tell()
+    write_int_32be(f, 0)
 
     first_pos_x = stitches[0][0]
     first_pos_y = stitches[0][1]
@@ -166,36 +166,36 @@ def write_vp3_colorblock(f, first, center_x, center_y, stitches, thread):
 
     start_position_from_center_x = first_pos_x - center_x
     start_position_from_center_y = -(first_pos_y - center_y)
-    helper.write_int_32be(f, int(start_position_from_center_x) * 100)
-    helper.write_int_32be(f, int(start_position_from_center_y) * 100)
+    write_int_32be(f, int(start_position_from_center_x) * 100)
+    write_int_32be(f, int(start_position_from_center_y) * 100)
 
-    vp3_write_thread(f, thread);
+    vp3_write_thread(f, thread)
 
     block_shift_x = last_pos_x - first_pos_x
     block_shift_y = -(last_pos_y - first_pos_y)
 
-    helper.write_int_32be(f, int(block_shift_x) * 100)
-    helper.write_int_32be(f, int(block_shift_y) * 100)
+    write_int_32be(f, int(block_shift_x) * 100)
+    write_int_32be(f, int(block_shift_y) * 100)
 
     write_stitches_block(f, stitches, first_pos_x, first_pos_y)
 
-    helper.write_int_8(f, 0)
+    write_int_8(f, 0)
     vp3_patch_byte_offset(f, placeholder_distance_end_of_color_block_050)
 
 
 def vp3_write_thread(f, thread):
     f.write(b'\x01\x00')  # Single color, no transition.
-    helper.write_int_24be(f, thread.color)
+    write_int_24be(f, thread.color)
     f.write(b'\x00\x00\x00\x05\x28')  # no parts, no length, Rayon 40-weight
-    if thread.catalog_number != None:
+    if thread.catalog_number is not None:
         vp3_write_string_8(f, thread.catalog_number)
     else:
         vp3_write_string_8(f, "")
-    if thread.description != None:
+    if thread.description is not None:
         vp3_write_string_8(f, thread.description)
     else:
         vp3_write_string_8(f, thread.hex_color())
-    if thread.brand != None:
+    if thread.brand is not None:
         vp3_write_string_8(f, thread.brand)
     else:
         vp3_write_string_8(f, "")
@@ -209,7 +209,7 @@ def write_stitches_block(f, stitches, first_pos_x, first_pos_y):
     # Those aren't
     f.write(b'\x00\x01\x00')
     placeholder_distance_to_end_of_stitches_block_010 = f.tell()
-    helper.write_int_32be(f, 0)  # placeholder
+    write_int_32be(f, 0)  # placeholder
 
     f.write(b'\x0A\xF6\x00')
     last_x = first_pos_x
@@ -219,35 +219,35 @@ def write_stitches_block(f, stitches, first_pos_x, first_pos_y):
         x = stitch[0]
         y = stitch[1]
         flags = stitch[2]
-        if flags == EmbPattern.END:
+        if flags == END:
             f.write(b'\x80\x03')
-            break;
-        elif flags == EmbPattern.COLOR_CHANGE:
-            continue;
-        elif flags == EmbPattern.TRIM:
-            continue;
-        elif flags == EmbPattern.SEQUIN:
-            continue;
-        elif flags == EmbPattern.STOP:
+            break
+        elif flags == COLOR_CHANGE:
+            continue
+        elif flags == TRIM:
+            continue
+        elif flags == SEQUIN:
+            continue
+        elif flags == STOP:
             # Not sure what to do here.
             # f.write(b'\x80\x04')
-            continue;
-        elif flags == EmbPattern.JUMP:
+            continue
+        elif flags == JUMP:
             # Since VP3.Jump == VP3.Stitch, we combine jumps.
-            continue;
+            continue
         dx = int(x - last_x)
         dy = int(y - last_y)
-        last_x = last_x + dx;
-        last_y = last_y + dy;
-        if flags == EmbPattern.STITCH:
-            trimmed = False;
+        last_x = last_x + dx
+        last_y = last_y + dy
+        if flags == STITCH:
+            trimmed = False
             if -127 <= dx <= 127 and -127 <= dy <= 127:
-                helper.write_int_8(f, dx)
-                helper.write_int_8(f, dy)
+                write_int_8(f, dx)
+                write_int_8(f, dy)
             else:
                 f.write(b'\x80\x01')
-                helper.write_int_16be(f, dx)
-                helper.write_int_16be(f, dy)
+                write_int_16be(f, dx)
+                write_int_16be(f, dy)
                 f.write(b'\x80\x02')
     # VSM gave ending stitches as 80 03 35 A5, so, 80 03 isn't strictly end.
     vp3_patch_byte_offset(f, placeholder_distance_to_end_of_stitches_block_010)

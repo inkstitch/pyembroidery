@@ -1,4 +1,4 @@
-import pyembroidery.EmbPattern as EmbPattern
+from pyembroidery.EmbConstant import *
 
 MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127
@@ -15,37 +15,37 @@ def write(pattern, f, settings=None):
         data = stitch[2]
         dx = x - xx
         dy = y - yy
-        if data is EmbPattern.STITCH:
+        if data is STITCH:
             if jumping:
                 f.write(b'\x00\x00')
                 jumping = False
             delta_x = round(dx) & 0xFF
             delta_y = -round(dy) & 0xFF
             f.write(bytes([delta_x, delta_y]))
-        elif data == EmbPattern.JUMP:
+        elif data == JUMP:
             jumping = True
             delta_x = round(dx) & 0xFF
             delta_y = -round(dy) & 0xFF
             f.write(b'\x80\x04')
             f.write(bytes([delta_x, delta_y]))
-        elif data == EmbPattern.TRIM:
+        elif data == TRIM:
             f.write(b'\x80\x80\x07\x00')
             f.write(b'\x80\x04\x00\x00')
             continue
-        elif data == EmbPattern.COLOR_CHANGE:
+        elif data == COLOR_CHANGE:
             if jumping:
                 f.write(b'\x00\x00')
                 jumping = False
             f.write(b'\x80\x01\x00\x00')
             f.write(b'\x80\x80\x07\x00')
             continue
-        elif data == EmbPattern.STOP:
+        elif data == STOP:
             if jumping:
                 f.write(b'\x00\x00')
                 jumping = False
             f.write(b'\x80\x01\x00\x00')
             continue
-        elif data == EmbPattern.END:
+        elif data == END:
             pass
         xx = x
         yy = y

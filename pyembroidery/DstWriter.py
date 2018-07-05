@@ -1,10 +1,12 @@
 import math
-import pyembroidery.EmbPattern as EmbPattern
+
+from pyembroidery.EmbConstant import *
 
 MAX_JUMP_DISTANCE = 121
 MAX_STITCH_DISTANCE = 121
 PPMM = 10
 DSTHEADERSIZE = 512
+
 
 def bit(b):
     return 1 << b
@@ -15,9 +17,9 @@ def encode_record(x, y, flags):
     b0 = 0
     b1 = 0
     b2 = 0
-    if flags is EmbPattern.JUMP:
+    if flags is JUMP:
         b2 += bit(7)  # jumpstitch 10xxxx11
-    if flags is EmbPattern.STITCH or flags is EmbPattern.JUMP:
+    if flags is STITCH or flags is JUMP:
         b2 += bit(0)
         b2 += bit(1)
         if x > 40:
@@ -84,20 +86,20 @@ def encode_record(x, y, flags):
             y += 1
         if y != 0:
             pass  # Fail. y > 121
-    elif flags is EmbPattern.COLOR_CHANGE:
+    elif flags is COLOR_CHANGE:
         b2 = 0b11000011
-    elif flags is EmbPattern.STOP:
+    elif flags is STOP:
         b2 = 0b11000011
-    elif flags is EmbPattern.END:
+    elif flags is END:
         b2 = 0b11110011
-    elif flags is EmbPattern.SEQUIN:
+    elif flags is SEQUIN:
         b2 = 0b01000011
     return bytes([b0, b1, b2])
 
 
 def write(pattern, f, settings=None):
-    extended_header = False;
-    if settings != None:
+    extended_header = False
+    if settings is not None:
         extended_header = settings.get("extended header", extended_header)
 
     extends = pattern.extends()
@@ -121,10 +123,10 @@ def write(pattern, f, settings=None):
     f.write(bytes("PD:%6s\r" % ("******"), 'utf8'))
     if extended_header:
         author = pattern.get_metadata("author")
-        if author != None:
+        if author is not None:
             f.write(bytes("AU:%s\r" % (author), 'utf8'))
         meta_copyright = pattern.get_metadata("copyright")
-        if meta_copyright != None:
+        if meta_copyright is not None:
             f.write(bytes("CP:%s\r" % (meta_copyright), 'utf8'))
         if len(pattern.threadlist) > 0:
             for thread in pattern.threadlist:
@@ -148,10 +150,10 @@ def write(pattern, f, settings=None):
         data = stitch[2]
         dx = x - xx
         dy = y - yy
-        if data == EmbPattern.TRIM:
-            f.write(encode_record(2, 2, EmbPattern.JUMP))
-            f.write(encode_record(-4, -4, EmbPattern.JUMP))
-            f.write(encode_record(2, 2, EmbPattern.JUMP))
+        if data == TRIM:
+            f.write(encode_record(2, 2, JUMP))
+            f.write(encode_record(-4, -4, JUMP))
+            f.write(encode_record(2, 2, JUMP))
         else:
             f.write(encode_record(round(dx), round(dy), data))
         xx = x

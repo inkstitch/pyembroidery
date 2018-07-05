@@ -1,11 +1,13 @@
-import pyembroidery.EmbPattern as EmbPattern
-from pyembroidery.EmbConstant import *
 import math
+
+from pyembroidery.EmbConstant import *
+
+
 
 
 class Transcoder:
     def __init__(self, encode_settings=None):
-        if encode_settings == None:
+        if encode_settings is None:
             encode_settings = {}
         self.translate_x = encode_settings.get("translate_x", 0)
         self.translate_y = encode_settings.get("translate_y", 0)
@@ -16,16 +18,16 @@ class Transcoder:
         self.source_pattern = None
         self.dest_pattern = None
         self.position = 0
-        self.color_index = -1;
+        self.color_index = -1
         self.stitch = None
 
     def transcode(self, source_pattern, destination_pattern):
         self.source_pattern = source_pattern
-        self.dest_pattern = destination_pattern;
+        self.dest_pattern = destination_pattern
         self.transcode_metadata()
         self.transcode_threads()
         self.transcode_stitches()
-        return destination_pattern;
+        return destination_pattern
 
     def transcode_metadata(self):
         """Transcodes metadata, (just moves)"""
@@ -49,7 +51,7 @@ class Transcoder:
         self.needle_x = 0
         self.needle_y = 0
         self.position = 0
-        self.color_index = -1;
+        self.color_index = -1
         flags = NO_COMMAND
 
         for self.position, self.stitch in enumerate(source):
@@ -57,7 +59,7 @@ class Transcoder:
             y = round(self.stitch[1] + self.translate_y)
             flags = self.stitch[2]
             if flags == NO_COMMAND:
-                continue;
+                continue
             elif flags == ENABLE_TIE_ON:
                 self.has_tie_on = True
             elif flags == ENABLE_TIE_OFF:
@@ -103,28 +105,28 @@ class Transcoder:
                         self.tie_on()
                 else:
                     self.stitch_to(x, y)
-                self.sequin_at(x, y);
+                self.sequin_at(x, y)
             elif flags == COLOR_CHANGE:
                 self.tie_off_and_trim_if_needed()
-                self.color_change_here();
+                self.color_change_here()
                 # If we are told to do something we do it.
                 # Even if it's the first command and makes no sense.
             elif flags == STOP:
                 self.stop_here()
             elif flags == END:
                 self.end_here()
-                break;
+                break
         if flags != END:
-            self.end_here();
+            self.end_here()
 
     def needle(self, x, y):
         self.needle_x = x
         self.needle_y = y
 
     def add(self, flags, x=None, y=None):
-        if x == None:
+        if x is None:
             x = self.needle_x
-        if y == None:
+        if y is None:
             y = self.needle_y
         self.dest_pattern.stitches.append([x, y, flags])
 
@@ -171,7 +173,7 @@ class Transcoder:
         if self.state_trimmed:
             self.state_trimmed = False
             if self.color_index == -1:
-                self.color_index = 0;
+                self.color_index = 0
 
     def stitch_at(self, new_x, new_y):
         self.add(STITCH, new_x, new_y)
@@ -179,7 +181,7 @@ class Transcoder:
         if self.state_trimmed:
             self.state_trimmed = False
             if self.color_index == -1:
-                self.color_index = 0;
+                self.color_index = 0
 
     def sequin_at(self, new_x, new_y):
         # TODO: There might be other middle-level commands needed here.
@@ -188,7 +190,7 @@ class Transcoder:
         if self.state_trimmed:
             self.state_trimmed = False
             if self.color_index == -1:
-                self.color_index = 0;
+                self.color_index = 0
 
     def stop_here(self):
         self.add(STOP)
@@ -211,14 +213,14 @@ class Transcoder:
 
     def constrained_jump_to(self, x0, y0, x1, y1, max_length=None):
         """Jumps from x0, y1 to x1, y1, respecting max length"""
-        if max_length == None:
+        if max_length is None:
             max_length = self.max_jump
         self.constrained_step_to(x0, y0, x1, y1, max_length, JUMP)
         self.add(JUMP, x1, y1)
 
     def constrained_stitch_to(self, x0, y0, x1, y1, max_length=None):
         """Stitches from x0, y1 to x1, y1, respecting max length"""
-        if max_length == None:
+        if max_length is None:
             max_length = self.max_stitch
         self.constrained_step_to(x0, y0, x1, y1, max_length, STITCH)
         self.add(STITCH, x1, y1)
@@ -229,7 +231,7 @@ class Transcoder:
         The next step can arrive at (x, y) without violating constraint.
         If these are already in range, this command will do nothing.
         """
-        transcode = self.dest_pattern.stitches;
+        transcode = self.dest_pattern.stitches
         distance_x = x1 - x0
         distance_y = y1 - y0
         if abs(distance_x) > max_length or abs(distance_y) > max_length:
@@ -256,9 +258,9 @@ class Transcoder:
         """Tie-on, Tie-off. Lock stitch from current location towards
         anchor location.Ends again at lock location. May not exceed
         max_length in the process."""
-        if max_length == None:
+        if max_length is None:
             max_length = self.max_stitch
-        transcode = self.dest_pattern.stitches;
+        transcode = self.dest_pattern.stitches
         dist = distance(x, y, anchor_x, anchor_y)
         if dist > max_length:
             p = oriented(x, y, anchor_x, anchor_y, max_length)

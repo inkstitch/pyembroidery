@@ -1,4 +1,4 @@
-import pyembroidery.EmbThread as EmbThread
+from pyembroidery.EmbThread import EmbThread
 
 
 def get_thread_set():
@@ -85,7 +85,7 @@ def get_thread_set():
     ]
 
 
-class EmbThreadJef(EmbThread.EmbThread):
+class EmbThreadJef(EmbThread):
     def __init__(self, red, green, blue, description, catalog_number):
         self.set_color(red, green, blue)
         self.description = description

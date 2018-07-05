@@ -1,3 +1,5 @@
+import math
+
 blank = [
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0xF0, 0xFF, 0xFF, 0xFF, 0xFF, 0x0F,
@@ -41,11 +43,11 @@ blank = [
 
 
 def get_blank():
-    return blank.copy();
+    return blank.copy()
 
 
 def create(width, height):
-    width = width / 8;
+    width = width / 8
     return [0x00] * width * height
 
 
@@ -67,8 +69,8 @@ def draw(points, graphics, stride=6):
 
 
 def draw_scaled(extends, points, graphic, stride, buffer=5):
-    if extends == None:
-        draw(points, graphic, stride);
+    if extends is None:
+        draw(points, graphic, stride)
         return
     left = 0
     top = 0
@@ -108,7 +110,6 @@ def draw_scaled(extends, points, graphic, stride, buffer=5):
     translate_x += graphic_width / 2
     translate_y += graphic_height / 2
 
-    import math
     for point in points:
         try:
             try:
@@ -129,7 +130,7 @@ def draw_scaled(extends, points, graphic, stride, buffer=5):
 
 def clear(graphic):
     for b in graphic:
-        b = 0;
+        b = 0
 
 
 def set(graphic, x, y, stride=6):
@@ -147,9 +148,9 @@ def get_graphic_as_string(graphic, stride=6, one="#", zero=" "):
     mylist = [
         one if (byte >> i) & 1 else zero
         for byte in graphic
-        for i in range(0,8)
+        for i in range(0, 8)
     ]
-    bitstride = 8 * stride;
+    bitstride = 8 * stride
     bitlength = 8 * len(graphic)
     return '\n'.join(
         ''.join(mylist[m:m + bitstride])

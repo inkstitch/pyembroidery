@@ -1,4 +1,7 @@
-import pyembroidery.EmbThread as EmbThread
+import random
+
+from pyembroidery.EmbThread import EmbThread
+from pyembroidery.EmbEncoder import Transcoder as Normalizer
 from pyembroidery.EmbConstant import *
 
 
@@ -46,14 +49,14 @@ class EmbPattern():
     def add_thread(self, thread):
         """Adds thread to design.
         Note: this has no effect on stitching and can be done at any point."""
-        if isinstance(thread, EmbThread.EmbThread):
+        if isinstance(thread, EmbThread):
             self.threadlist.append(thread)
         elif isinstance(thread, int):
-            thread_object = EmbThread.EmbThread()
-            thread_object.color = thread;
+            thread_object = EmbThread()
+            thread_object.color = thread
             self.threadlist.append(thread_object)
         elif isinstance(thread, dict):
-            thread_object = EmbThread.EmbThread()
+            thread_object = EmbThread()
             if "name" in thread:
                 thread_object.description = thread["name"]
             if "description" in thread:
@@ -119,8 +122,7 @@ class EmbPattern():
         return len(self.threadlist)
 
     def get_random_thread(self):
-        import random
-        thread = EmbThread.EmbThread()
+        thread = EmbThread()
         thread.color = 0xFF000000 | random.randint(0, 0xFFFFFF)
         thread.description = "Random"
         return thread
@@ -134,18 +136,18 @@ class EmbPattern():
     def get_as_stitchblock(self):
         stitchblock = []
         thread = self.get_thread_or_filler(0)
-        thread_index = 1;
+        thread_index = 1
         for stitch in self.stitches:
             flags = stitch[2]
             if flags == STITCH:
-                stitchblock.append(stitch);
+                stitchblock.append(stitch)
             else:
                 if len(stitchblock) > 0:
                     yield (stitchblock, thread)
                     stitchblock.clear()
                 if flags == COLOR_CHANGE:
                     thread = self.get_thread_or_filler(thread_index)
-                    thread_index += 1;
+                    thread_index += 1
         if len(stitchblock) > 0:
             yield (stitchblock, thread)
 
@@ -155,23 +157,23 @@ class EmbPattern():
         for pos, stitch in enumerate(self.stitches):
             command = stitch[2]
             if command == last_command or last_command == NO_COMMAND:
-                last_command = command;
+                last_command = command
                 continue
-            last_command = command;
+            last_command = command
             yield self.stitches[last_pos:pos]
-            last_pos = pos;
+            last_pos = pos
         yield self.stitches[last_pos:]
 
     def get_as_colorblocks(self):
-        thread_index = 0;
-        last_pos = 0;
+        thread_index = 0
+        last_pos = 0
         for pos, stitch in enumerate(self.stitches):
             if stitch[2] != COLOR_CHANGE:
                 continue
             thread = self.get_thread_or_filler(thread_index)
-            thread_index += 1;
+            thread_index += 1
             yield (self.stitches[last_pos:pos], thread)
-            last_pos = pos;
+            last_pos = pos
         thread = self.get_thread_or_filler(thread_index)
         yield (self.stitches[last_pos:], thread)
 
@@ -229,11 +231,11 @@ class EmbPattern():
 
     def add_stitchblock(self, stitchblock):
         threadlist = self.threadlist
-        stitches = self.stitches;
+        stitches = self.stitches
         block = stitchblock[0]
         thread = stitchblock[1]
         if len(threadlist) == 0 or thread is not threadlist[-1]:
-            threadlist.append(thread);
+            threadlist.append(thread)
             self.add_stitch_relative(COLOR_BREAK)
         else:
             self.add_stitch_relative(SEQUENCE_BREAK)
@@ -248,14 +250,13 @@ class EmbPattern():
         """Gets a stablized version of the pattern."""
         stable_pattern = EmbPattern()
         for stitchblock in self.get_as_stitchblock():
-            stable_pattern.add_stitchblock(stitchblock);
+            stable_pattern.add_stitchblock(stitchblock)
         return stable_pattern
 
     def get_normalized_pattern(self, encode_settings=None):
         """Encodes"""
         normal_pattern = EmbPattern()
-        import pyembroidery.EmbEncoder as normalizer
-        transcoder = normalizer.Transcoder(encode_settings)
+        transcoder = Normalizer(encode_settings)
         transcoder.transcode(self, normal_pattern)
         return normal_pattern
 

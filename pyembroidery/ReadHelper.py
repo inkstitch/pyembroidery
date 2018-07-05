@@ -6,24 +6,24 @@ def signed(b):
 
 
 def read_signed(stream, n):
-    byte = stream.read(n);
+    byte = stream.read(n)
     signed_bytes = []
     for b in byte:
         signed_bytes.append(signed(b))
-    return signed_bytes;
+    return signed_bytes
 
 
 def read_sint_8(stream):
     byte = stream.read(1)
     if len(byte) is 1:
-        return signed(byte[0]);
+        return signed(byte[0])
     return None
 
 
 def read_int_8(stream):
     byte = stream.read(1)
     if len(byte) is 1:
-        return byte[0];
+        return byte[0]
     return None
 
 
@@ -69,15 +69,15 @@ def read_int_32be(stream):
     b = stream.read(4)
     if len(b) is 4:
         return (b[3] & 0xFF) + ((b[2] & 0xFF) << 8) + \
-               ((b[1] & 0xFF) << 16) + ((b[0] & 0xFF) << 24);
+               ((b[1] & 0xFF) << 16) + ((b[0] & 0xFF) << 24)
     return None
 
 
 def read_string_8(stream, length):
-    byte = stream.read(length);
-    return byte.decode('utf8');
+    byte = stream.read(length)
+    return byte.decode('utf8')
 
 
 def read_string_16(stream, length):
-    byte = stream.read(length);
-    return byte.decode('utf16');
+    byte = stream.read(length)
+    return byte.decode('utf16')

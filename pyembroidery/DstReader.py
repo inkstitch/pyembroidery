@@ -1,3 +1,4 @@
+
 def getbit(b, pos):
     return (b >> pos) & 1
 
@@ -47,12 +48,12 @@ def process_header_info(out, prefix, value):
             "catalog": value[2]
         })
     else:
-        out.metadata(prefix,value)
+        out.metadata(prefix, value)
 
 
 def read(f, out):
-    header = f.read(512);
-    header_string = header.decode('utf8');
+    header = f.read(512)
+    header_string = header.decode('utf8')
     for line in [x.strip() for x in header_string.split('\r')]:
         if (len(line) > 3):
             process_header_info(out, line[0:2].strip(), line[3:].strip())

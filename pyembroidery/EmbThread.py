@@ -1,6 +1,6 @@
 
 def find_nearest_color_index(find_color, values):
-    if isinstance(find_color,EmbThread):
+    if isinstance(find_color, EmbThread):
         find_color = find_color.color
     red = (find_color >> 16) & 0xff
     green = (find_color >> 8) & 0xff
@@ -10,7 +10,7 @@ def find_nearest_color_index(find_color, values):
     current_closest_value = float("inf")
     for t in values:
         current_index += 1
-        if t == None:
+        if t is None:
             continue
         dist = color_distance_red_mean(
             red,
@@ -33,7 +33,7 @@ def color_distance_red_mean(
     g = int(g1 - g2)
     b = int(b1 - b2)
     return (((512 + rmean) * r * r) >> 8) + 4 * \
-           g * g + (((767 - rmean) * b * b) >> 8)
+        g * g + (((767 - rmean) * b * b) >> 8)
     # See the very good color distance paper:
     # https://www.compuphase.com/cmetric.htm
 
@@ -52,9 +52,9 @@ class EmbThread:
 
     def set_color(self, r, g, b):
         self.color = 0xFF000000 | (
-                (r & 255) << 16) | (
-                             (g & 255) << 8) | (
-                             b & 255)
+            (r & 255) << 16) | (
+            (g & 255) << 8) | (
+            b & 255)
 
     def get_opaque_color(self):
         return 0xFF000000 | self.color
@@ -75,11 +75,10 @@ class EmbThread:
         return "#%02x%02x%02x" % (
             self.get_red(), self.get_green(), self.get_blue())
 
-    def set_hex_color(self,hex_string):
+    def set_hex_color(self, hex_string):
         h = hex_string.lstrip('#')
-        size = len(h);
+        size = len(h)
         if size == 6 or size == 8:
-            self.color = int(h[:6],16);
+            self.color = int(h[:6], 16)
         elif size == 4 or size == 3:
-            self.color = int(h[2]+h[2]+h[1]+h[1]+h[0]+h[0],16)
-
+            self.color = int(h[2] + h[2] + h[1] + h[1] + h[0] + h[0], 16)

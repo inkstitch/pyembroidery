@@ -1,5 +1,3 @@
-import pyembroidery.ReadHelper as helper
-
 
 def signed(b):
     if b > 127:
@@ -10,7 +8,6 @@ def signed(b):
 
 def read(f, read_object):
     while True:
-        # b = helper.read_signed(2);
         b = f.read(2)
         if len(b) != 2:
             break
@@ -27,7 +24,7 @@ def read(f, read_object):
                 if len(b) != 2:
                     break
                 read_object.move(signed(b[0]), -signed(b[1]))
-            elif b[1] == 0x01: # Colorchange
+            elif b[1] == 0x01:  # Colorchange
                 b = f.read(2)
                 if len(b) != 2:
                     break

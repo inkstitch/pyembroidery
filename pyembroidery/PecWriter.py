@@ -1,10 +1,11 @@
 import math
 import io
-import pyembroidery.EmbPattern as EmbPattern
-import pyembroidery.EmbThread as EmbThread
-import pyembroidery.EmbThreadPec as EmbThreadPec
-import pyembroidery.WriteHelper as helper
-import pyembroidery.PecGraphics as PecGraphics
+
+from pyembroidery.EmbConstant import *
+from pyembroidery.EmbThreadPec import get_thread_set
+from pyembroidery.PecGraphics import get_blank, draw_scaled
+from pyembroidery.WriteHelper import write_int_8, write_int_16le, write_int_24le
+
 
 MAX_JUMP_DISTANCE = 2047
 MAX_STITCH_DISTANCE = 2047
@@ -35,10 +36,10 @@ def write_pec_header(pattern, f):
     name = pattern.get_metadata("name", "Untitled")
     f.write(bytes("LA:%-16s\r" % (name[:8]), 'utf8'))
     f.write(b'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\xFF\x00')
-    helper.write_int_8(f, int(PEC_ICON_WIDTH / 8))  # PEC BYTE STRIDE
-    helper.write_int_8(f, int(PEC_ICON_HEIGHT))  # PEC ICON HEIGHT
+    write_int_8(f, int(PEC_ICON_WIDTH / 8))  # PEC BYTE STRIDE
+    write_int_8(f, int(PEC_ICON_HEIGHT))  # PEC ICON HEIGHT
 
-    thread_set = EmbThreadPec.get_thread_set()
+    thread_set = get_thread_set()
     chart = [None] * len(thread_set)
     for thread in set(pattern.threadlist):
         index = thread.find_nearest_color_index(thread_set)
@@ -66,39 +67,39 @@ def write_pec_block(pattern, f, extends):
     width = extends[2] - extends[0]
     height = extends[3] - extends[1]
 
-    stitch_block_start_position = f.tell();
+    stitch_block_start_position = f.tell()
     f.write(b'\x00\x00')
-    helper.write_int_24le(f, 0)  # Space holder.
+    write_int_24le(f, 0)  # Space holder.
     f.write(b'\x31\xff\xf0')
-    helper.write_int_16le(f, round(width))
-    helper.write_int_16le(f, round(height))
-    helper.write_int_16le(f, 0x1E0)
-    helper.write_int_16le(f, 0x1B0)
+    write_int_16le(f, round(width))
+    write_int_16le(f, round(height))
+    write_int_16le(f, 0x1E0)
+    write_int_16le(f, 0x1B0)
 
-    helper.write_int_16le(f, 0x9000 | -round(extends[0]))
-    helper.write_int_16le(f, 0x9000 | -round(extends[1]))
+    write_int_16le(f, 0x9000 | -round(extends[0]))
+    write_int_16le(f, 0x9000 | -round(extends[1]))
 
     pec_encode(pattern, f)
 
     stitch_block_length = f.tell() - stitch_block_start_position
 
-    current_position = f.tell();
+    current_position = f.tell()
     f.seek(stitch_block_start_position + 2, 0)
-    helper.write_int_24le(f, stitch_block_length)
+    write_int_24le(f, stitch_block_length)
     f.seek(current_position, 0)
 
 
 def write_pec_graphics(pattern, f, extends):
-    blank = PecGraphics.get_blank()
+    blank = get_blank()
     for block in pattern.get_as_stitchblock():
         stitches = block[0]
-        PecGraphics.draw_scaled(extends, stitches, blank, 6, 4)
+        draw_scaled(extends, stitches, blank, 6, 4)
     f.write(bytes(blank))
 
     for block in pattern.get_as_colorblocks():
-        stitches = [s for s in block[0] if s[2] == EmbPattern.STITCH]
-        blank = PecGraphics.get_blank()  # [ 0 ] * 6 * 38
-        PecGraphics.draw_scaled(extends, stitches, blank, 6)
+        stitches = [s for s in block[0] if s[2] == STITCH]
+        blank = get_blank()  # [ 0 ] * 6 * 38
+        draw_scaled(extends, stitches, blank, 6)
         f.write(bytes(blank))
 
 
@@ -129,7 +130,7 @@ def pec_encode(pattern, f):
         data = stitch[2]
         dx = x - xx
         dy = y - yy
-        if data is EmbPattern.STITCH:
+        if data is STITCH:
             delta_x = round(dx)
             delta_y = round(dy)
             if jumping and delta_x is not 0 and delta_y is not 0:
@@ -146,7 +147,7 @@ def pec_encode(pattern, f):
                     (delta_y >> 8) & 0xFF,
                     delta_y & 0xFF]
                 f.write(bytes(data))
-        elif data == EmbPattern.JUMP:
+        elif data == JUMP:
             jumping = True
             delta_x = round(dx)
             delta_x = encode_long_form(delta_x)
@@ -167,7 +168,7 @@ def pec_encode(pattern, f):
                 delta_y & 0xFF
             ]))
             color_change_jump = False
-        elif data == EmbPattern.COLOR_CHANGE:
+        elif data == COLOR_CHANGE:
             if jumping:
                 f.write(b'\x00\x00')
                 jumping = False
@@ -177,13 +178,13 @@ def pec_encode(pattern, f):
             else:
                 f.write(b'\x01')
             color_two = not color_two
-        elif data == EmbPattern.STOP:
+        elif data == STOP:
             # if jumping:
             #     f.write(b'\x00\x00')
             #     jumping = False
             # f.write(b'\x80\x01\x00\x00')
             pass
-        elif data == EmbPattern.END:
+        elif data == END:
             if jumping:
                 f.write(b'\x00\x00')
                 jumping = False

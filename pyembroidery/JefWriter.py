@@ -1,9 +1,9 @@
 import math
 import io
-import pyembroidery.EmbPattern as EmbPattern
-import pyembroidery.EmbThread as EmbThread
-import pyembroidery.EmbThreadJef as JefThread
-import pyembroidery.WriteHelper as helper
+
+from pyembroidery.EmbConstant import *
+from pyembroidery.EmbThreadJef import get_thread_set
+from pyembroidery.WriteHelper import write_string_utf8, write_int_32le, write_int_8, write_int_array_8
 
 MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127
@@ -17,29 +17,29 @@ HOOP_200X200 = 4
 
 
 def write(pattern, f, settings=None):
-    pattern.fix_color_count();
-    color_count = pattern.count_threads();
-    point_count = pattern.count_stitches();
-    offsets = 0x74 + (color_count * 8);
-    helper.write_int_32le(f, offsets)
-    helper.write_int_32le(f, 0x14)
-    helper.write(f, "20122017218088")
-    helper.write_int_8(f, 0);
-    helper.write_int_8(f, 0);
-    helper.write_int_32le(f, color_count);
-    helper.write_int_32le(f, point_count);
-    extends = pattern.extends();
-    design_width = round(extends[2] - extends[0]);
-    design_height = round(extends[3] - extends[1]);
-    helper.write_int_32le(f, get_jef_hoop_size(design_width, design_width))
+    pattern.fix_color_count()
+    color_count = pattern.count_threads()
+    point_count = pattern.count_stitches()
+    offsets = 0x74 + (color_count * 8)
+    write_int_32le(f, offsets)
+    write_int_32le(f, 0x14)
+    write_string_utf8(f, "20122017218088")
+    write_int_8(f, 0)
+    write_int_8(f, 0)
+    write_int_32le(f, color_count)
+    write_int_32le(f, point_count)
+    extends = pattern.extends()
+    design_width = round(extends[2] - extends[0])
+    design_height = round(extends[3] - extends[1])
+    write_int_32le(f, get_jef_hoop_size(design_width, design_width))
     half_width = round(design_width / 2)
     half_height = round(design_height / 2)
 
     # distance from center of hoop.
-    helper.write_int_32le(f, half_width)
-    helper.write_int_32le(f, half_height)
-    helper.write_int_32le(f, half_width)
-    helper.write_int_32le(f, half_height)
+    write_int_32le(f, half_width)
+    write_int_32le(f, half_height)
+    write_int_32le(f, half_width)
+    write_int_32le(f, half_height)
 
     # distance from default 110 x 110 hoop
     x_hoop_edge = 550 - half_width
@@ -61,17 +61,17 @@ def write(pattern, f, settings=None):
     y_hoop_edge = 550 - half_height
     write_hoop_edge_distance(f, x_hoop_edge, y_hoop_edge)
 
-    jef_threads = JefThread.get_thread_set()
+    jef_threads = get_thread_set()
     for thread in pattern.threadlist:
         thread_index = thread.find_nearest_color_index(jef_threads)
-        helper.write_int_32le(f, thread_index)
+        write_int_32le(f, thread_index)
 
     for i in range(0, color_count):
-        helper.write_int_32le(f, 0x0D)
+        write_int_32le(f, 0x0D)
 
     xx = 0
     yy = 0
-    data = EmbPattern.NO_COMMAND
+    data = NO_COMMAND
     for stitch in pattern.stitches:
         x = stitch[0]
         y = stitch[1]
@@ -79,10 +79,10 @@ def write(pattern, f, settings=None):
         dx = x - xx
         dy = y - yy
         encoded_bytes = jef_encode(dx, -dy, data)
-        helper.write_int_array_8(f, encoded_bytes)
+        write_int_array_8(f, encoded_bytes)
         xx = x
         yy = y
-    if data != EmbPattern.END:
+    if data != END:
         f.write(b'\x80\x10')
 
 
@@ -97,29 +97,29 @@ def get_jef_hoop_size(width: int, height: int) -> int:
 
 
 def jef_encode(dx, dy, data):
-    if data == EmbPattern.STITCH:
+    if data == STITCH:
         return [dx, dy]
-    if data == EmbPattern.COLOR_CHANGE:
+    if data == COLOR_CHANGE:
         return [0x80, 0x01, dx, dy]
-    if data == EmbPattern.STOP:
+    if data == STOP:
         return [0x80, 0x01, dx, dy]
-    if data == EmbPattern.END:
+    if data == END:
         return [0x80, 0x10, dx, dy]
-    if data == EmbPattern.JUMP:
+    if data == JUMP:
         return [0x80, 0x02, dx, dy]
-    if data == EmbPattern.TRIM:
+    if data == TRIM:
         return [0x80, 0x02, dx, dy]
     return [dx, dy]
 
 
 def write_hoop_edge_distance(f, x_hoop_edge, y_hoop_edge):
     if min(x_hoop_edge, y_hoop_edge) >= 0:
-        helper.write_int_32le(f, x_hoop_edge)  # left
-        helper.write_int_32le(f, y_hoop_edge)  # top
-        helper.write_int_32le(f, x_hoop_edge)  # right
-        helper.write_int_32le(f, y_hoop_edge)  # bottom
+        write_int_32le(f, x_hoop_edge)  # left
+        write_int_32le(f, y_hoop_edge)  # top
+        write_int_32le(f, x_hoop_edge)  # right
+        write_int_32le(f, y_hoop_edge)  # bottom
     else:
-        helper.write_int_32le(f, -1);
-        helper.write_int_32le(f, -1);
-        helper.write_int_32le(f, -1);
-        helper.write_int_32le(f, -1);
+        write_int_32le(f, -1)
+        write_int_32le(f, -1)
+        write_int_32le(f, -1)
+        write_int_32le(f, -1)
