@@ -3,7 +3,9 @@
 Python library for the reading and writing of embroidery files.
 
 To install:
-* pip -install pyembroidery
+```bash
+pip install pyembroidery
+```
 
 Any suggestions or comments please raise an issue.
 
@@ -44,57 +46,77 @@ When a writer is called to save a pattern to disk. It encodes a low level versio
 Reading:
 ---
 
+```python
+import pyembroidery
+```
+
 To load a pattern from disk:
 
-* pattern = pyemb.read("myembroidery.exp)
+```python
+pattern = pyembroidery.read("myembroidery.exp")
+```
 
 If only a file name is given it detects by the extension what reader it should use.
 
 For the descrete readers, the file may be a FileObject or a the string of the path.
 
-* pattern = pyemb.read_dst(file)
-* pattern = pyemb.read_pec(file)
-* pattern = pyemb.read_pes(file)
-* pattern = pyemb.read_exp(file)
-* pattern = pyemb.read_vp3(file)
-* pattern = pyemb.read_jef(file)
+```python
+pattern = pyembroidery.read_dst(file)
+pattern = pyembroidery.read_pec(file)
+pattern = pyembroidery.read_pes(file)
+pattern = pyembroidery.read_exp(file)
+pattern = pyembroidery.read_vp3(file)
+pattern = pyembroidery.read_jef(file)
+```
 
 You can optionally add a pattern to these readers, it will use that object and append the new stitches to the end.
 
-* pattern = pyemb.read_pes(file,pattern)
-* pattern = pyemb.read("secondread.dst", pyemb.read("firstread.jef"))
+```python
+# append to an existing pattern
+pattern = pyembroidery.read_pes(file, pattern)
 
-This should cause the pattern to have the stitches from both files.
+# or even chain together read calls
+pattern = pyembroidery.read("secondread.dst", pyembroidery.read("firstread.jef"))
+```
+
+This will cause the pattern to have the stitches from both files.
 
 Writing:
 ---
 
 To write to a pattern do disk:
 
-* pyemb.write(pattern,"myembroidery.dst")
+```python
+pyembroidery.write(pattern,"myembroidery.dst")
+```
 
 For the descrete writers, the file may be a FileObject or a string of the path.
 
-* pyemb.write_dst(pattern, file)
-* pyemb.write_pec(pattern, file)
-* pyemb.write_pes(pattern, file)
-* pyemb.write_exp(pattern, file)
-* pyemb.write_vp3(pattern, file)
-* pyemb.write_jef(pattern, file)
-* pyemb.write_svg(pattern, file)
+```python
+pyembroidery.write_dst(pattern, file)
+pyembroidery.write_pec(pattern, file)
+pyembroidery.write_pes(pattern, file)
+pyembroidery.write_exp(pattern, file)
+pyembroidery.write_vp3(pattern, file)
+pyembroidery.write_jef(pattern, file)
+pyembroidery.write_svg(pattern, file)
+```
 
 In addition, you can add a dict object to the writer with various settings.
-* pyemb.write(pattern, file.dst, { "tie_on": True, "tie_off": true, "translate_x": 40, "max_stitch"=50 }
+
+```python
+pyembroidery.write(pattern, file.dst, { "tie_on": True, "tie_off": true, "translate_x": 40, "max_stitch"=50 }
+```
 
 The encoding parameters currently have recognized values for:
-* "translate_x"
-* "translate_y"
-* "tie_on"
-* "tie_off"
-* "max_stitch"
-* "max_jump"
+* `translate_x`
+* `translate_y`
+* `tie_on`
+* `tie_off`
+* `max_stitch`
+* `max_jump`
 
-The max_stitch and max_jump properties are appended by default depending on the format you are writing to. If you overtly set these it will override those values. If you set them low on a format such as .dst with a limited length stitch, you can have it permit overly long stitches to be fed into the reader.
+The max_stitch and max_jump properties are appended by default depending on the format you are writing to.  For example, DST files support a maximum stitch length of 12.1mm, and this is set automatically. If you overtly set these it will override those values. If you set them low on a format such as .dst with a limited length stitch, you can have it permit overly long stitches to be fed into the reader.
 
 Writing to SVG:
 This is largely for testing purposes, it's not a binary writing format. But, it's entirely needed for testing purposes. There is some notable irony in writing an SVG file in a library, whose main genesis is to help another program that *already* writes them. But, without some provably flawless method of exporting the data read, there's no clear way to guarentee a problem is within a reader or a writer.
@@ -104,11 +126,11 @@ Conversion:
 
 As pyembroidery is a fully fleshed out reader/writer within the mandate, it also does conversion.
 
-* import pyembroidery.PyEmbroidery as pyemb
+```python
+pyembroidery.convert("embroidery.jef", "converted.dst")
+```
 
-* pyemb.convert("embroidery.jef", "converted.dst");
-
-This will the embroidery.jef file in JEF format and will export it as converted.dst in DST format.
+This will read the embroidery.jef file in JEF format and will export it as converted.dst in DST format.
 
 Internally this stablizes the format:
 * Reader -> Pattern -> Pattern.get_stablized_pattern() -> Encoder -> Writer
@@ -123,20 +145,45 @@ The constants for the stitch types are located in the EmbConstants.py
 
 To compose a pattern you will typically use:
 
-* import pyemboridery.EmbPattern as EmbPattern
-* pattern = EmbPattern.EmbPattern()
-* pattern.add_stitch_relative(command, dx, dy)
-* pattern.add_stitch_absolute(command, x, y)
+* import pyembroidery
+* pattern = pyembroidery.EmbPattern()
+* pattern.add_stitch_relative(COMMAND, dx, dy)
+* pattern.add_stitch_absolute(COMMAND, x, y)
 * pattern.command(command)
 * pattern.add_stitchblock(stitchblock)
 
 NOTE: the order here is command, x, y, not x,y command. Python is good with letting you omit values at the end. And the command is *always* needed but the dx,dy can be dropped quite reasonably.
 
-You can:
-* Make overt: stitch, jump, trim, color_change, stop, end, and sequin commands
-* Use shorthand commands compose a pattern using: STITCH, SEQUENCE_BREAK and COLOR_BREAK, FRAME_EJECT
+For `COMMAND`, you can:
+* Use overt low-level commands:
+  * `pyembroidery.STITCH`
+    * move to position and drop needle once to make a stitch
+  * `pyembroidery.JUMP`
+    * move to position without dropping needle
+  * `pyembroidery.TRIM`
+    * trim the thread (for supported machines and file formats)
+  * `pyembroidery.COLOR_CHANGE`
+  * `pyembroidery.STOP`
+    * pause the machine (for applique, etc)
+  * `pyembroidery.END`
+    * end the pattern
+  * `pyembroidery.SEQUIN`
+    * not fully supported yet
+* Use shorthand commands to compose a pattern
+  * `pyembroidery.STITCH`
+  * `pyembroidery.SEQUENCE_BREAK`
+  * `pyembroidery.COLOR_BREAK`
+  * `pyembroidery.FRAME_EJECT`
 * Use bulk dump stitchblock
 * Mix these different command levels.
+
+Shorthand function calls for the above are also available.  These all equate to `pattern.add_stitch_relative` calls using the above constants.  You can omit the `dx` and `dy` parameters if the position should not change (especially useful for trim and color change).
+
+```python
+pattern.stitch(dx, dy)
+pattern.trim()
+pattern.color_change()
+```
 
 StitchBlocks:
 ---
