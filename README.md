@@ -1,6 +1,7 @@
 # pyembroidery
 
 Python library for the reading and writing of embroidery files.
+Compatable with Python 2 and 3 Explictly tested with 3.6 and 2.7.
 
 To install:
 ```bash
@@ -19,12 +20,13 @@ Mandate
 pyembroidery is supposed to be small enough to be finished in short order and big enough to pack a punch.
 
 * The minimum required formats within the mandate are PES, DST, EXP, JEF, VP3.
-* It reads and writes all of these.
-  * PES was short handed to allow for PES block nulling. If you try to load a PES file in Brother Software it will show up blank.
-  * PEC has graphics files. These are simply written to be blank. PES files have PEC blocks. These will show up blank.
+  * It reads and writes all of these.
 
 * The current mandate for core commands is: STITCH, JUMP, TRIM, STOP, END, COLOR_CHANGE and SEQUIN.
   * SEQUIN is only in DST and it only currently loads, but I'm not really checked what happens after that.
+  
+* The current mandate is required support and function in Python 2.7
+  * It is currently compatable with Python 2.7 as well as 3.6
 
 
 Units
