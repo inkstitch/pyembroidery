@@ -4,6 +4,7 @@ import os
 import test_fractals
 from pyembroidery import *
 
+
 #
 # from pyembroidery.EmbPattern import EmbPattern
 # import pyembroidery.PyEmbroidery as pyemb
@@ -16,14 +17,19 @@ from pyembroidery import *
 # Do not emulate the following pattern
 pattern2 = EmbPattern()
 pattern2.add_stitch_absolute(STITCH, 0, 0)
-pattern2.add_command(TRANSLATE, 500, 0)
+pattern2.add_command(MATRIX_TRANSLATE, 500, 0)
+pattern2.add_command(MATRIX_ROTATE, 90)
 pattern2.add_stitch_absolute(STITCH, 0, 0)
-pattern2.add_command(TRANSLATE, 0, 500)
+pattern2.add_command(MATRIX_TRANSLATE, 500, 0)
+pattern2.add_command(MATRIX_ROTATE, 90)
 pattern2.add_stitch_absolute(STITCH, 0, 0)
-pattern2.add_command(TRANSLATE, -500, 0)
+pattern2.add_command(MATRIX_TRANSLATE, 500, 0)
+pattern2.add_command(MATRIX_ROTATE, 90)
 pattern2.add_stitch_absolute(STITCH, 0, 0)
-pattern2.add_command(TRANSLATE, 0, -500)
+pattern2.add_command(MATRIX_TRANSLATE, 500, 0)
+pattern2.add_command(MATRIX_ROTATE, 90)
 pattern2.add_stitch_absolute(STITCH, 0, 0)
+
 pattern2.add_command(COLOR_BREAK)
 pattern2.add_command(JUMP_THRESHOLD, 1000)
 pattern2.add_stitch_absolute(STITCH, 1000, 1000)
@@ -89,5 +95,7 @@ for file in os.listdir("convert"):
             "tie_on": True,
             "tie_off": True,
             # "translate_x": 500,
-            # "translate_y": 500
+            # "translate_y": 500,
+            # "scale": 2,
+            # "rotate": 45
         })

@@ -7,13 +7,29 @@ class Transcoder:
     def __init__(self, settings=None):
         if settings is None:
             settings = {}
-        self.translate_x = settings.get("translate_x", 0)
-        self.translate_y = settings.get("translate_y", 0)
         self.has_tie_on = settings.get("tie_on", False)
         self.has_tie_off = settings.get("tie_off", False)
         self.max_stitch = settings.get("max_stitch", float('inf'))
         self.max_jump = settings.get("max_jump", float('inf'))
         self.jump_threshold = settings.get("jump_threshold", self.max_jump)
+
+        self.matrix = get_identity()
+        self.matrix = matrix_multiply(
+            self.matrix,
+            get_translate(
+                settings.get("translate_x", 0),
+                settings.get("translate_y", 0)
+            ))
+        self.matrix = matrix_multiply(
+            self.matrix,
+            get_scale(
+                settings.get("scale", 1)
+            ))
+        self.matrix = matrix_multiply(
+            self.matrix,
+            get_rotate(
+                settings.get("rotate", 0)
+            ))
         self.source_pattern = None
         self.dest_pattern = None
         self.position = 0
@@ -54,11 +70,12 @@ class Transcoder:
         self.needle_y = 0
         self.position = 0
         self.color_index = -1
-        flags = NO_COMMAND
 
+        flags = NO_COMMAND
         for self.position, self.stitch in enumerate(source):
-            x = round(self.stitch[0] + self.translate_x)
-            y = round(self.stitch[1] + self.translate_y)
+            p = point_in_matrix_space(self.matrix, self.stitch)
+            x = p[0]
+            y = p[1]
             flags = self.stitch[2]
 
             if flags == NO_COMMAND:
@@ -145,11 +162,25 @@ class Transcoder:
                 self.has_tie_on = False
             elif flags == DISABLE_TIE_OFF:
                 self.has_tie_off = False
-            elif flags == TRANSLATE:
-                x = self.stitch[0]
-                y = self.stitch[1]
-                self.translate_x += x
-                self.translate_y += y
+            elif flags == MATRIX_TRANSLATE:
+                self.matrix = matrix_multiply(
+                    self.matrix,
+                    get_translate(
+                        self.stitch[0],
+                        self.stitch[1]))
+            elif flags == MATRIX_SCALE:
+                self.matrix = matrix_multiply(
+                    self.matrix,
+                    get_scale(
+                        self.stitch[0],
+                        self.stitch[1]))
+            elif flags == MATRIX_ROTATE:
+                self.matrix = matrix_multiply(
+                    self.matrix,
+                    get_rotate(
+                        self.stitch[0]))
+            elif flags == MATRIX_RESET:
+                self.matrix = get_identity()
             elif flags == JUMP_THRESHOLD:
                 x = self.stitch[0]
                 self.jump_threshold = x
@@ -192,25 +223,27 @@ class Transcoder:
 
     def tie_off(self):
         try:
-            b = self.source_pattern.stitches[self.position - 1]
-            x = round(b[0] + self.translate_x)
-            y = round(b[1] + self.translate_y)
+            b = point_in_matrix_space(
+                self.matrix,
+                self.source_pattern.stitches[self.position + 1],
+            )
             flags = self.stitch[2]
             if flags == STITCH or flags == NEEDLE_AT or flags == SEW_TO:
                 self.lock_stitch(self.needle_x, self.needle_y,
-                                 x, y, self.max_stitch)
+                                 b[0], b[1], self.max_stitch)
         except IndexError:
             pass  # must be an island stitch. jump-stitch-jump
 
     def tie_on(self):
         try:
-            b = self.source_pattern.stitches[self.position + 1]
-            x = round(b[0] + self.translate_x)
-            y = round(b[1] + self.translate_y)
+            b = point_in_matrix_space(
+                self.matrix,
+                self.source_pattern.stitches[self.position + 1]
+            )
             flags = self.stitch[2]
             if flags == STITCH or flags == NEEDLE_AT or flags == SEW_TO:
                 self.lock_stitch(self.needle_x, self.needle_y,
-                                 x, y, self.max_stitch)
+                                 b[0], b[1], self.max_stitch)
         except IndexError:
             pass  # must be an island stitch. jump-stitch-jump
 
@@ -292,8 +325,11 @@ class Transcoder:
         if length is None:
             length = self.max_stitch
         if new_x is None or new_y is None:
-            new_x = round(self.stitch[0] + self.translate_x)
-            new_y = round(self.stitch[1] + self.translate_y)
+            p = point_in_matrix_space(self.matrix,
+                                      self.stitch[0],
+                                      self.stitch[1])
+            new_x = p[0]
+            new_y = p[1]
         distance_x = new_x - self.needle_x
         distance_y = new_y - self.needle_y
         return abs(distance_x) > length or abs(distance_y) > length
@@ -374,3 +410,50 @@ def oriented(x0, y0, x1, y1, r):
     """from x0,y0 in the direction of x1,y1 in the distance of r"""
     radians = angle_radians(x0, y0, x1, y1)
     return x0 + (r * math.cos(radians)), y0 + (r * math.sin(radians))
+
+
+def get_identity():
+    return 1, 0, 0, 0, 1, 0, 0, 0, 1  # identity
+
+
+def get_scale(sx, sy=None):
+    if sy is None:
+        sy = sx
+    return sx, 0, 0, 0, sy, 0, 0, 0, 1
+
+
+def get_translate(tx, ty):
+    return 1, 0, 0, 0, 1, 0, tx, ty, 1
+
+
+def get_rotate(theta):
+    tau = math.pi * 2
+    theta *= tau / 360
+    ct = math.cos(theta)
+    st = math.sin(theta)
+    return ct, st, 0, -st, ct, 0, 0, 0, 1
+
+
+def matrix_multiply(a, b):
+    return [
+        a[0] * b[0] + a[1] * b[3] + a[2] * b[6],
+        a[0] * b[1] + a[1] * b[4] + a[2] * b[7],
+        a[0] * b[2] + a[1] * b[5] + a[2] * b[8],
+        a[3] * b[0] + a[4] * b[3] + a[5] * b[6],
+        a[3] * b[1] + a[4] * b[4] + a[5] * b[7],
+        a[3] * b[2] + a[4] * b[5] + a[5] * b[8],
+        a[6] * b[0] + a[7] * b[3] + a[8] * b[6],
+        a[6] * b[1] + a[7] * b[4] + a[8] * b[7],
+        a[6] * b[2] + a[7] * b[5] + a[8] * b[8]]
+
+
+def point_in_matrix_space(matrix, v0, v1=None):
+    if v1 is None:
+        return [
+            v0[0] * matrix[0] + v0[1] * matrix[3] + 1 * matrix[6],
+            v0[0] * matrix[1] + v0[1] * matrix[4] + 1 * matrix[7]
+        ]
+    return [
+        v0 * matrix[0] + v1 * matrix[3] + 1 * matrix[6],
+        v0 * matrix[1] + v1 * matrix[4] + 1 * matrix[7]
+    ]

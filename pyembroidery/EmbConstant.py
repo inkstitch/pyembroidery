@@ -18,7 +18,11 @@ TIE_ON = 0xE4
 TIE_OFF = 0xE5
 FRAME_EJECT = 0xE9
 
-TRANSLATE = 0xD0
+MATRIX_TRANSLATE = 0xC0
+MATRIX_SCALE = 0xC1
+MATRIX_ROTATE = 0xC2
+MATRIX_RESET = 0xC3
+
 ENABLE_TIE_ON = 0xD1
 ENABLE_TIE_OFF = 0xD2
 DISABLE_TIE_ON = 0xD3
@@ -26,7 +30,6 @@ DISABLE_TIE_OFF = 0xD4
 MAX_STITCH_LENGTH = 0xD5
 MAX_JUMP_LENGTH = 0xD6
 JUMP_THRESHOLD = 0xD8
-
 
 # Eventually the commands are supposed to be limited to 255 thereby
 # allowing additional information like, color change to color in position n
