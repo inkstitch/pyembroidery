@@ -204,7 +204,10 @@ The middle-level commands, as they currently stand:
 * SEQUENCE_BREAK - Break between stitches. Inserts a trim and jumps to the next stitch in the sequence.
 * COLOR_BREAK - Breaks between stitches. Changes to the next color (unless called before anything was stitched)
 * FRAME_EJECT(x,y) - Breaks the stitches, jumps to the given location, performs a stop, then goes to next stitch accordingly.
-* TRANSLATE(x,y) - Applies an inline translation shift for the encoder. It will treat all future stitches translated from here.
+* MATRIX_TRANSLATE(tx,ty) - Applies an inline translation shift for the encoder. It will treat all future stitches translated from here.
+* MATRIX_SCALE(sx,sy) - Applies an inline scale shift. It will scale by that factor for future stitches.
+* MATRIX_ROTATE(r) - Applies an inline rotateion shift. It will rotate by that factor for future stitches (in degrees).
+* MATRIX_RESET - Resets the affine transformation matrix.
 * ENABLE_TIE_ON - Enables Tie_on on the fly.
 * ENABLE_TIE_OFF - Enables Tie_off on the fly.
 * DISABLE_TIE_ON - Disables Tie_on on the fly.
