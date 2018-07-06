@@ -24,11 +24,10 @@ pyembroidery is supposed to be small enough to be finished in short order and bi
 * The current mandate for core commands is: STITCH, JUMP, TRIM, STOP, END, COLOR_CHANGE and SEQUIN.
   * SEQUIN is only in DST and it only currently loads, but I'm not really checked what happens after that.
 
-Current goals:
+
+Units
 ---
-No goals currently exist. Mostly done. It needs testings and issues at this point.
-
-
+* The core units are 1/10th mm. This is what 1 refers to within most formats, and internally within pyembroidery itself. You are entirely permitted to use floating point numbers. When writing to a format, fractional values will be lost, but this shall happen in such a way to avoid the propagation of error. Relative stitches from position ( 0.0,  0.31 ) of (+5.4, +5.4), (+5.4, +5,4), (+5.4, +5,4) should encode as changes of 5,6 6,5 5,6. Taking the relative distance in the format as the integer change from the last integer position to the new one, maintaining a position as close to the absolute position as possible.
 
 How it works:
 ---
