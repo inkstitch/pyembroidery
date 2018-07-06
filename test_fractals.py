@@ -23,7 +23,7 @@ class Turtle:
     def forward(self, distance):
         self.x += distance * math.cos(self.angle)
         self.y += distance * math.sin(self.angle)
-        self.pattern.add_stitch_absolute(EmbPattern.STITCH, self.x, self.y)
+        self.pattern.add_stitch_absolute(STITCH, self.x, self.y)
 
     def turn(self, angle):
         self.angle += angle
@@ -62,19 +62,19 @@ class Turtle:
 def generate(pattern):
     turtle = Turtle(pattern);
     turtle.add_gosper()
-    pattern.command(COLOR_BREAK)
+    pattern.add_command(COLOR_BREAK)
     turtle.move(500)
     turtle.add_serp()
-    pattern.command(SEQUENCE_BREAK)
+    pattern.add_command(SEQUENCE_BREAK)
     turtle.move(50)
     turtle.add_serp()
-    pattern.command(SEQUENCE_BREAK)
-    pattern.command(STOP)
+    pattern.add_command(SEQUENCE_BREAK)
+    pattern.add_command(STOP)
     turtle.turn(-math.pi / 3)
     turtle.move(500)
     turtle.add_serp()
-    pattern.command(COLOR_BREAK)
+    pattern.add_command(COLOR_BREAK)
     turtle.turn(-math.pi / 3)
     turtle.move(500)  # 260, -450
     turtle.add_gosper()
-    pattern.command(END)
+    pattern.add_command(END)

@@ -4,11 +4,11 @@ from .ReadHelper import read_string_8, read_int_8, read_int_32le, read_int_24be,
 
 
 def read(f, read_object):
-    threadlist = []
+    loaded_thread_values = []
     pes_string = read_string_8(f, 8)
 
     if pes_string == "#PEC0001":
-        read_pec(f, read_object, threadlist)
+        read_pec(f, read_object, loaded_thread_values)
         return
 
     pec_block_position = read_int_32le(f)
@@ -21,13 +21,13 @@ def read(f, read_object):
     # "#PES0100", "#PES0090" "#PES0080" "#PES0070", "#PES0040",
     # "#PES0030", "#PES0022", "#PES0020"
     if pes_string == "#PES0060":
-        read_pes_header_version_6(f, read_object, threadlist)
+        read_pes_header_version_6(f, read_object, loaded_thread_values)
     elif pes_string == "#PES0050":
-        read_pes_header_version_5(f, read_object, threadlist)
+        read_pes_header_version_5(f, read_object, loaded_thread_values)
     elif pes_string == "#PES0055":
-        read_pes_header_version_5(f, read_object, threadlist)
+        read_pes_header_version_5(f, read_object, loaded_thread_values)
     elif pes_string == "#PES0056":
-        read_pes_header_version_5(f, read_object, threadlist)
+        read_pes_header_version_5(f, read_object, loaded_thread_values)
     elif pes_string == "#PES0040":
         read_pes_header_version_4(f, read_object)
     elif pes_string == "#PES0001":
@@ -35,7 +35,7 @@ def read(f, read_object):
     else:
         pass  # Header is unrecognised.
     f.seek(pec_block_position, 0)
-    read_pec(f, read_object, threadlist)
+    read_pec(f, read_object, loaded_thread_values)
 
 
 def read_pes_string(f):
@@ -60,7 +60,7 @@ def read_pes_metadata(f, read_object):
         read_object.metadata("keywords", v)
     v = read_pes_string(f)
     if v is not None and len(v) > 0:
-        read_object.metadata("comments", rv)
+        read_object.metadata("comments", v)
 
 
 def read_pes_thread(f, threadlist):

@@ -4,15 +4,16 @@ from .EmbConstant import *
 
 
 class Transcoder:
-    def __init__(self, encode_settings=None):
-        if encode_settings is None:
-            encode_settings = {}
-        self.translate_x = encode_settings.get("translate_x", 0)
-        self.translate_y = encode_settings.get("translate_y", 0)
-        self.has_tie_on = encode_settings.get("tie_on", False)
-        self.has_tie_off = encode_settings.get("tie_off", False)
-        self.max_stitch = encode_settings.get("max_stitch", float('inf'))
-        self.max_jump = encode_settings.get("max_jump", float('inf'))
+    def __init__(self, settings=None):
+        if settings is None:
+            settings = {}
+        self.translate_x = settings.get("translate_x", 0)
+        self.translate_y = settings.get("translate_y", 0)
+        self.has_tie_on = settings.get("tie_on", False)
+        self.has_tie_off = settings.get("tie_off", False)
+        self.max_stitch = settings.get("max_stitch", float('inf'))
+        self.max_jump = settings.get("max_jump", float('inf'))
+        self.jump_threshold = settings.get("jump_threshold", self.max_jump)
         self.source_pattern = None
         self.dest_pattern = None
         self.position = 0
@@ -21,6 +22,7 @@ class Transcoder:
         self.state_trimmed = True
         self.needle_x = 0
         self.needle_y = 0
+        self.subdivide_long_stitches = self.max_stitch < self.jump_threshold
 
     def transcode(self, source_pattern, destination_pattern):
         self.source_pattern = source_pattern
@@ -44,10 +46,9 @@ class Transcoder:
 
     def transcode_stitches(self):
         """Transcodes stitches.
-        Converts middle-level commands and potentially incompatable
+        Converts middle-level commands and potentially incompatible
         commands into a format friendly low level commands."""
         source = self.source_pattern.stitches
-        dest = self.dest_pattern.stitches
         self.state_trimmed = True
         self.needle_x = 0
         self.needle_y = 0
@@ -59,19 +60,39 @@ class Transcoder:
             x = round(self.stitch[0] + self.translate_x)
             y = round(self.stitch[1] + self.translate_y)
             flags = self.stitch[2]
+
             if flags == NO_COMMAND:
                 continue
-            elif flags == ENABLE_TIE_ON:
-                self.has_tie_on = True
-            elif flags == ENABLE_TIE_OFF:
-                self.has_tie_off = True
-            elif flags == DISABLE_TIE_ON:
-                self.has_tie_on = False
-            elif flags == DISABLE_TIE_OFF:
-                self.has_tie_off = False
-            elif flags == TRANSLATE:
-                self.translate_x += x
-                self.translate_y += y
+
+            elif flags == STITCH:
+                if self.state_trimmed:
+                    self.jump_to(x, y)
+                    if self.has_tie_on:
+                        self.tie_on()
+                    self.stitch_at(x, y)
+                else:
+                    if self.subdivide_long_stitches:
+                        self.sew_to(x, y)
+                    else:
+                        self.needle_to(x, y)
+            elif flags == NEEDLE_AT:
+                if self.state_trimmed:
+                    self.jump_to(x, y)
+                    if self.has_tie_on:
+                        self.tie_on()
+                    self.stitch_at(x, y)
+                else:
+                    self.needle_to(x, y)
+            elif flags == SEW_TO:
+                if self.state_trimmed:
+                    self.jump_to(x, y)
+                    if self.has_tie_on:
+                        self.tie_on()
+                    self.stitch_at(x, y)
+                else:
+                    self.sew_to(x, y)
+
+            # Middle Level Commands.
             elif flags == FRAME_EJECT:
                 self.tie_off_and_trim_if_needed()
                 self.jump_to(x, y)
@@ -81,18 +102,15 @@ class Transcoder:
             elif flags == COLOR_BREAK:
                 self.tie_off_and_trim_if_needed()
                 self.color_change_here_if_needed()
-            elif flags == STITCH:
-                if self.state_trimmed:
-                    self.jump_to(x, y)
-                    if self.has_tie_on:
-                        self.tie_on()
-                    self.stitch_at(x, y)
-                else:
-                    self.stitch_to(x, y)
+            elif flags == TIE_OFF:
+                self.tie_off()
+            elif flags == TIE_ON:
+                self.tie_on()
+
+            # Core Commands.
             elif flags == TRIM:
                 self.tie_off_and_trim_if_needed()
             elif flags == JUMP:
-                self.tie_off_and_trim_if_needed()
                 self.jump_to(x, y)
             elif flags == SEQUIN:
                 # While DST are the only files with this there are some
@@ -105,7 +123,7 @@ class Transcoder:
                     if self.has_tie_on:
                         self.tie_on()
                 else:
-                    self.stitch_to(x, y)
+                    self.sew_to(x, y)
                 self.sequin_at(x, y)
             elif flags == COLOR_CHANGE:
                 self.tie_off_and_trim_if_needed()
@@ -117,12 +135,44 @@ class Transcoder:
             elif flags == END:
                 self.end_here()
                 break
+
+            # On-the-fly Settings Commands.
+            elif flags == ENABLE_TIE_ON:
+                self.has_tie_on = True
+            elif flags == ENABLE_TIE_OFF:
+                self.has_tie_off = True
+            elif flags == DISABLE_TIE_ON:
+                self.has_tie_on = False
+            elif flags == DISABLE_TIE_OFF:
+                self.has_tie_off = False
+            elif flags == TRANSLATE:
+                x = self.stitch[0]
+                y = self.stitch[1]
+                self.translate_x += x
+                self.translate_y += y
+            elif flags == JUMP_THRESHOLD:
+                x = self.stitch[0]
+                self.jump_threshold = x
+                self.subdivide_long_stitches = self.max_stitch < self.jump_threshold
+            elif flags == MAX_JUMP_LENGTH:
+                x = self.stitch[0]
+                self.max_jump = x
+            elif flags == MAX_STITCH_LENGTH:
+                x = self.stitch[0]
+                self.max_stitch = x
+                self.subdivide_long_stitches = self.max_stitch < self.jump_threshold
         if flags != END:
             self.end_here()
 
-    def needle(self, x, y):
+    def update_needle_position(self, x, y):
         self.needle_x = x
         self.needle_y = y
+
+    def declare_not_trimmed(self):
+        if self.state_trimmed:
+            self.state_trimmed = False
+            if self.color_index == -1:
+                self.color_index = 0
 
     def add(self, flags, x=None, y=None):
         if x is None:
@@ -143,18 +193,24 @@ class Transcoder:
     def tie_off(self):
         try:
             b = self.source_pattern.stitches[self.position - 1]
-            if b[2] == STITCH:
+            x = round(b[0] + self.translate_x)
+            y = round(b[1] + self.translate_y)
+            flags = self.stitch[2]
+            if flags == STITCH or flags == NEEDLE_AT or flags == SEW_TO:
                 self.lock_stitch(self.needle_x, self.needle_y,
-                                 b[0], b[1], self.max_stitch)
+                                 x, y, self.max_stitch)
         except IndexError:
             pass  # must be an island stitch. jump-stitch-jump
 
     def tie_on(self):
         try:
             b = self.source_pattern.stitches[self.position + 1]
-            if b[2] == STITCH:
+            x = round(b[0] + self.translate_x)
+            y = round(b[1] + self.translate_y)
+            flags = self.stitch[2]
+            if flags == STITCH or flags == NEEDLE_AT or flags == SEW_TO:
                 self.lock_stitch(self.needle_x, self.needle_y,
-                                 b[0], b[1], self.max_stitch)
+                                 x, y, self.max_stitch)
         except IndexError:
             pass  # must be an island stitch. jump-stitch-jump
 
@@ -163,35 +219,53 @@ class Transcoder:
         self.state_trimmed = True
 
     def jump_to(self, new_x, new_y):
-        self.constrained_jump_to(self.needle_x, self.needle_y,
-                                 new_x, new_y, self.max_jump)
-        self.needle(new_x, new_y)
+        x0 = self.needle_x
+        y0 = self.needle_y
+        max_length = self.max_jump
+        self.constrained_step_to(x0, y0, new_x, new_y, max_length, JUMP)
+        self.add(JUMP, new_x, new_y)
+        self.update_needle_position(new_x, new_y)
 
-    def stitch_to(self, new_x, new_y):
-        self.constrained_stitch_to(self.needle_x, self.needle_y,
-                                   new_x, new_y, self.max_stitch)
-        self.needle(new_x, new_y)
-        if self.state_trimmed:
-            self.state_trimmed = False
-            if self.color_index == -1:
-                self.color_index = 0
+    def sew_to(self, new_x, new_y):
+        """Stitches to a specific location, with the emphasis on sewing.
+         Subdivides long stitches into additional stitches.
+        """
+        x0 = self.needle_x
+        y0 = self.needle_y
+        max_length = self.max_stitch
+        self.constrained_step_to(x0, y0, new_x, new_y, max_length, STITCH)
+        self.stitch_at(new_x, new_y)
+
+    def needle_to(self, new_x, new_y):
+        """Insert needle at specific location, emphasis on the needle.
+        Uses jumps to avoid needle penetrations where possible.
+
+        The limit here is the max stitch limit or jump threshold.
+        If jump threshold is set low, it will insert jumps even
+        between stitches it could have technically encoded values for.
+
+        Stitches to the new location, adding jumps if needed.
+        """
+        x0 = self.needle_x
+        y0 = self.needle_y
+        max_length = min(self.jump_threshold, self.max_stitch)
+        if self.position_will_exceed_constraint(max_length):
+            pass
+        self.constrained_step_to(x0, y0, new_x, new_y, max_length, JUMP)
+        self.stitch_at(new_x, new_y)
 
     def stitch_at(self, new_x, new_y):
+        """Inserts a stitch at the specific location.
+        Should have already been checked for constraints."""
         self.add(STITCH, new_x, new_y)
-        self.needle(new_x, new_y)
-        if self.state_trimmed:
-            self.state_trimmed = False
-            if self.color_index == -1:
-                self.color_index = 0
+        self.update_needle_position(new_x, new_y)
+        self.declare_not_trimmed()
 
     def sequin_at(self, new_x, new_y):
         # TODO: There might be other middle-level commands needed here.
         self.add(SEQUIN)
-        self.needle(new_x, new_y)
-        if self.state_trimmed:
-            self.state_trimmed = False
-            if self.color_index == -1:
-                self.color_index = 0
+        self.update_needle_position(new_x, new_y)
+        self.declare_not_trimmed()
 
     def stop_here(self):
         self.add(STOP)
@@ -206,25 +280,23 @@ class Transcoder:
             self.color_change_here()
             # We should actually look ahead and ensure
             # there are no more objects that will become stitches.
+            # post-stitch color-changes are pointless.
 
     def color_change_here(self):
         self.add(COLOR_CHANGE)
         self.color_index += 1
         self.state_trimmed = True
 
-    def constrained_jump_to(self, x0, y0, x1, y1, max_length=None):
-        """Jumps from x0, y1 to x1, y1, respecting max length"""
-        if max_length is None:
-            max_length = self.max_jump
-        self.constrained_step_to(x0, y0, x1, y1, max_length, JUMP)
-        self.add(JUMP, x1, y1)
-
-    def constrained_stitch_to(self, x0, y0, x1, y1, max_length=None):
-        """Stitches from x0, y1 to x1, y1, respecting max length"""
-        if max_length is None:
-            max_length = self.max_stitch
-        self.constrained_step_to(x0, y0, x1, y1, max_length, STITCH)
-        self.add(STITCH, x1, y1)
+    def position_will_exceed_constraint(self, length=None, new_x=None, new_y=None):
+        """Check if the stitch is too long before trying to deal with it."""
+        if length is None:
+            length = self.max_stitch
+        if new_x is None or new_y is None:
+            new_x = round(self.stitch[0] + self.translate_x)
+            new_y = round(self.stitch[1] + self.translate_y)
+        distance_x = new_x - self.needle_x
+        distance_y = new_y - self.needle_y
+        return abs(distance_x) > length or abs(distance_y) > length
 
     def constrained_step_to(self, x0, y0, x1, y1, max_length, data):
         """Command sequence line to x, y, respecting length as maximum.

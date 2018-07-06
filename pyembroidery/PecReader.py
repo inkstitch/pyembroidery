@@ -9,10 +9,10 @@ FLAG_LONG = 0x80
 def read(f, read_object):
     pec_string = read_string_8(f, 8)
     # pec_string must equal #PEC0001
-    read_pec(f, read_object, None)
+    read_pec(f, read_object)
 
 
-def read_pec(f, read_object, threadlist):
+def read_pec(f, read_object, pes_chart=None):
     f.seek(3, 1)  # LA:
     label = read_string_8(f, 16).strip()  # Label
     read_object.metadata("Label", label)
@@ -23,12 +23,14 @@ def read_pec(f, read_object, threadlist):
     color_changes = read_int_8(f)
     count_colors = color_changes + 1  # PEC uses cc - 1, 0xFF means 0.
     color_bytes = bytearray(f.read(count_colors))
-    map_pec_colors(color_bytes, read_object, threadlist)
+    threads = []
+    map_pec_colors(color_bytes, read_object, pes_chart, threads)
     f.seek(0x1D0 - color_changes, 1)
     stitch_block_end = read_int_24le(f) - 5 + f.tell()
     # The end of this value is already 5 into the stitchblock.
 
-    f.seek(0x0E, 1)
+    # 3 bytes, '\x31\xff\xf0', 6 2-byte shorts. 15 total.
+    f.seek(0x0F, 1)
     read_pec_stitches(f, read_object)
     f.seek(stitch_block_end, 0)
 
@@ -38,26 +40,29 @@ def read_pec(f, read_object, threadlist):
                       read_object,
                       byte_size,
                       pec_graphic_byte_stride,
-                      count_colors + 1
+                      count_colors + 1,
+                      threads
                       )
 
 
-def read_pec_graphics(f, read_object, size, stride, count):
+def read_pec_graphics(f, read_object, size, stride, count, values):
+    values.insert(0,None)
     for i in range(0, count):
         graphic = bytearray(f.read(size))
         if f is not None:
-            read_object.metadata(i, (graphic, stride))
+            read_object.metadata(i, (graphic, stride, values[i]))
 
 
-def process_pec_colors(colorbytes, read_object):
+def process_pec_colors(colorbytes, read_object, values):
     thread_set = get_thread_set()
     max_value = len(thread_set)
     for byte in colorbytes:
         thread_value = thread_set[byte % max_value]
         read_object.add_thread(thread_value)
+        values.append(thread_value)
 
 
-def process_pec_table(colorbytes, read_object, threadlist):
+def process_pec_table(colorbytes, read_object, chart, values):
     # This is how PEC actually allocates pre-defined threads to blocks.
     thread_set = get_thread_set()
     max_value = len(thread_set)
@@ -68,27 +73,28 @@ def process_pec_table(colorbytes, read_object, threadlist):
         thread_value = thread_map.get(color_index, None)
         if thread_value is None:
             thread_value = thread_set[color_index]
-            if len(threadlist) > 0:
-                thread_value = threadlist.pop(0)
+            if len(chart) > 0:
+                thread_value = chart.pop(0)
             else:
                 thread_value = thread_set[color_index]
             thread_map[color_index] = thread_value
         read_object.add_thread(thread_value)
+        values.append(thread_value)
 
 
-def map_pec_colors(colorbytes, read_object, threadlist):
-    current_index = 0
-    if threadlist is None or len(threadlist) == 0:
+def map_pec_colors(colorbytes, read_object, chart, values):
+    if chart is None or len(chart) == 0:
         # Reading pec colors.
-        process_pec_colors(colorbytes, read_object)
+        process_pec_colors(colorbytes, read_object, values)
 
-    elif len(threadlist) >= len(colorbytes):
+    elif len(chart) >= len(colorbytes):
         # Reading threads in 1 : 1 mode.
-        for thread in threadlist:
+        for thread in chart:
             read_object.add_thread(thread)
+            values.append(thread)
     else:
         # Reading tabled mode threads.
-        process_pec_table(colorbytes, read_object, threadlist)
+        process_pec_table(colorbytes, read_object, chart,values)
 
 
 def signed12(b):

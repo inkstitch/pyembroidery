@@ -218,17 +218,21 @@ class EmbPattern:
             self.add_thread(self.get_thread_or_filler(len(self.threadlist)))
 
     def add_stitch_absolute(self, cmd, x=0, y=0):
+        """Add a command at the absolute location: x, y"""
         self.stitches.append([x, y, cmd])
         self._previousX = x
         self._previousY = y
 
     def add_stitch_relative(self, cmd, dx=0, dy=0):
+        """Add a command relative to the previous location"""
         x = self._previousX + dx
         y = self._previousY + dy
         self.add_stitch_absolute(cmd, x, y)
 
-    def command(self, cmd):
-        self.add_stitch_relative(cmd)
+    def add_command(self, cmd, x=0, y=0):
+        """Add a command, without treating parameters as locations
+         that require an update"""
+        self.stitches.append([x, y, cmd])
 
     def add_stitchblock(self, stitchblock):
         threadlist = self.threadlist
