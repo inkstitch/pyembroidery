@@ -37,7 +37,7 @@ pattern2.add_stitch_absolute(STITCH, 1000, 1200)
 pattern2.add_stitch_absolute(STITCH, 1200, 1200)
 pattern2.add_stitch_absolute(STITCH, 1200, 1000)
 pattern2.add_stitch_absolute(STITCH, 1000, 1000)
-write_dst(pattern2, "test.dst", {"tie_on": True, "tie_on": True})
+write_dst(pattern2, "test.dst", {"tie_on": True, "tie_off": True})
 
 pattern = EmbPattern()
 
@@ -70,12 +70,14 @@ settings["extended header"] = True
 write(pattern, "generated-eh.dst", settings)
 write(pattern, "generated.jef", settings)
 write(pattern, "generated.vp3", settings)
-settings["pes version"] = 1
+settings["pes version"] = PesWriter.VERSION_1
 write(pattern, "generatedv1.pes", settings)
-settings["pes version"] = 0x101
+settings["truncated"] = True
 write(pattern, "generatedv1t.pes", settings)
-settings["pes version"] = 0x106
+settings["pes version"] = PesWriter.VERSION_6
 write(pattern, "generatedv6t.pes", settings)
+
+convert("generated.exp", "genconvert.dst", {"stable": False, "encode": False})
 
 for file in os.listdir("convert"):
     convert_file = os.path.join("convert", file)

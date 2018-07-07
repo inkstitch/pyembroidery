@@ -1,5 +1,6 @@
 from .EmbThread import EmbThread
-from .ReadHelper import read_int_16be, read_int_8, read_int_32be, read_int_24be, read_signed, read_string_8, read_string_16
+from .ReadHelper import read_int_16be, read_int_8, read_int_32be, read_int_24be, read_signed, read_string_8, \
+    read_string_16
 
 
 def read_vp3_string_16(stream):
@@ -38,7 +39,7 @@ def signed16(b0, b1):
         return b
 
 
-def read(f, read_object):
+def read(f, out, settings=None):
     b = f.read(6)
     # magic code: %vsm%\0
     skip_vp3_string(f)  # "Produced by     Software Ltd"
@@ -53,7 +54,7 @@ def read(f, read_object):
     skip_vp3_string(f)  # "Produced by     Software Ltd"
     count_colors = read_int_16be(f)
     for i in range(0, count_colors):
-        colorblock = vp3_read_colorblock(f, read_object, center_x, center_y)
+        vp3_read_colorblock(f, out, center_x, center_y)
 
 
 def vp3_read_colorblock(f, read_object, center_x, center_y):

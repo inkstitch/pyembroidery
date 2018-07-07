@@ -51,7 +51,7 @@ def process_header_info(out, prefix, value):
         out.metadata(prefix, value)
 
 
-def read(f, out):
+def read(f, out, settings=None):
     header = f.read(512)
     header_string = header.decode('utf8')
     for line in [x.strip() for x in header_string.split('\r')]:

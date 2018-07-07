@@ -94,12 +94,17 @@ def supported_formats():
     })
 
 
-def convert(filename_from, filename_to, encode_settings=None):
-    pattern = read(filename_from)
+def convert(filename_from, filename_to, settings=None):
+    pattern = read(filename_from, settings)
     if pattern is None:
         return
-    pattern = pattern.get_stable_pattern()
-    write(pattern, filename_to, encode_settings)
+    if settings is not None:
+        stable = settings.get("stable", True)
+        if stable:
+            pattern = pattern.get_stable_pattern()
+    else:
+        pattern = pattern.get_stable_pattern()
+    write(pattern, filename_to, settings)
 
 
 def get_extension_by_filename(filename):
@@ -107,158 +112,129 @@ def get_extension_by_filename(filename):
     return os.path.splitext(filename)[1][1:]
 
 
-def read_embroidery(reader, f, pattern=None):
+def read_embroidery(reader, f, settings=None, pattern=None):
     """Reads fileobject or filename with reader."""
     if pattern is None:
         pattern = EmbPattern()
     if isinstance(f, str):
-        with open(f, "wb") as stream:
-            reader.read(stream, pattern)
+        try:
+            with open(f, "rb") as stream:
+                reader.read(stream, pattern, settings)
+                stream.close()
+        except IOError:
+            pass
     else:
-        reader.read(f, pattern)
+        reader.read(f, pattern, settings)
     return pattern
 
 
-def read_dst(f, pattern=None):
+def read_dst(f, settings=None, pattern=None):
     """Reads fileobject as DST file"""
-    if pattern is None:
-        pattern = EmbPattern()
-    return read_embroidery(DstReader, f, pattern)
+    return read_embroidery(DstReader, f, settings, pattern)
 
 
-def read_pec(f, pattern=None):
+def read_pec(f, settings=None, pattern=None):
     """Reads fileobject as PEC file"""
-    if pattern is None:
-        pattern = EmbPattern()
-    return read_embroidery(PecReader, f, pattern)
+    return read_embroidery(PecReader, f, settings, pattern)
 
 
-def read_pes(f, pattern=None):
+def read_pes(f, settings=None, pattern=None):
     """Reads fileobject as PES file"""
-    if pattern is None:
-        pattern = EmbPattern()
-    return read_embroidery(PesReader, f, pattern)
+    return read_embroidery(PesReader, f, settings, pattern)
 
 
-def read_exp(f, pattern=None):
+def read_exp(f, settings=None, pattern=None):
     """Reads fileobject as EXP file"""
-    if pattern is None:
-        pattern = EmbPattern()
-    return read_embroidery(ExpReader, f, pattern)
+    return read_embroidery(ExpReader, f, settings, pattern)
 
 
-def read_vp3(f, pattern=None):
+def read_vp3(f, settings=None, pattern=None):
     """Reads fileobject as VP3 file"""
-    if pattern is None:
-        pattern = EmbPattern()
-    return read_embroidery(Vp3Reader, f, pattern)
+    return read_embroidery(Vp3Reader, f, settings, pattern)
 
 
-def read_jef(f, pattern=None):
+def read_jef(f, settings=None, pattern=None):
     """Reads fileobject as JEF file"""
-    if pattern is None:
-        pattern = EmbPattern()
-    return read_embroidery(JefReader, f, pattern)
+    return read_embroidery(JefReader, f, settings, pattern)
 
 
-def read(filename, pattern=None):
-    """Reads file, assuming type by extention"""
-    if pattern is None:
-        pattern = EmbPattern()
+def read(filename, settings=None, pattern=None):
+    """Reads file, assuming type by extension"""
     extension = get_extension_by_filename(filename)
     extension = extension.lower()
-    try:
-        with open(filename, "rb") as f:
-            if extension == "dst":
-                return read_dst(f, pattern)
-            elif extension == "pec":
-                return read_pec(f, pattern)
-            elif extension == "pes":
-                return read_pes(f, pattern)
-            elif extension == "exp":
-                return read_exp(f, pattern)
-            elif extension == "vp3":
-                return read_vp3(f, pattern)
-            elif extension == "jef":
-                return read_jef(f, pattern)
-    except IOError:
-        pass
+    for file_type in supported_formats():
+        if file_type['extension'] != extension:
+            continue
+        reader = file_type.get("reader", None)
+        return read_embroidery(reader, filename, settings, pattern)
+    return None
 
 
-def write_embroidery(writer, pattern, stream, encode_settings=None):
-    if encode_settings is None:
-        encode_settings = {}
+def write_embroidery(writer, pattern, stream, settings=None):
+    if settings is None:
+        settings = {}
     else:
-        encode_settings = encode_settings.copy()
-    if not ("max_jump" in encode_settings):
-        encode_settings["max_jump"] = writer.MAX_JUMP_DISTANCE
-    if not ("max_stitch" in encode_settings):
-        encode_settings["max_stitch"] = writer.MAX_STITCH_DISTANCE
-    if not ("full_jump" in encode_settings):
-        encode_settings["full_jump"] = writer.FULL_JUMP
+        settings = settings.copy()
+    if settings.get("encode", True):
+        if not ("max_jump" in settings):
+            settings["max_jump"] = writer.MAX_JUMP_DISTANCE
+        if not ("max_stitch" in settings):
+            settings["max_stitch"] = writer.MAX_STITCH_DISTANCE
+        if not ("full_jump" in settings):
+            settings["full_jump"] = writer.FULL_JUMP
+        pattern = pattern.get_normalized_pattern(settings)
+
     if isinstance(stream, str):
         with open(stream, "wb") as stream:
-            normalpattern = pattern.get_normalized_pattern(encode_settings)
-            writer.write(normalpattern, stream)
+            writer.write(pattern, stream, settings)
     else:
-        normalpattern = pattern.get_normalized_pattern(encode_settings)
-        writer.write(normalpattern, stream, encode_settings)
+        writer.write(pattern, stream, settings)
 
 
-def write_dst(pattern, stream, encode_settings=None):
+def write_dst(pattern, stream, settings=None):
     """Writes fileobject as DST file"""
-    write_embroidery(DstWriter, pattern, stream, encode_settings)
+    write_embroidery(DstWriter, pattern, stream, settings)
 
 
-def write_pec(pattern, stream, encode_settings=None):
+def write_pec(pattern, stream, settings=None):
     """Writes fileobject as DST file"""
-    write_embroidery(PecWriter, pattern, stream, encode_settings)
+    write_embroidery(PecWriter, pattern, stream, settings)
 
 
-def write_pes(pattern, stream, encode_settings=None):
+def write_pes(pattern, stream, settings=None):
     """Writes fileobject as DST file"""
-    write_embroidery(PesWriter, pattern, stream, encode_settings)
+    write_embroidery(PesWriter, pattern, stream, settings)
 
 
-def write_exp(pattern, stream, encode_settings=None):
+def write_exp(pattern, stream, settings=None):
     """Writes fileobject as DST file"""
-    write_embroidery(ExpWriter, pattern, stream, encode_settings)
+    write_embroidery(ExpWriter, pattern, stream, settings)
 
 
-def write_vp3(pattern, stream, encode_settings=None):
+def write_vp3(pattern, stream, settings=None):
     """Writes fileobject as DST file"""
-    write_embroidery(Vp3Writer, pattern, stream, encode_settings)
+    write_embroidery(Vp3Writer, pattern, stream, settings)
 
 
-def write_jef(pattern, stream, encode_settings=None):
+def write_jef(pattern, stream, settings=None):
     """Writes fileobject as DST file"""
-    write_embroidery(JefWriter, pattern, stream, encode_settings)
+    write_embroidery(JefWriter, pattern, stream, settings)
 
 
-def write_svg(pattern, stream, encode_settings=None):
+def write_svg(pattern, stream, settings=None):
     """Writes fileobject as DST file"""
-    write_embroidery(SvgWriter, pattern, stream, encode_settings)
+    write_embroidery(SvgWriter, pattern, stream, settings)
 
 
-def write(pattern, filename, encode_settings=None):
+def write(pattern, filename, settings=None):
     """Writes file, assuming type by extension"""
     extension = get_extension_by_filename(filename)
     extension = extension.lower()
-    with open(filename, "wb") as stream:
-        if extension == "dst":
-            write_dst(pattern, stream, encode_settings)
-        elif extension == "pec":
-            write_pec(pattern, stream, encode_settings)
-        elif extension == "pes":
-            write_pes(pattern, stream, encode_settings)
-        elif extension == "exp":
-            write_exp(pattern, stream, encode_settings)
-        elif extension == "vp3":
-            write_vp3(pattern, stream, encode_settings)
-        elif extension == "jef":
-            write_jef(pattern, stream, encode_settings)
-        elif extension == "svg":
-            write_svg(pattern, stream, encode_settings)
-        else:
-            pass
-        stream.close()
+
+    for file_type in supported_formats():
+        if file_type['extension'] != extension:
+            continue
+        writer = file_type.get("writer", None)
+        if writer is None:
+            continue
+        write_embroidery(writer, pattern, filename, settings)

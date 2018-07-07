@@ -3,12 +3,12 @@ from .EmbThread import EmbThread
 from .ReadHelper import read_string_8, read_int_8, read_int_32le, read_int_24be, read_int_16le
 
 
-def read(f, read_object):
+def read(f, out, settings=None):
     loaded_thread_values = []
     pes_string = read_string_8(f, 8)
 
     if pes_string == "#PEC0001":
-        read_pec(f, read_object, loaded_thread_values)
+        read_pec(f, out, loaded_thread_values)
         return
 
     pec_block_position = read_int_32le(f)
@@ -21,21 +21,21 @@ def read(f, read_object):
     # "#PES0100", "#PES0090" "#PES0080" "#PES0070", "#PES0040",
     # "#PES0030", "#PES0022", "#PES0020"
     if pes_string == "#PES0060":
-        read_pes_header_version_6(f, read_object, loaded_thread_values)
+        read_pes_header_version_6(f, out, loaded_thread_values)
     elif pes_string == "#PES0050":
-        read_pes_header_version_5(f, read_object, loaded_thread_values)
+        read_pes_header_version_5(f, out, loaded_thread_values)
     elif pes_string == "#PES0055":
-        read_pes_header_version_5(f, read_object, loaded_thread_values)
+        read_pes_header_version_5(f, out, loaded_thread_values)
     elif pes_string == "#PES0056":
-        read_pes_header_version_5(f, read_object, loaded_thread_values)
+        read_pes_header_version_5(f, out, loaded_thread_values)
     elif pes_string == "#PES0040":
-        read_pes_header_version_4(f, read_object)
+        read_pes_header_version_4(f, out)
     elif pes_string == "#PES0001":
-        read_pes_header_version_1(f, read_object)
+        read_pes_header_version_1(f, out)
     else:
         pass  # Header is unrecognised.
     f.seek(pec_block_position, 0)
-    read_pec(f, read_object, loaded_thread_values)
+    read_pec(f, out, loaded_thread_values)
 
 
 def read_pes_string(f):
@@ -45,22 +45,22 @@ def read_pes_string(f):
     return read_string_8(f, length)
 
 
-def read_pes_metadata(f, read_object):
+def read_pes_metadata(f, out):
     v = read_pes_string(f)
     if v is not None and len(v) > 0:
-        read_object.metadata("name", v)
+        out.metadata("name", v)
     v = read_pes_string(f)
     if v is not None and len(v) > 0:
-        read_object.metadata("category", v)
+        out.metadata("category", v)
     v = read_pes_string(f)
     if v is not None and len(v) > 0:
-        read_object.metadata("author", v)
+        out.metadata("author", v)
     v = read_pes_string(f)
     if v is not None and len(v) > 0:
-        read_object.metadata("keywords", v)
+        out.metadata("keywords", v)
     v = read_pes_string(f)
     if v is not None and len(v) > 0:
-        read_object.metadata("comments", v)
+        out.metadata("comments", v)
 
 
 def read_pes_thread(f, threadlist):
@@ -74,23 +74,23 @@ def read_pes_thread(f, threadlist):
     threadlist.append(thread)
 
 
-def read_pes_header_version_1(f, read_object):
+def read_pes_header_version_1(f, out):
     # Nothing I care about.
     pass
 
 
-def read_pes_header_version_4(f, read_object):
+def read_pes_header_version_4(f, out):
     f.seek(4, 1)
-    read_pes_metadata(f, read_object)
+    read_pes_metadata(f, out)
 
 
-def read_pes_header_version_5(f, read_object, threadlist):
+def read_pes_header_version_5(f, out, threadlist):
     f.seek(4, 1)
-    read_pes_metadata(f, read_object)
+    read_pes_metadata(f, out)
     f.seek(24, 1)  # this is 36 in version 6 and 24 in version 5
     v = read_pes_string(f)
     if v is not None and len(v) > 0:
-        read_object.metadata("image", v)
+        out.metadata("image", v)
     f.seek(24, 1)
     count_programmable_fills = read_int_16le(f)
     if count_programmable_fills != 0:
@@ -106,13 +106,13 @@ def read_pes_header_version_5(f, read_object, threadlist):
         read_pes_thread(f, threadlist)
 
 
-def read_pes_header_version_6(f, read_object, threadlist):
+def read_pes_header_version_6(f, out, threadlist):
     f.seek(4, 1)
-    read_pes_metadata(f, read_object)
+    read_pes_metadata(f, out)
     f.seek(36, 1)  # this is 36 in version 6 and 24 in version 5
     v = read_pes_string(f)
     if v is not None and len(v) > 0:
-        read_object.metadata("image_file", v)
+        out.metadata("image_file", v)
     f.seek(24, 1)
     count_programmable_fills = read_int_16le(f)
     if count_programmable_fills != 0:

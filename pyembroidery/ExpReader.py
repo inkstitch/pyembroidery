@@ -6,7 +6,7 @@ def signed(b):
         return b
 
 
-def read(f, read_object):
+def read(f, out, settings=None):
     while True:
         b = bytearray(f.read(2))
         if len(b) != 2:
@@ -16,19 +16,19 @@ def read(f, read_object):
                 b = bytearray(f.read(2))
                 if len(b) != 2:
                     break
-                read_object.trim(0, 0)
+                out.trim(0, 0)
             elif b[1] == 0x02:
-                read_object.stitch(signed(b[0]), -(signed(b[1])))
+                out.stitch(signed(b[0]), -(signed(b[1])))
             elif b[1] == 0x04:  # Jump
                 b = bytearray(f.read(2))
                 if len(b) != 2:
                     break
-                read_object.move(signed(b[0]), -signed(b[1]))
+                out.move(signed(b[0]), -signed(b[1]))
             elif b[1] == 0x01:  # Colorchange
                 b = bytearray(f.read(2))
                 if len(b) != 2:
                     break
-                read_object.color_change(0, 0)
-                read_object.move(signed(b[0]), -signed(b[1]))
+                out.color_change(0, 0)
+                out.move(signed(b[0]), -signed(b[1]))
         else:
-            read_object.stitch(signed(b[0]), -signed(b[1]))
+            out.stitch(signed(b[0]), -signed(b[1]))
