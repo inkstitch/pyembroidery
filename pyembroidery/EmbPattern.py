@@ -273,19 +273,19 @@ class EmbPattern:
     def append_enable_tie_on(self, x=0, y=0):
         """Appends enable tie on.
         All starts of new stitching will be tied on"""
-        self.add_stitch_relative(ENABLE_TIE_ON, x, y)
+        self.add_stitch_relative(OPTION_ENABLE_TIE_ON, x, y)
 
     def append_enable_tie_off(self, x=0, y=0):
         """Appends enable tie off.
         All ends of stitching will be tied off"""
-        self.add_stitch_relative(ENABLE_TIE_OFF, x, y)
+        self.add_stitch_relative(OPTION_ENABLE_TIE_OFF, x, y)
 
     def append_disable_tie_on(self, x=0, y=0):
         """Appends disable tie on.
         New stitching will no longer be tied on"""
-        self.add_stitch_relative(DISABLE_TIE_ON, x, y)
+        self.add_stitch_relative(OPTION_DISABLE_TIE_ON, x, y)
 
     def append_disable_tie_off(self, x=0, y=0):
         """Appends enable tie off.
         Ends of stitching will no longer be tied off"""
-        self.add_stitch_relative(DISABLE_TIE_OFF, x, y)
+        self.add_stitch_relative(OPTION_DISABLE_TIE_OFF, x, y)

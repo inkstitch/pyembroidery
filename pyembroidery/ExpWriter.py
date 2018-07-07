@@ -1,7 +1,9 @@
 from .EmbConstant import *
 
+FULL_JUMP = True
 MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127
+
 
 
 def write(pattern, f, settings=None):
@@ -19,6 +21,7 @@ def write(pattern, f, settings=None):
             if jumping:
                 f.write(b'\x00\x00')
                 jumping = False
+            # consider bounds checking the delta_x, delta_y and raising ValueError if exceeds.
             delta_x = int(round(dx)) & 0xFF
             delta_y = -int(round(dy)) & 0xFF
             f.write(bytes(bytearray([delta_x, delta_y])))

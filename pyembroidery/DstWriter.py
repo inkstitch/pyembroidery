@@ -3,6 +3,7 @@ import math
 from .EmbConstant import *
 from .WriteHelper import write_string_utf8
 
+FULL_JUMP = False
 MAX_JUMP_DISTANCE = 121
 MAX_STITCH_DISTANCE = 121
 PPMM = 10
@@ -54,7 +55,7 @@ def encode_record(x, y, flags):
             b0 += bit(1)
             x += 1
         if x != 0:
-            pass  # this might actually want to raise an error, if true, x was > 121 to start
+            raise ValueError("The dx value given to the writer exceeds maximum allowed.")
         if y > 40:
             b2 += bit(5)
             y -= 81
@@ -86,7 +87,7 @@ def encode_record(x, y, flags):
             b0 += bit(6)
             y += 1
         if y != 0:
-            pass  # Fail. y > 121
+            raise ValueError("The dy value given to the writer exceeds maximum allowed.")
     elif flags is COLOR_CHANGE:
         b2 = 0b11000011
     elif flags is STOP:

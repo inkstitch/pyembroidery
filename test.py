@@ -1,5 +1,4 @@
 from __future__ import print_function
-import os
 
 import test_fractals
 from pyembroidery import *
@@ -13,8 +12,10 @@ from pyembroidery import *
 
 # Initial test code. pyembroidery
 
-# Do not emulate the following pattern
+# Do not emulate the following pattern,
+# using rotates and translates like this is crazy.
 pattern2 = EmbPattern()
+pattern2.add_command(CONTINGENCY_SEW_TO)
 pattern2.add_stitch_absolute(STITCH, 0, 0)
 pattern2.add_command(MATRIX_TRANSLATE, 500, 0)
 pattern2.add_command(MATRIX_ROTATE, 90)
@@ -30,13 +31,13 @@ pattern2.add_command(MATRIX_ROTATE, 90)
 pattern2.add_stitch_absolute(STITCH, 0, 0)
 
 pattern2.add_command(COLOR_BREAK)
-pattern2.add_command(JUMP_THRESHOLD, 1000)
+pattern2.add_command(CONTINGENCY_JUMP_NEEDLE)
 pattern2.add_stitch_absolute(STITCH, 1000, 1000)
 pattern2.add_stitch_absolute(STITCH, 1000, 1200)
 pattern2.add_stitch_absolute(STITCH, 1200, 1200)
 pattern2.add_stitch_absolute(STITCH, 1200, 1000)
 pattern2.add_stitch_absolute(STITCH, 1000, 1000)
-write_dst(pattern2, "test.dst", {"tie_on": True})
+write_dst(pattern2, "test.dst", {"tie_on": True, "tie_on": True})
 
 pattern = EmbPattern()
 
@@ -91,13 +92,12 @@ for file in os.listdir("convert"):
     for emb_format in supported_formats():
         if emb_format['writer'] is None:
             continue
-        results_file = os.path.join("results", file) +\
-            '.' + emb_format["extension"]
+        results_file = os.path.join("results", file) + \
+                       '.' + emb_format["extension"]
         write(pattern, results_file, {
             "tie_on": True,
             "tie_off": True,
-            # "translate_x": 500,
-            # "translate_y": 500,
+            # "translate": (500, 500)
             # "scale": 2,
             # "rotate": 45
         })

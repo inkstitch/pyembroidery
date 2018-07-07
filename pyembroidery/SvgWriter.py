@@ -1,5 +1,6 @@
 from xml.etree.cElementTree import Element, ElementTree, SubElement
 
+FULL_JUMP = False  # just drops all jumps anyway.
 MAX_JUMP_DISTANCE = float('inf')
 MAX_STITCH_DISTANCE = float('inf')
 

@@ -7,8 +7,7 @@ END = 4
 COLOR_CHANGE = 5
 SEQUIN = 6
 
-# Different stitch classes.
-# If the stitch is long? How do we get there?
+# Stitch with implied contingency.
 SEW_TO = 0xB0
 NEEDLE_AT = 0xB1
 
@@ -23,13 +22,16 @@ MATRIX_SCALE = 0xC1
 MATRIX_ROTATE = 0xC2
 MATRIX_RESET = 0xC3
 
-ENABLE_TIE_ON = 0xD1
-ENABLE_TIE_OFF = 0xD2
-DISABLE_TIE_ON = 0xD3
-DISABLE_TIE_OFF = 0xD4
-MAX_STITCH_LENGTH = 0xD5
-MAX_JUMP_LENGTH = 0xD6
-JUMP_THRESHOLD = 0xD8
+OPTION_ENABLE_TIE_ON = 0xD1
+OPTION_ENABLE_TIE_OFF = 0xD2
+OPTION_DISABLE_TIE_ON = 0xD3
+OPTION_DISABLE_TIE_OFF = 0xD4
+OPTION_MAX_STITCH_LENGTH = 0xD5
+OPTION_MAX_JUMP_LENGTH = 0xD6
+
+CONTINGENCY_NONE = 0xF0
+CONTINGENCY_JUMP_NEEDLE = 0xF1
+CONTINGENCY_SEW_TO = 0xF2
 
 # Eventually the commands are supposed to be limited to 255 thereby
 # allowing additional information like, color change to color in position n

@@ -194,6 +194,8 @@ def write_embroidery(writer, pattern, stream, encode_settings=None):
         encode_settings["max_jump"] = writer.MAX_JUMP_DISTANCE
     if not ("max_stitch" in encode_settings):
         encode_settings["max_stitch"] = writer.MAX_STITCH_DISTANCE
+    if not ("full_jump" in encode_settings):
+        encode_settings["full_jump"] = writer.FULL_JUMP
     if isinstance(stream, str):
         with open(stream, "wb") as stream:
             normalpattern = pattern.get_normalized_pattern(encode_settings)
@@ -239,7 +241,7 @@ def write_svg(pattern, stream, encode_settings=None):
 
 
 def write(pattern, filename, encode_settings=None):
-    """Writes file, assuming type by extention"""
+    """Writes file, assuming type by extension"""
     extension = get_extension_by_filename(filename)
     extension = extension.lower()
     with open(filename, "wb") as stream:

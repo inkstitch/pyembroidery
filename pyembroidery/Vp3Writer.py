@@ -1,6 +1,8 @@
 from .EmbConstant import *
 from .WriteHelper import write_int_8, write_int_24be, write_int_32be, write_int_16be, write_string_utf8, write_string
 
+FULL_JUMP = False
+# Since jump is stitch, full jump will result in pointless double stitch.
 # Vp3 can encode signed 16 bit deltas.
 MAX_JUMP_DISTANCE = 3200
 # coded beyond 255 tho, they count as jumps.
