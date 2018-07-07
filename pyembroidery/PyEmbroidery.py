@@ -16,6 +16,84 @@ import pyembroidery.Vp3Reader as Vp3Reader
 import pyembroidery.JefReader as JefReader
 
 
+def supported_formats():
+    """Generates dictionary entries for supported formats. Each entry will
+    always have description, extension, mimetype, and category. Reader
+    will provide the reader, if one exists, writer will provide the writer,
+    if one exists.
+
+    Metadata gives a list of metadata read and/or written by that type.
+
+    Options provides accepted options by the format and their accepted values.
+    """
+    yield ({
+        "description": "Brother Embroidery Format",
+        "extension": "pec",
+        "mimetype": "application/x-pec",
+        "category": "embroidery",
+        "reader": PecReader,
+        "writer": PecWriter,
+        "metadata": ("name")
+    })
+    yield ({
+        "description": "Brother Embroidery Format",
+        "extension": "pes",
+        "mimetype": "application/x-pes",
+        "category": "embroidery",
+        "reader": PesReader,
+        "writer": PesWriter,
+        "options": {
+            "pes version": (1, 6),
+            "truncated": (True, False)
+        },
+        "metadata": ("name", "author", "category", "keywords", "comments")
+    })
+    yield ({
+        "description": "Melco Embroidery Format",
+        "extension": "exp",
+        "mimetype": "application/x-exp",
+        "category": "embroidery",
+        "reader": ExpReader,
+        "writer": ExpWriter,
+    })
+    yield ({
+        "description": "Tajima Embroidery Format",
+        "extension": "dst",
+        "mimetype": "application/x-dst",
+        "category": "embroidery",
+        "reader": DstReader,
+        "writer": DstWriter,
+        "options": {
+            "extended headers": (True, False)
+        },
+        "versions": ("default", "extended headers"),
+        "metadata": ("name")
+    })
+    yield ({
+        "description": "Janome Embroidery Format",
+        "extension": "jef",
+        "mimetype": "application/x-jef",
+        "category": "embroidery",
+        "reader": JefReader,
+        "writer": JefWriter,
+    })
+    yield ({
+        "description": "Pfaff Embroidery Format",
+        "extension": "vp3",
+        "mimetype": "application/x-vp3",
+        "category": "embroidery",
+        "reader": Vp3Reader,
+        "writer": Vp3Writer,
+    })
+    yield ({
+        "description": "Scalable Vector Graphics",
+        "extension": "svg",
+        "mimetype": "image/svg+xml",
+        "category": "vector",
+        "writer": SvgWriter,
+    })
+
+
 def convert(filename_from, filename_to, encode_settings=None):
     pattern = read(filename_from)
     if pattern is None:

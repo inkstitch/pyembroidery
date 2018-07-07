@@ -413,17 +413,23 @@ def oriented(x0, y0, x1, y1, r):
 
 
 def get_identity():
-    return 1, 0, 0, 0, 1, 0, 0, 0, 1  # identity
+    return 1, 0, 0, \
+           0, 1, 0, \
+           0, 0, 1  # identity
 
 
 def get_scale(sx, sy=None):
     if sy is None:
         sy = sx
-    return sx, 0, 0, 0, sy, 0, 0, 0, 1
+    return sx, 0, 0, \
+           0, sy, 0, \
+           0, 0, 1
 
 
 def get_translate(tx, ty):
-    return 1, 0, 0, 0, 1, 0, tx, ty, 1
+    return 1, 0, 0, \
+           0, 1, 0, \
+           tx, ty, 1
 
 
 def get_rotate(theta):
@@ -431,7 +437,9 @@ def get_rotate(theta):
     theta *= tau / 360
     ct = math.cos(theta)
     st = math.sin(theta)
-    return ct, st, 0, -st, ct, 0, 0, 0, 1
+    return ct, st, 0, \
+           -st, ct, 0, \
+           0, 0, 1
 
 
 def matrix_multiply(a, b):

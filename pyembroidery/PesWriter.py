@@ -1,4 +1,3 @@
-
 from .PecWriter import write_pec
 from .EmbThreadPec import get_thread_set
 from .WriteHelper import write_string_utf8, write_int_32le, write_int_16le, write_int_8, write_float_32le
@@ -21,21 +20,24 @@ EMB_SEG = "CSewSeg"
 
 def write(pattern, f, settings=None):
     version = VERSION_6
+    truncated = False
     if settings is not None:
         version = settings.get("pes version", version)
-
-    if version == VERSION_1:
-        write_version_1(pattern, f)
-    elif version == VERSION_6:
-        write_version_6(pattern, f)
-    elif version == VERSION_1_TRUNCATED:
-        write_truncated_version_1(pattern, f)
-    elif version == VERSION_6_TRUNCATED:
-        write_truncated_version_6(pattern, f)
+        truncated = settings.get("truncated", truncated)
+    if truncated:
+        if version == VERSION_1:
+            write_truncated_version_1(pattern, f)
+        elif version == VERSION_6:
+            write_truncated_version_6(pattern, f)
+    else:
+        if version == VERSION_1:
+            write_version_1(pattern, f)
+        elif version == VERSION_6:
+            write_version_6(pattern, f)
 
 
 def write_truncated_version_1(pattern, f):
-    write_string_utf8(f,PES_VERSION_1_SIGNATURE)
+    write_string_utf8(f, PES_VERSION_1_SIGNATURE)
     f.write(b'\x16\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
     write_pec(pattern, f)
 

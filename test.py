@@ -4,7 +4,6 @@ import os
 import test_fractals
 from pyembroidery import *
 
-
 #
 # from pyembroidery.EmbPattern import EmbPattern
 # import pyembroidery.PyEmbroidery as pyemb
@@ -89,8 +88,11 @@ for file in os.listdir("convert"):
         i += 1
 
     pattern = pattern.get_stable_pattern()
-    for suffix in [".svg", ".pec", ".pes", ".exp", ".dst", ".jef", ".vp3"]:
-        results_file = os.path.join("results", file) + suffix
+    for emb_format in supported_formats():
+        if emb_format['writer'] is None:
+            continue
+        results_file = os.path.join("results", file) +\
+            '.' + emb_format["extension"]
         write(pattern, results_file, {
             "tie_on": True,
             "tie_off": True,
