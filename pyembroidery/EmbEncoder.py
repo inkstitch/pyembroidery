@@ -10,6 +10,7 @@ class Transcoder:
         self.max_stitch = settings.get("max_stitch", float('inf'))
         self.max_jump = settings.get("max_jump", float('inf'))
         self.full_jump = settings.get("full_jump", False)
+        self.strip_sequins = settings.get("strip_sequins", True)
 
         self.has_tie_on = settings.get("tie_on", False)
         self.has_tie_off = settings.get("tie_off", False)
@@ -50,6 +51,7 @@ class Transcoder:
         self.color_index = -1
         self.stitch = None
         self.state_trimmed = True
+        self.state_sequin_mode = False
         self.needle_x = 0
         self.needle_y = 0
 
@@ -139,19 +141,16 @@ class Transcoder:
                 self.tie_off_and_trim_if_needed()
             elif flags == JUMP:
                 self.jump_to(x, y)
-            elif flags == SEQUIN:
-                # While DST are the only files with this there are some
-                # chances that we might need to further alter the routines
-                # built here by the format. For example dst calls a sequin
-                # command out of jumps and toggles that on and off. Other
-                # formats might use a different paradigm.
+            elif flags == SEQUIN_MODE:
+                self.toggle_sequins()
+            elif flags == SEQUIN_EJECT:
                 if self.state_trimmed:
                     self.jump_to_within_stitchrange(x, y)
                     self.stitch_at(x, y)
                     if self.has_tie_on:
                         self.tie_on()
-                else:
-                    self.stitch_with_contingency(x, y)
+                if not self.state_sequin_mode:
+                    self.toggle_sequins()
                 self.sequin_at(x, y)
             elif flags == COLOR_CHANGE:
                 self.tie_off_and_trim_if_needed()
@@ -233,7 +232,7 @@ class Transcoder:
             )
             flags = b[2]
             if flags == STITCH or flags == NEEDLE_AT or \
-                    flags == SEW_TO or flags == SEQUIN:
+                    flags == SEW_TO or flags == SEQUIN_EJECT:
                 self.lock_stitch(self.needle_x, self.needle_y,
                                  b[0], b[1], self.max_stitch)
         except IndexError:
@@ -247,7 +246,7 @@ class Transcoder:
             )
             flags = b[2]
             if flags == STITCH or flags == NEEDLE_AT or \
-                    flags == SEW_TO or flags == SEQUIN:
+                    flags == SEW_TO or flags == SEQUIN_EJECT:
                 self.lock_stitch(self.needle_x, self.needle_y,
                                  b[0], b[1], self.max_stitch)
         except IndexError:
@@ -256,6 +255,11 @@ class Transcoder:
     def trim_here(self):
         self.add(TRIM)
         self.state_trimmed = True
+
+    def toggle_sequins(self):
+        if not self.strip_sequins:
+            self.add(SEQUIN_MODE)
+        self.state_sequin_mode = not self.state_sequin_mode
 
     def jump_to_within_stitchrange(self, new_x, new_y):
         """Jumps close enough to stitch a position in x,y
@@ -281,6 +285,8 @@ class Transcoder:
         self.jump_at(new_x, new_y)
 
     def jump_at(self, new_x, new_y):
+        if self.state_sequin_mode:
+            self.toggle_sequins()  # can't jump with sequin mode on.
         self.add(JUMP, new_x, new_y)
         self.update_needle_position(new_x, new_y)
 
@@ -326,8 +332,10 @@ class Transcoder:
         self.declare_not_trimmed()
 
     def sequin_at(self, new_x, new_y):
-        # TODO: There might be other middle-level commands needed here.
-        self.add(SEQUIN)
+        if self.strip_sequins:
+            self.add(JUMP, new_x, new_y)
+        else:
+            self.add(SEQUIN_EJECT, new_x, new_y)
         self.update_needle_position(new_x, new_y)
         self.declare_not_trimmed()
 
@@ -377,6 +385,9 @@ class Transcoder:
         distance_x = x1 - x0
         distance_y = y1 - y0
         if abs(distance_x) > max_length or abs(distance_y) > max_length:
+            if data == JUMP and self.state_sequin_mode:
+                self.toggle_sequins()  # can't jump with sequin mode on.
+
             # python 2,3 patch of division that could be integer.
             steps_x = math.ceil(abs(distance_x / (max_length * 1.0)))
             steps_y = math.ceil(abs(distance_y / (max_length * 1.0)))

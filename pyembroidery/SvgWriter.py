@@ -1,5 +1,8 @@
 from xml.etree.cElementTree import Element, ElementTree, SubElement
 
+
+STRIP_SEQUINS = True
+# technically I could use svg to draw a sequin as a 2 element circle path.
 FULL_JUMP = False  # just drops all jumps anyway.
 MAX_JUMP_DISTANCE = float('inf')
 MAX_STITCH_DISTANCE = float('inf')
@@ -37,8 +40,11 @@ def write(pattern, f, settings=None):
     height = extends[3] - extends[1]
     root.set(ATTR_WIDTH, str(width))
     root.set(ATTR_HEIGHT, str(height))
-    viewbox = str(extends[0]) + " " + str(extends[1]) + \
-              " " + str(width) + " " + str(height)
+    viewbox = \
+        str(extends[0]) + " " +\
+        str(extends[1]) + " " +\
+        str(width) + " " +\
+        str(height)
     root.set(ATTR_VIEWBOX, viewbox)
 
     for stitchblock in pattern.get_as_stitchblock():

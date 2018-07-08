@@ -1,5 +1,6 @@
 from .EmbConstant import *
 
+STRIP_SEQUINS = True
 FULL_JUMP = True
 MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127

@@ -67,7 +67,6 @@ def supported_formats():
         "options": {
             "extended headers": (True, False)
         },
-        "versions": ("default", "extended headers"),
         "metadata": ("name")
     })
     yield ({
@@ -190,6 +189,8 @@ def write_embroidery(writer, pattern, stream, settings=None):
             settings["max_stitch"] = writer.MAX_STITCH_DISTANCE
         if not ("full_jump" in settings):
             settings["full_jump"] = writer.FULL_JUMP
+        if not ("strip_sequins" in settings):
+            settings["strip_sequins"] = writer.STRIP_SEQUINS
         pattern = pattern.get_normalized_pattern(settings)
 
     if isinstance(stream, str):

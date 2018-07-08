@@ -3,6 +3,7 @@ from .EmbThreadPec import get_thread_set
 from .WriteHelper import write_string_utf8, write_int_32le, write_int_16le, write_int_8, write_float_32le
 from .EmbConstant import *
 
+STRIP_SEQUINS = True
 FULL_JUMP = True
 MAX_JUMP_DISTANCE = 2047
 MAX_STITCH_DISTANCE = 2047
@@ -52,6 +53,7 @@ def write_truncated_version_6(pattern, f):
     f.seek(placeholder_pec_block, 0)
     write_int_32le(f, current_position)
     f.seek(current_position, 0)
+    # this might need that node table thing.
     write_pec(pattern, f)
 
 
@@ -59,14 +61,14 @@ def write_version_1(pattern, f):
     chart = get_thread_set()
     write_string_utf8(f, PES_VERSION_1_SIGNATURE)
 
-    pattern.move_center_to_origin()
-
     extends = pattern.extends()
+    cx = (extends[2] + extends[0]) / 2.0
+    cy = (extends[3] + extends[1]) / 2.0
 
-    left = extends[0]
-    top = extends[1]
-    right = extends[2]
-    bottom = extends[3]
+    left = extends[0] - cx
+    top = extends[1] - cy
+    right = extends[2] - cx
+    bottom = extends[3] - cy
 
     placeholder_pec_block = f.tell()
     write_int_32le(f, 0)  # Placeholder for PEC BLOCK
@@ -79,7 +81,7 @@ def write_version_1(pattern, f):
         write_pes_header_v1(f, 1)
         write_int_16le(f, 0xFFFF)
         write_int_16le(f, 0x0000)
-        write_pes_blocks(f, pattern, chart, left, top, right, bottom)
+        write_pes_blocks(f, pattern, chart, left, top, right, bottom, cx, cy)
 
     current_position = f.tell()
     f.seek(placeholder_pec_block, 0)
@@ -93,14 +95,14 @@ def write_version_6(pattern, f):
     chart = set(pattern.threadlist)
     write_string_utf8(f, PES_VERSION_6_SIGNATURE)
 
-    pattern.move_center_to_origin()
-
     extends = pattern.extends()
+    cx = (extends[2] + extends[0]) / 2.0
+    cy = (extends[3] + extends[1]) / 2.0
 
-    left = extends[0]
-    top = extends[1]
-    right = extends[2]
-    bottom = extends[3]
+    left = extends[0] - cx
+    top = extends[1] - cy
+    right = extends[2] - cx
+    bottom = extends[3] - cy
 
     placeholder_pec_block = f.tell()
     write_int_32le(f, 0)  # Placeholder for PEC BLOCK
@@ -113,7 +115,7 @@ def write_version_6(pattern, f):
         write_pes_header_v6(pattern, f, 1)
         write_int_16le(f, 0xFFFF)
         write_int_16le(f, 0x0000)
-        log = write_pes_blocks(f, pattern, chart, left, top, right, bottom)
+        log = write_pes_blocks(f, pattern, chart, left, top, right, bottom, cx, cy)
         # In version 6 there is some node, tree, order thing.
         write_int_32le(f, 0)
         write_int_32le(f, 0)
@@ -209,17 +211,17 @@ def write_pes_thread(f, thread):
     write_pes_string_8(f, thread.chart)
 
 
-def write_pes_blocks(f, pattern, chart, left, top, right, bottom):
+def write_pes_blocks(f, pattern, chart, left, top, right, bottom, cx, cy):
     if len(pattern.stitches) == 0:
         return
 
     write_pes_string_16(f, EMB_ONE)
-    placeholder = write_pes_sewsegheader(f, pattern, left, top, right, bottom)
+    placeholder = write_pes_sewsegheader(f, left, top, right, bottom)
     write_int_16le(f, 0xFFFF)
     write_int_16le(f, 0x0000)  # FFFF0000 means more blocks exist
 
     write_pes_string_16(f, EMB_SEG)
-    data = write_pes_embsewseg_segments(f, pattern, chart, left, bottom)
+    data = write_pes_embsewseg_segments(f, pattern, chart, left, bottom, cx, cy)
 
     sections = data[0]
     colorlog = data[1]
@@ -237,7 +239,7 @@ def write_pes_blocks(f, pattern, chart, left, top, right, bottom):
     return colorlog
 
 
-def write_pes_sewsegheader(f, pattern, left, top, right, bottom):
+def write_pes_sewsegheader(f, left, top, right, bottom):
     width = right - left
     height = bottom - top
     hoop_height = 1800
@@ -278,7 +280,7 @@ def write_pes_sewsegheader(f, pattern, left, top, right, bottom):
     return placeholder_needs_section_data
 
 
-def get_as_segments_blocks(pattern, chart, left, bottom):
+def get_as_segments_blocks(pattern, chart, adjust_x, adjust_y):
     color_index = 0
     current_thread = pattern.get_thread_or_filler(color_index)
     color_index += 1
@@ -289,9 +291,9 @@ def get_as_segments_blocks(pattern, chart, left, bottom):
         block = []
         command = command_block[0][2]
         if command == JUMP:
-            block.append([stitched_x - left, stitched_y - bottom])
+            block.append([stitched_x - adjust_x, stitched_y - adjust_y])
             last_pos = command_block[-1]
-            block.append([last_pos[0] - left, last_pos[1] - bottom])
+            block.append([last_pos[0] - adjust_x, last_pos[1] - adjust_y])
             flag = 1
         elif command == COLOR_CHANGE:
             current_thread = pattern.get_thread_or_filler(color_index)
@@ -303,20 +305,22 @@ def get_as_segments_blocks(pattern, chart, left, bottom):
             for stitch in command_block:
                 stitched_x = stitch[0]
                 stitched_y = stitch[1]
-                block.append([stitched_x - left, stitched_y - bottom])
+                block.append([stitched_x - adjust_x, stitched_y - adjust_y])
             flag = 0
         else:
             continue
         yield (block, color_code, flag)
 
 
-def write_pes_embsewseg_segments(f, pattern, chart, left, bottom):
+def write_pes_embsewseg_segments(f, pattern, chart, left, bottom, cx, cy):
     section = 0
     colorlog = []
 
     previous_color_code = -1
     flag = -1
-    for segs in get_as_segments_blocks(pattern, chart, left, bottom):
+    adjust_x = left + cx
+    adjust_y = bottom + cy
+    for segs in get_as_segments_blocks(pattern, chart, adjust_x, adjust_y):
         if flag != -1:
             write_int_16le(f, 0x8003)  # section end.
         segments = segs[0]
@@ -340,4 +344,4 @@ def write_pes_embsewseg_segments(f, pattern, chart, left, bottom):
         write_int_16le(f, log_item[0])
         write_int_16le(f, log_item[1])
 
-    return (section, colorlog)  # how many sections, how color transitions.
+    return section, colorlog  # how many sections, how color transitions.

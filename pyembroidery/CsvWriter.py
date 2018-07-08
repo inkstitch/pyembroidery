@@ -2,6 +2,7 @@ from .EmbConstant import *
 from .WriteHelper import write_string_utf8
 from .PecGraphics import get_graphic_as_string
 
+STRIP_SEQUINS = False
 FULL_JUMP = False
 MAX_JUMP_DISTANCE = 121
 MAX_STITCH_DISTANCE = 121
@@ -106,7 +107,8 @@ def get_common_name_dictionary():
         STOP: "STOP",
         END: "END",
         COLOR_CHANGE: "COLOR_CHANGE",
-        SEQUIN: "SEQUIN",
+        SEQUIN_MODE: "SEQUIN_MODE",
+        SEQUIN_EJECT: "SEQUIN_EJECT",
         SEW_TO: "SEW_TO",
         NEEDLE_AT: "NEEDLE_AT",
         SEQUENCE_BREAK: "SEQUENCE_BREAK",

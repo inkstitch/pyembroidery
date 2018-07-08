@@ -1,4 +1,3 @@
-
 def getbit(b, pos):
     return (b >> pos) & 1
 
@@ -69,10 +68,11 @@ def read(f, out, settings=None):
         elif byte[2] & 0b11000011 == 0b11000011:
             out.color_change(dx, dy)
         elif byte[2] & 0b01000011 == 0b01000011:
+            out.sequin_mode(dx,dy)
             sequin_mode = not sequin_mode
         elif byte[2] & 0b10000011 == 0b10000011:
             if sequin_mode:
-                out.sequin(dx, dy)
+                out.sequin_eject(dx, dy)
             else:
                 out.move(dx, dy)
         else:

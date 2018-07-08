@@ -39,6 +39,31 @@ pattern2.add_stitch_absolute(STITCH, 1200, 1000)
 pattern2.add_stitch_absolute(STITCH, 1000, 1000)
 write_dst(pattern2, "test.dst", {"tie_on": True, "tie_off": True})
 
+pattern3 = EmbPattern()
+pattern3.add_stitch_relative(STITCH, 50, 0)
+pattern3.add_stitch_relative(STITCH, 50, 0)
+pattern3.add_stitch_relative(SEQUIN_EJECT, 50, 0)
+pattern3.add_stitch_relative(STITCH, 50, 0)
+pattern3.add_stitch_relative(JUMP, 50, 0)
+pattern3.add_stitch_relative(STITCH, 50, 0)
+pattern3.add_stitch_relative(STITCH, 50, 0)
+pattern3.add_stitch_relative(TRIM)
+pattern3.add_stitch_relative(STITCH, 50, 0)
+pattern3.add_stitch_relative(STITCH, 50, 0)
+pattern3.add_stitch_relative(STITCH, 50, 0)
+pattern3.add_stitch_relative(STITCH, 50, 0)
+pattern3.add_stitch_relative(SEQUIN_EJECT, 0, 50)
+pattern3.add_stitch_relative(STITCH, -50, 0)
+pattern3.add_stitch_relative(STITCH, -50, 0)
+pattern3.add_stitch_relative(STITCH, -50, 0)
+pattern3.add_stitch_relative(STITCH, -50, 0)
+pattern3.add_stitch_relative(SEQUIN_EJECT, -50, 0)
+pattern3.add_stitch_relative(STITCH, -50, 0)
+pattern3.add_stitch_relative(STITCH, -50, 0)
+pattern3.add_stitch_relative(SEQUIN_EJECT, -50, 0)
+pattern3.add_stitch_relative(STITCH, -50, 0)
+write_dst(pattern3, "simple.dst")
+
 pattern = EmbPattern()
 
 pattern.add_thread({
@@ -89,8 +114,8 @@ for file in os.listdir("convert"):
     while pattern.get_metadata(i) is not None:
         print(get_graphic_as_string(pattern.get_metadata(i)))
         i += 1
-
-    pattern = pattern.get_stable_pattern()
+    # TODO: REMOVED STABLIZER TO GET SEQUINS THROUGH.
+    # pattern = pattern.get_stable_pattern()
     for emb_format in supported_formats():
         if emb_format['writer'] is None:
             continue

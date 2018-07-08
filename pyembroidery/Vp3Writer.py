@@ -1,6 +1,8 @@
 from .EmbConstant import *
-from .WriteHelper import write_int_8, write_int_24be, write_int_32be, write_int_16be, write_string_utf8, write_string
+from .WriteHelper import write_int_8, write_int_24be,\
+    write_int_32be, write_int_16be, write_string_utf8, write_string
 
+STRIP_SEQUINS = True
 FULL_JUMP = False
 # Since jump is stitch, full jump will result in pointless double stitch.
 # Vp3 can encode signed 16 bit deltas.
@@ -227,7 +229,9 @@ def write_stitches_block(f, stitches, first_pos_x, first_pos_y):
             continue
         elif flags == TRIM:
             continue
-        elif flags == SEQUIN:
+        elif flags == SEQUIN_MODE:
+            continue
+        elif flags == SEQUIN_EJECT:
             continue
         elif flags == STOP:
             # Not sure what to do here.

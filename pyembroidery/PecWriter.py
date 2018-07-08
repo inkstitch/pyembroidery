@@ -4,6 +4,7 @@ from .EmbThreadPec import get_thread_set
 from .PecGraphics import get_blank, draw_scaled
 from .WriteHelper import write_int_8, write_int_16le, write_int_24le, write_string_utf8
 
+STRIP_SEQUINS = True
 FULL_JUMP = True
 MAX_JUMP_DISTANCE = 2047
 MAX_STITCH_DISTANCE = 2047

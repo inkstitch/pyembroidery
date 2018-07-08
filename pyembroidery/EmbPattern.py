@@ -38,9 +38,13 @@ class EmbPattern:
         """Color Change dx, dy"""
         self.add_stitch_relative(COLOR_CHANGE, dx, dy)
 
-    def sequin(self, dx=0, dy=0):
-        """Add Sequin dx, dy"""
-        self.add_stitch_relative(SEQUIN, dx, dy)
+    def sequin_eject(self, dx=0, dy=0):
+        """Eject Sequin dx, dy"""
+        self.add_stitch_relative(SEQUIN_EJECT, dx, dy)
+
+    def sequin_mode(self, dx=0, dy=0):
+        """Eject Sequin dx, dy"""
+        self.add_stitch_relative(SEQUIN_MODE, dx, dy)
 
     def end(self, dx=0, dy=0):
         """End Design dx, dy"""
@@ -183,7 +187,7 @@ class EmbPattern:
 
     def get_singleton_threadlist(self):
         singleton = []
-        last_thread = null
+        last_thread = None
         for thread in self.threadlist:
             if thread != last_thread:
                 singleton.append(thread)
@@ -192,8 +196,8 @@ class EmbPattern:
 
     def move_center_to_origin(self):
         extends = self.extends()
-        cx = (extends[2] - extends[0]) / 2
-        cy = (extends[3] - extends[1]) / 2
+        cx = round((extends[2] - extends[0]) / 2.0)
+        cy = round((extends[3] - extends[1]) / 2.0)
         self.translate(-cx, -cy)
 
     def translate(self, dx, dy):

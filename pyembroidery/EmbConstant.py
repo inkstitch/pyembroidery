@@ -5,7 +5,8 @@ TRIM = 2
 STOP = 3
 END = 4
 COLOR_CHANGE = 5
-SEQUIN = 6
+SEQUIN_MODE = 6
+SEQUIN_EJECT = 7
 
 # Stitch with implied contingency.
 SEW_TO = 0xB0
