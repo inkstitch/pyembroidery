@@ -255,6 +255,7 @@ class EmbPattern:
         stable_pattern = EmbPattern()
         for stitchblock in self.get_as_stitchblock():
             stable_pattern.add_stitchblock(stitchblock)
+        stable_pattern.extras.update(self.extras)
         return stable_pattern
 
     def get_normalized_pattern(self, encode_settings=None):

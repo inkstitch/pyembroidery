@@ -14,6 +14,7 @@ import pyembroidery.PesReader as PesReader
 import pyembroidery.ExpReader as ExpReader
 import pyembroidery.Vp3Reader as Vp3Reader
 import pyembroidery.JefReader as JefReader
+import pyembroidery.CsvWriter as CsvWriter
 
 
 def supported_formats():
@@ -91,6 +92,13 @@ def supported_formats():
         "mimetype": "image/svg+xml",
         "category": "vector",
         "writer": SvgWriter,
+    })
+    yield ({
+        "description": "Comma-separated values",
+        "extension": "csv",
+        "mimetype": "text/csv",
+        "category": "debug",
+        "writer": CsvWriter,
     })
 
 

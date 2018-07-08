@@ -63,9 +63,9 @@ class Transcoder:
 
     def transcode_metadata(self):
         """Transcodes metadata, (just moves)"""
-        source = self.source_pattern
-        dest = self.destination_pattern
-        self.destination_pattern.extras = self.source_pattern.extras.copy()
+        source = self.source_pattern.extras
+        dest = self.destination_pattern.extras
+        dest.update(source)
 
     def transcode_threads(self):
         """Transcodes threads, (just moves)"""
