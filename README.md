@@ -22,8 +22,8 @@ pyembroidery must to be small enough to be finished in short order and big enoug
 * The minimum required formats within the mandate are PES, DST, EXP, JEF, VP3.
   * It reads and writes all of these.
 
-* The current mandate for core commands is: STITCH, JUMP, TRIM, STOP, END, COLOR_CHANGE and SEQUIN.
-  * SEQUIN is only in DST and it only currently loads, but I'm not really checked what happens after that.
+* The current mandate for core commands is: STITCH, JUMP, TRIM, STOP, END, COLOR_CHANGE, SEQUIN_MODE and SEQUIN_EJECT.
+  * SEQUINS work in all supported formats (.dst) that are known to support sequins.
   
 * The current mandate is required support and function in Python 2.7
   * It is currently compatable with Python 2.7 as well as 3.6
@@ -116,6 +116,7 @@ The parameters currently have recognized values for:
 * `max_stitch`
 * `max_jump`
 * `full_jump`
+* `strip_sequins`
 * `translate`
 * `scale`
 * `rotate`
@@ -124,14 +125,17 @@ The parameters currently have recognized values for:
 * `encode`
 * `long_stitch_contingency`
 
-The max_stitch, max_jump, and full_jump properties are appended by default depending on the format you are writing to. For example, DST files support a maximum stitch length of 12.1mm, and this is set automatically. If you overtly set these, they will override those values. If you override them to a high value on a format such as .dst with limited length stitches, you can have it permit overly long stitches to be fed into the reader, causing a crash. If you disable the encoder "encode" = false. The same thing may occur.
+The max_stitch, max_jump, full_jump, and strip_sequins properties are appended by default depending on the format you are writing to. For example, DST files support a maximum stitch length of 12.1mm, and this is set automatically. If you overtly set these, they will override those values. If you override them to a high value on a format such as .dst with limited length stitches, you can have it permit overly long stitches to be fed into the reader, causing a crash. If you disable the encoder "encode" = false. The same thing may occur.
 
-Translate, Scale and Rotate occur in that order. If you want finer grain control over them they can be modified on the fly with middle-level commands.
+Translate, Scale and Rotate occur in that order. If you want finer grain control over these they can be modified on the fly with middle-level commands.
 
 long_stitch_contingency sets the contingency protocol for when a stitch is longer than the format can encode and how to deal with that event.
 
 Writing to SVG:
 This is largely for testing purposes, it's not a binary writing format. But, it's entirely needed for testing purposes. There is some notable irony in writing an SVG file in a library, whose main genesis is to help another program that *already* writes them. But, without some provably flawless method of exporting the data read, there's no clear way to guarentee a problem is within a reader or a writer.
+
+Writing to CSV:
+This is also largely for testing purposes. It prints out a workable CSV file with the given data. It will be encoded like a .DST file by default.
 
 Conversion:
 ---
@@ -196,8 +200,10 @@ For `COMMAND`, you can:
     * pause the machine (for applique, thread-change, etc)
   * `pyembroidery.END`
     * end the pattern
-  * `pyembroidery.SEQUIN`
-    * not fully supported yet
+  * `pyembroidery.SEQUIN_EJECT`
+    * ejects a sequin. This can only be saved in .dst format.
+  * `pyembroidery.SEQUIN_MODE`
+    * turns on sequin mode. this is done automatically for you if you eject a sequin.
 * Use shorthand commands to compose a pattern
   * `pyembroidery.STITCH`
   * `pyembroidery.SEQUENCE_BREAK`
@@ -289,6 +295,8 @@ Core Command Ordering
 ---
 Stitch is taken to mean move_position(x,y), needle_strike. Jump is taken to mean move_position(x,y), block_needle_bar. In those orders.
 If a format takes stitch to mean needle_strike, move_position(x,y) in that order. The encoder will may insert an extra jump in to avoid stitching an unwanted element.
+
+Note: This is true for sequin_eject too. DST files are the only currently supported format with sequins and they use dx,dy then command. But, note the sequin is ejected at the destination of the dx dy. It will move, then sequin eject is the assumed order. It is also the DST order.
 
 
 ---
