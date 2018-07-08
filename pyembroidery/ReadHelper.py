@@ -1,22 +1,29 @@
-def signed(b):
+def signed8(b):
     if b > 127:
         return -256 + b
     else:
         return b
+
+def signed16(v):
+    v &= 0xFFFF
+    if v > 0x7FFF:
+        return - 0x10000 + v
+    else:
+        return v
 
 
 def read_signed(stream, n):
     byte = bytearray(stream.read(n))
     signed_bytes = []
     for b in byte:
-        signed_bytes.append(signed(b))
+        signed_bytes.append(signed8(b))
     return signed_bytes
 
 
 def read_sint_8(stream):
     byte = bytearray(stream.read(1))
     if len(byte) is 1:
-        return signed(byte[0])
+        return signed8(byte[0])
     return None
 
 

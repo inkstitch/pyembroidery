@@ -8,13 +8,18 @@ import pyembroidery.ExpWriter as ExpWriter
 import pyembroidery.Vp3Writer as Vp3Writer
 import pyembroidery.JefWriter as JefWriter
 import pyembroidery.SvgWriter as SvgWriter
+import pyembroidery.CsvWriter as CsvWriter
+
 import pyembroidery.DstReader as DstReader
 import pyembroidery.PecReader as PecReader
 import pyembroidery.PesReader as PesReader
 import pyembroidery.ExpReader as ExpReader
 import pyembroidery.Vp3Reader as Vp3Reader
 import pyembroidery.JefReader as JefReader
-import pyembroidery.CsvWriter as CsvWriter
+import pyembroidery.XxxReader as XxxReader
+import pyembroidery.SewReader as SewReader
+import pyembroidery.U01Reader as U01Reader
+import pyembroidery.ShvReader as ShvReader
 
 
 def supported_formats():
@@ -98,6 +103,34 @@ def supported_formats():
         "mimetype": "text/csv",
         "category": "debug",
         "writer": CsvWriter,
+    })
+    yield ({
+        "description": "Singer Embroidery Format",
+        "extension": "xxx",
+        "mimetype": "application/x-xxx",
+        "category": "embroidery",
+        "reader": XxxReader
+    })
+    yield ({
+        "description": "Janome Embroidery Format",
+        "extension": "sew",
+        "mimetype": "application/x-sew",
+        "category": "embroidery",
+        "reader": SewReader
+    })
+    yield ({
+        "description": "Barudan Embroidery Format",
+        "extension": "u01",
+        "mimetype": "application/x-u01",
+        "category": "embroidery",
+        "reader": U01Reader
+    })
+    yield ({
+        "description": "Husqvarna Viking Embroidery Format",
+        "extension": "shv",
+        "mimetype": "application/x-shv",
+        "category": "embroidery",
+        "reader": ShvReader
     })
 
 

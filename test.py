@@ -115,9 +115,9 @@ for file in os.listdir("convert"):
         print(get_graphic_as_string(pattern.get_metadata(i)))
         i += 1
     # TODO: REMOVED STABLIZER TO GET SEQUINS THROUGH.
-    # pattern = pattern.get_stable_pattern()
+    pattern = pattern.get_stable_pattern()
     for emb_format in supported_formats():
-        if emb_format['writer'] is None:
+        if emb_format.get('writer', None) is None:
             continue
         results_file = os.path.join("results", file) + \
                        '.' + emb_format["extension"]

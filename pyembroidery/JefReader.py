@@ -1,5 +1,5 @@
 from .EmbThreadJef import get_thread_set
-from .ReadHelper import read_signed, read_int_32le, signed
+from .ReadHelper import read_signed, read_int_32le, signed8
 
 
 def read(f, out, settings=None):
@@ -28,6 +28,6 @@ def read(f, out, settings=None):
             elif b[1] == 0x10:  # end
                 break
         else:
-            out.stitch(signed(b[0]),
-                       -signed(b[1]))
+            out.stitch(signed8(b[0]),
+                       -signed8(b[1]))
     out.end(0, 0)

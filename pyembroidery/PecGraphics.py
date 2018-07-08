@@ -89,6 +89,11 @@ def draw_scaled(extends, points, graphic, stride, buffer=5):
     graphic_width = stride * 8
     graphic_height = len(graphic) / stride
 
+    if diagram_width == 0:
+        diagram_width = 1
+    if diagram_height == 0:
+        diagram_height = 1
+
     scale_x = (graphic_width - buffer) / diagram_width
     scale_y = (graphic_height - buffer) / diagram_height
 
@@ -140,11 +145,11 @@ def graphic_unmark_bit(graphic, x, y, stride=6):
 def get_graphic_as_string(graphic, one="#", zero=" "):
     """Prints graphic object in text."""
     stride = 6
-    if isinstance(graphic,tuple):
+    if isinstance(graphic, tuple):
         stride = graphic[1]
         graphic = graphic[0]
 
-    if isinstance(graphic,str):
+    if isinstance(graphic, str):
         graphic = bytearray(graphic)
 
     list_string = [
