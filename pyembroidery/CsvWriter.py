@@ -42,7 +42,7 @@ def write(pattern, f, settings=None):
             '[METADATA]'
         ))
         for the_key, the_value in pattern.extras.items():
-            if isinstance(the_value,tuple):
+            if isinstance(the_value, tuple):
                 the_value = "\n" + get_graphic_as_string(the_value)
             csv(f, (
                 '@',
@@ -81,9 +81,13 @@ def write(pattern, f, settings=None):
             '[STITCH_INDEX]',
             '[STITCH_TYPE]',
             '[X]',
-            '[Y]'
+            '[Y]',
+            '[DX]',
+            '[DY]'
         ))
         names = get_common_name_dictionary()
+        current_x = 0
+        current_y = 0
         for i, stitch in enumerate(pattern.stitches):
             try:
                 name = names[stitch[2]]
@@ -94,8 +98,12 @@ def write(pattern, f, settings=None):
                 str(i),
                 name,
                 str(stitch[0]),
-                str(stitch[1])
+                str(stitch[1]),
+                str(stitch[0] - current_x),
+                str(stitch[1] - current_y)
             ))
+            current_x = stitch[0]
+            current_y = stitch[0]
 
 
 def get_common_name_dictionary():

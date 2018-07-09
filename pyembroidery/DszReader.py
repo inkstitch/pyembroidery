@@ -1,3 +1,6 @@
+from DstReader import dst_read_header
+
+
 def process_header_info(out, prefix, value):
     if prefix == "LA":
         out.metadata("name", value)
@@ -6,12 +9,7 @@ def process_header_info(out, prefix, value):
 
 
 def read(f, out, settings=None):
-    header = f.read(512)
-    header_string = header.decode('utf8')
-    for line in [x.strip() for x in header_string.split('\r')]:
-        if len(line) > 3:
-            process_header_info(out, line[0:2].strip(), line[3:].strip())
-
+    dst_read_header(f, out)
     count = 0
     while True:
         count += 1

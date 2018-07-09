@@ -50,12 +50,15 @@ def process_header_info(out, prefix, value):
         out.metadata(prefix, value)
 
 
-def read(f, out, settings=None):
+def dst_read_header(f, out):
     header = f.read(512)
     header_string = header.decode('utf8')
     for line in [x.strip() for x in header_string.split('\r')]:
         if len(line) > 3:
             process_header_info(out, line[0:2].strip(), line[3:].strip())
+
+
+def dst_read_stitches(f, out):
     sequin_mode = False
     while True:
         byte = bytearray(f.read(3))
@@ -68,7 +71,7 @@ def read(f, out, settings=None):
         elif byte[2] & 0b11000011 == 0b11000011:
             out.color_change(dx, dy)
         elif byte[2] & 0b01000011 == 0b01000011:
-            out.sequin_mode(dx,dy)
+            out.sequin_mode(dx, dy)
             sequin_mode = not sequin_mode
         elif byte[2] & 0b10000011 == 0b10000011:
             if sequin_mode:
@@ -77,3 +80,8 @@ def read(f, out, settings=None):
                 out.move(dx, dy)
         else:
             out.stitch(dx, dy)
+
+
+def read(f, out, settings=None):
+    dst_read_header(f, out)
+    dst_read_stitches(f, out)

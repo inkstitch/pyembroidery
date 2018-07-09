@@ -34,6 +34,7 @@ import pyembroidery.GtReader as GtReader
 import pyembroidery.InbReader as InbReader
 import pyembroidery.TbfReader as TbfReader
 import pyembroidery.KsmReader as KsmReader
+import pyembroidery.TapReader as TapReader
 
 
 def supported_formats():
@@ -261,6 +262,14 @@ def supported_formats():
         "category": "embroidery",
         "stable": False,
         "reader": KsmReader
+    })
+    yield ({
+        "description": "Tap Embroidery Format",
+        "extension": "tap",
+        "mimetype": "application/x-tap",
+        "category": "embroidery",
+        "stable": False,
+        "reader": TapReader
     })
 
 
