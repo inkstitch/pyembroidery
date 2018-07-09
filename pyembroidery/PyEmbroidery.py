@@ -33,6 +33,7 @@ import pyembroidery.FxyReader as FxyReader
 import pyembroidery.GtReader as GtReader
 import pyembroidery.InbReader as InbReader
 import pyembroidery.TbfReader as TbfReader
+import pyembroidery.KsmReader as KsmReader
 
 
 def supported_formats():
@@ -190,7 +191,7 @@ def supported_formats():
         "reader": DatReader
     })
     yield ({
-        "description": "Barudan Embroidery Format",
+        "description": "Tajima(Barudan) Embroidery Format",
         "extension": "dsb",
         "mimetype": "application/x-dsb",
         "category": "embroidery",
@@ -246,12 +247,20 @@ def supported_formats():
         "reader": InbReader
     })
     yield ({
-        "description": "T Embroidery Format",
+        "description": "Tajima Embroidery Format",
         "extension": "tbf",
         "mimetype": "application/x-tbf",
         "category": "embroidery",
         "stable": False,
         "reader": TbfReader
+    })
+    yield ({
+        "description": "Pfaff Embroidery Format",
+        "extension": "ksm",
+        "mimetype": "application/x-ksm",
+        "category": "embroidery",
+        "stable": False,
+        "reader": KsmReader
     })
 
 
