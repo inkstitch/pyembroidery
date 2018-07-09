@@ -58,4 +58,4 @@ def read(f, out, settings=None):
         if flags == END:
             break
         out.add_stitch_relative(flags, dx, dy)
-    out.end();
+    out.end()

@@ -1,4 +1,3 @@
-
 from .EmbConstant import *
 from .EmbThreadPec import get_thread_set
 from .PecGraphics import get_blank, draw_scaled
@@ -33,20 +32,27 @@ def write_pec(pattern, f):
 
 def write_pec_header(pattern, f):
     name = pattern.get_metadata("name", "Untitled")
-    write_string_utf8(f,"LA:%-16s\r" % name[:8])
+    write_string_utf8(f, "LA:%-16s\r" % name[:8])
     f.write(b'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\xFF\x00')
     write_int_8(f, int(PEC_ICON_WIDTH / 8))  # PEC BYTE STRIDE
     write_int_8(f, int(PEC_ICON_HEIGHT))  # PEC ICON HEIGHT
 
+    threadlist = pattern.threadlist
     thread_set = get_thread_set()
     chart = [None] * len(thread_set)
-    for thread in set(pattern.threadlist):
+
+    if len(thread_set) <= len(threadlist):
+        threadlist = thread_set[:]
+        # Data is corrupt. Cheat so it won't crash.
+
+    unique_threads = set(threadlist)
+    for thread in unique_threads:
         index = thread.find_nearest_color_index(thread_set)
         thread_set[index] = None
         chart[index] = thread
 
     colorlist = []
-    for thread in pattern.threadlist:
+    for thread in threadlist:
         colorlist.append(thread.find_nearest_color_index(chart))
 
     current_thread_count = len(colorlist)

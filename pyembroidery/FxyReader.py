@@ -6,11 +6,13 @@ def read(f, out, settings=None):
     f.seek(0x100)  # GT format with header
     while True:
         stitch_type = STITCH
-        b1 = signed8(read_int_8(f))
-        b2 = signed8(read_int_8(f))
+        b1 = read_int_8(f)
+        b2 = read_int_8(f)
         command_byte = read_int_8(f)
         if command_byte is None:
             break
+        b1 = signed8(b1)
+        b2 = signed8(b2)
         if command_byte == 0x91:
             break
         if (command_byte & 0x01) == 0x01:

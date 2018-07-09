@@ -6,14 +6,15 @@ def read(f, out, settings=None):
     f.seek(0x2000, 0)
     while True:
         stitch_type = STITCH
+
         x = read_int_8(f)
-        y = -read_int_8(f)
+        y = read_int_8(f)
         command_byte = read_int_8(f)
         if command_byte is None:
             break
         x = signed8(x)
         y = -signed8(y)
-        if (command_byte & 0x10) == 0x20:
+        if (command_byte & 0x20) == 0x20:
             y = -y
         if (command_byte & 0x40) == 0x40:
             x = -x

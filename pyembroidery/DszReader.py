@@ -1,4 +1,5 @@
 from .EmbConstant import *
+from .ReadHelper import signed8
 
 
 def process_header_info(out, prefix, value):
@@ -19,8 +20,9 @@ def read(f, out, settings=None):
         byte = bytearray(f.read(3))
         if len(byte) != 3:
             break
-        x = byte[2]
-        y = -byte[1]
+        # Apparently bigendian version of the other triplets?
+        x = signed8(byte[2])
+        y = -signed8(byte[1])
         ctrl = byte[0]
         stitch_type = STITCH
         if ctrl & 0x01 != 0:
@@ -32,8 +34,8 @@ def read(f, out, settings=None):
         if ctrl & 0x0E != 0:
             head_number = (ctrl & 0x0E) >> 1
             stitch_type = COLOR_CHANGE  # TODO This apparently has the head index
-        if ctrl & 0x10:
-            break
-        out.add_stitch_relative(x, y, stitch_type)
+        # if ctrl & 0x10:
+        #     break
+        out.add_stitch_relative(stitch_type, x, y)
 
     out.end()
