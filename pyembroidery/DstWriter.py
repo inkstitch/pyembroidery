@@ -142,7 +142,6 @@ def write(pattern, f, settings=None):
     for i in range(f.tell(), DSTHEADERSIZE):
         f.write(b'\x20')  # space
 
-
     stitches = pattern.stitches
     xx = 0
     yy = 0

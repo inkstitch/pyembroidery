@@ -32,6 +32,7 @@ import pyembroidery.ExyReader as ExyReader
 import pyembroidery.FxyReader as FxyReader
 import pyembroidery.GtReader as GtReader
 import pyembroidery.InbReader as InbReader
+import pyembroidery.TbfReader as TbfReader
 
 
 def supported_formats():
@@ -244,6 +245,15 @@ def supported_formats():
         "stable": False,
         "reader": InbReader
     })
+    yield ({
+        "description": "T Embroidery Format",
+        "extension": "tbf",
+        "mimetype": "application/x-tbf",
+        "category": "embroidery",
+        "stable": False,
+        "reader": TbfReader
+    })
+
 
 def convert(filename_from, filename_to, settings=None):
     pattern = read(filename_from, settings)

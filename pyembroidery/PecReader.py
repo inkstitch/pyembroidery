@@ -14,8 +14,9 @@ def read(f, out, settings=None):
 
 def read_pec(f, out, pes_chart=None):
     f.seek(3, 1)  # LA:
-    label = read_string_8(f, 16).strip()  # Label
-    out.metadata("Label", label)
+    label = read_string_8(f, 16)  # Label
+    if label is not None:
+        out.metadata("Label", label.strip())
     f.seek(0xF, 1)  # Dunno, spaces then 0xFF 0x00
     pec_graphic_byte_stride = read_int_8(f)
     pec_graphic_icon_height = read_int_8(f)

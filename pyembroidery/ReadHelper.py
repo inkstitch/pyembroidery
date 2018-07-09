@@ -4,6 +4,7 @@ def signed8(b):
     else:
         return b
 
+
 def signed16(v):
     v &= 0xFFFF
     if v > 0x7FFF:
@@ -82,9 +83,15 @@ def read_int_32be(stream):
 
 def read_string_8(stream, length):
     byte = stream.read(length)
-    return byte.decode('utf8')
+    try:
+        return byte.decode('utf8')
+    except UnicodeDecodeError:
+        return None  # Must be > 128 chars.
 
 
 def read_string_16(stream, length):
     byte = stream.read(length)
-    return byte.decode('utf16')
+    try:
+        return byte.decode('utf16')
+    except UnicodeDecodeError:
+        return None
