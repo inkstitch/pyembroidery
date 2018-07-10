@@ -47,6 +47,49 @@ The encoder call is made on the EmbPattern with .get_normalized_pattern() on the
 * Convert
   * File -> Reader -> Pattern -> Stablizer -> Pattern -> Encoder -> Pattern -> Writer -> File
 
+Formats:
+---
+
+Pyembroidery will write:
+* .pes (mandated)
+* .dst (mandated)
+* .exp (mandated)
+* .jef (mandated)
+* .vp3 (mandated)
+* .csv
+* .svg
+
+Pyembroidery will read:
+* .pes (mandated)
+* .dst (mandated)
+* .exp (mandated)
+* .jef (mandated)
+* .vp3 (mandated)
+* .10o
+* .100
+* .bro
+* .dsb
+* .dsz
+* .emd
+* .inb
+* .ksm
+* .pec
+* .sew
+* .shv
+* .stx
+* .tap
+* .tbf
+* .u01
+* .xxx
+
+
+Writing to SVG:
+This is largely for testing purposes, it's not a binary writing format. But, it's entirely needed for testing purposes. There is some notable irony in writing an SVG file in a library, whose main genesis is to help another program that *already* writes them. But, without some provably flawless method of exporting the data read, there's no clear way to guarentee a problem is within a reader or a writer.
+
+Writing to CSV:
+This is also largely for testing purposes. It prints out a workable CSV file with the given data. It will be encoded like a .DST file by default.
+
+
 Reading:
 ---
 
@@ -62,7 +105,7 @@ pattern = pyembroidery.read("myembroidery.exp")
 
 If only a file name is given it detects by the extension what reader it should use.
 
-For the descrete readers, the file may be a FileObject or a the string of the path.
+For the discrete readers, the file may be a FileObject or a the string of the path.
 
 ```python
 pattern = pyembroidery.read_dst(file)
@@ -82,6 +125,7 @@ pattern = pyembroidery.read_pes(file, None, pattern)
 # or even chain together read calls
 pattern = pyembroidery.read("secondread.dst", None, pyembroidery.read("firstread.jef"))
 ```
+
 
 This will cause the pattern to have the stitches from both files.
 
@@ -130,12 +174,6 @@ The max_stitch, max_jump, full_jump, and strip_sequins properties are appended b
 Translate, Scale and Rotate occur in that order. If you want finer grain control over these they can be modified on the fly with middle-level commands.
 
 long_stitch_contingency sets the contingency protocol for when a stitch is longer than the format can encode and how to deal with that event.
-
-Writing to SVG:
-This is largely for testing purposes, it's not a binary writing format. But, it's entirely needed for testing purposes. There is some notable irony in writing an SVG file in a library, whose main genesis is to help another program that *already* writes them. But, without some provably flawless method of exporting the data read, there's no clear way to guarentee a problem is within a reader or a writer.
-
-Writing to CSV:
-This is also largely for testing purposes. It prints out a workable CSV file with the given data. It will be encoded like a .DST file by default.
 
 Conversion:
 ---
