@@ -18,19 +18,24 @@ def read(f, out, settings=None):
         if ctrl & 0b00100000 != 0:
             y = -y
         ctrl &= ~0b11100000
+
+        if trimmed:  # any x, y gets executed regardless.
+            out.move(x, y)
+        else:
+            out.stitch(x, y)
+
         if ctrl == 0:
-            if trimmed:
-                out.move(x, y)
-            else:
-                out.stitch(x, y)
             continue
-        print(str(count), " ", str("{0:b}").format(ctrl), " 0x%0.2X" % ctrl)
+        if ctrl == 0b00000111:  # 0x07, Initialize stitch
+            continue
         if ctrl == 0b00011001:  # 0x19, start sewing again.
             trimmed = False
             continue
         trimmed = True
+        if ctrl == 0b00010011:  # 0x13 trim, no color change.
+            continue
         if previous_needle != ctrl:
             out.color_change()
         else:
-            out.trim()
+            out.stop()
         previous_needle = ctrl
