@@ -24,17 +24,18 @@ import pyembroidery.ShvReader as ShvReader
 import pyembroidery.A10oReader as A10oReader
 import pyembroidery.A100Reader as A100Reader
 import pyembroidery.BroReader as BroReader
-import pyembroidery.DatReader as DatReader
 import pyembroidery.DsbReader as DsbReader
 import pyembroidery.DszReader as DszReader
 import pyembroidery.EmdReader as EmdReader
-import pyembroidery.ExyReader as ExyReader
-import pyembroidery.FxyReader as FxyReader
-import pyembroidery.GtReader as GtReader
 import pyembroidery.InbReader as InbReader
 import pyembroidery.TbfReader as TbfReader
 import pyembroidery.KsmReader as KsmReader
 import pyembroidery.TapReader as TapReader
+import pyembroidery.StxReader as StxReader
+# import pyembroidery.ExyReader as ExyReader
+# import pyembroidery.FxyReader as FxyReader
+# import pyembroidery.GtReader as GtReader
+# import pyembroidery.DatReader as DatReader
 
 
 def supported_formats():
@@ -52,7 +53,6 @@ def supported_formats():
         "extension": "pec",
         "mimetype": "application/x-pec",
         "category": "embroidery",
-        "stable": True,
         "reader": PecReader,
         "writer": PecWriter,
         "metadata": ("name")
@@ -62,7 +62,6 @@ def supported_formats():
         "extension": "pes",
         "mimetype": "application/x-pes",
         "category": "embroidery",
-        "stable": True,
         "reader": PesReader,
         "writer": PesWriter,
         "options": {
@@ -76,7 +75,6 @@ def supported_formats():
         "extension": "exp",
         "mimetype": "application/x-exp",
         "category": "embroidery",
-        "stable": True,
         "reader": ExpReader,
         "writer": ExpWriter,
     })
@@ -85,7 +83,6 @@ def supported_formats():
         "extension": "dst",
         "mimetype": "application/x-dst",
         "category": "embroidery",
-        "stable": True,
         "reader": DstReader,
         "writer": DstWriter,
         "options": {
@@ -98,7 +95,6 @@ def supported_formats():
         "extension": "jef",
         "mimetype": "application/x-jef",
         "category": "embroidery",
-        "stable": True,
         "reader": JefReader,
         "writer": JefWriter,
     })
@@ -107,7 +103,6 @@ def supported_formats():
         "extension": "vp3",
         "mimetype": "application/x-vp3",
         "category": "embroidery",
-        "stable": True,
         "reader": Vp3Reader,
         "writer": Vp3Writer,
     })
@@ -116,7 +111,6 @@ def supported_formats():
         "extension": "svg",
         "mimetype": "image/svg+xml",
         "category": "vector",
-        "stable": True,
         "writer": SvgWriter,
     })
     yield ({
@@ -124,15 +118,16 @@ def supported_formats():
         "extension": "csv",
         "mimetype": "text/csv",
         "category": "debug",
-        "stable": True,
         "writer": CsvWriter,
+        "options": {
+            "deltas": (True, False)
+        },
     })
     yield ({
         "description": "Singer Embroidery Format",
         "extension": "xxx",
         "mimetype": "application/x-xxx",
         "category": "embroidery",
-        "stable": False,
         "reader": XxxReader
     })
     yield ({
@@ -140,7 +135,6 @@ def supported_formats():
         "extension": "sew",
         "mimetype": "application/x-sew",
         "category": "embroidery",
-        "stable": False,
         "reader": SewReader
     })
     yield ({
@@ -148,7 +142,6 @@ def supported_formats():
         "extension": "u01",
         "mimetype": "application/x-u01",
         "category": "embroidery",
-        "stable": False,
         "reader": U01Reader
     })
     yield ({
@@ -156,7 +149,6 @@ def supported_formats():
         "extension": "shv",
         "mimetype": "application/x-shv",
         "category": "embroidery",
-        "stable": False,
         "reader": ShvReader
     })
     yield ({
@@ -164,7 +156,6 @@ def supported_formats():
         "extension": "10o",
         "mimetype": "application/x-10o",
         "category": "embroidery",
-        "stable": False,
         "reader": A10oReader
     })
     yield ({
@@ -172,7 +163,6 @@ def supported_formats():
         "extension": "100",
         "mimetype": "application/x-100",
         "category": "embroidery",
-        "stable": False,
         "reader": A100Reader
     })
     yield ({
@@ -180,23 +170,21 @@ def supported_formats():
         "extension": "bro",
         "mimetype": "application/x-Bro",
         "category": "embroidery",
-        "stable": False,
         "reader": BroReader
     })
-    yield ({
-        "description": "Barudan Embroidery Format",
-        "extension": "dat",
-        "mimetype": "application/x-dat",
-        "category": "embroidery",
-        "stable": False,
-        "reader": DatReader
-    })
+    # yield ({
+    #     "description": "Barudan Embroidery Format",
+    #     "extension": "dat",
+    #     "mimetype": "application/x-dat",
+    #     "category": "embroidery",
+    #     "stable": False,
+    #     "reader": DatReader
+    # })
     yield ({
         "description": "Tajima(Barudan) Embroidery Format",
         "extension": "dsb",
         "mimetype": "application/x-dsb",
         "category": "embroidery",
-        "stable": False,
         "reader": DsbReader
     })
     yield ({
@@ -204,7 +192,6 @@ def supported_formats():
         "extension": "dsz",
         "mimetype": "application/x-dsz",
         "category": "embroidery",
-        "stable": False,
         "reader": DszReader
     })
     yield ({
@@ -212,39 +199,37 @@ def supported_formats():
         "extension": "emd",
         "mimetype": "application/x-emd",
         "category": "embroidery",
-        "stable": False,
         "reader": EmdReader
     })
-    yield ({
-        "description": "Eltac Embroidery Format",
-        "extension": "exy",
-        "mimetype": "application/x-exy",
-        "category": "embroidery",
-        "stable": False,
-        "reader": ExyReader
-    })
-    yield ({
-        "description": "Fortron Embroidery Format",
-        "extension": "fxy",
-        "mimetype": "application/x-fxy",
-        "category": "embroidery",
-        "stable": False,
-        "reader": FxyReader
-    })
-    yield ({
-        "description": "Gold Thread Embroidery Format",
-        "extension": "gt",
-        "mimetype": "application/x-exy",
-        "category": "embroidery",
-        "stable": False,
-        "reader": GtReader
-    })
+    # yield ({
+    #     "description": "Eltac Embroidery Format",
+    #     "extension": "exy", # e??, e01
+    #     "mimetype": "application/x-exy",
+    #     "category": "embroidery",
+    #     "stable": False,
+    #     "reader": ExyReader
+    # })
+    # yield ({
+    #     "description": "Fortron Embroidery Format",
+    #     "extension": "fxy", # f??, f01
+    #     "mimetype": "application/x-fxy",
+    #     "category": "embroidery",
+    #     "stable": False,
+    #     "reader": FxyReader
+    # })
+    # yield ({
+    #     "description": "Gold Thread Embroidery Format",
+    #     "extension": "gt",
+    #     "mimetype": "application/x-exy",
+    #     "category": "embroidery",
+    #     "stable": False,
+    #     "reader": GtReader
+    # })
     yield ({
         "description": "Inbro Embroidery Format",
         "extension": "inb",
         "mimetype": "application/x-inb",
         "category": "embroidery",
-        "stable": False,
         "reader": InbReader
     })
     yield ({
@@ -252,7 +237,6 @@ def supported_formats():
         "extension": "tbf",
         "mimetype": "application/x-tbf",
         "category": "embroidery",
-        "stable": False,
         "reader": TbfReader
     })
     yield ({
@@ -260,16 +244,21 @@ def supported_formats():
         "extension": "ksm",
         "mimetype": "application/x-ksm",
         "category": "embroidery",
-        "stable": False,
         "reader": KsmReader
     })
     yield ({
-        "description": "Tap Embroidery Format",
+        "description": "Happy Embroidery Format",
         "extension": "tap",
         "mimetype": "application/x-tap",
         "category": "embroidery",
-        "stable": False,
         "reader": TapReader
+    })
+    yield ({
+        "description": "Data Stitch Embroidery Format",
+        "extension": "stx",
+        "mimetype": "application/x-stx",
+        "category": "embroidery",
+        "reader": StxReader
     })
 
 

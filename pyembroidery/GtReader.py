@@ -2,6 +2,8 @@ from .EmbConstant import *
 from .ReadHelper import read_int_8, signed8
 
 
+# I found no copies of this file.
+
 def read(f, out, settings=None):
     f.seek(0x200)  # Fxy with longer header.
     while True:

@@ -1,34 +1,40 @@
-from DstReader import dst_read_header
+from .DstReader import dst_read_header
 
 
-def read(f, out, settings=None):
-    dst_read_header(f, out)
-
+def b_stitch_encoding_read(f, out):
     count = 0
     while True:
+        count += 1
         byte = bytearray(f.read(3))
         if len(byte) != 3:
             break
-        x = byte[2]
-        y = -byte[1]
+
         ctrl = byte[0]
+        y = -byte[1]
+        x = byte[2]
+
         if ctrl & 0b01000000 != 0:
             y = -y
         if ctrl & 0b00100000 != 0:
             x = -x
+
         ctrl &= ~0b11100000
+        if ctrl == 0:
+            out.stitch(x, y)
+            continue
         if ctrl & 0b00010000 != 0:
             out.end()
             return
-        elif ctrl & 0b00001000 != 0:
+        if ctrl & 0b00001000 != 0:
             # Set needle. Needle is: ctrl & 0b111
-            if count > 0:
+            if count > 1:
                 out.color_change()
             continue
-        elif ctrl & 0b00000001 != 0:
+        if ctrl & 0b00000001 != 0:
             out.move(x, y)
-        elif ctrl == 0:
-            out.stitch(x, y)
-        count += 1
-
     out.end()
+
+
+def read(f, out, settings=None):
+    dst_read_header(f, out)
+    b_stitch_encoding_read(f, out)

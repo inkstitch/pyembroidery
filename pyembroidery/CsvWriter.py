@@ -18,6 +18,8 @@ def csv(f, values):
 
 
 def write(pattern, f, settings=None):
+    deltas = settings is not None and "deltas" in settings
+
     extends = pattern.extends()
     width = extends[2] - extends[0]
     height = extends[3] - extends[1]
@@ -76,15 +78,24 @@ def write(pattern, f, settings=None):
         write_string_utf8(f, "\n")
 
     if len(pattern.stitches) > 0:
-        csv(f, (
-            '#',
-            '[STITCH_INDEX]',
-            '[STITCH_TYPE]',
-            '[X]',
-            '[Y]',
-            '[DX]',
-            '[DY]'
-        ))
+        if deltas:
+            csv(f, (
+                '#',
+                '[STITCH_INDEX]',
+                '[STITCH_TYPE]',
+                '[X]',
+                '[Y]',
+                '[DX]',
+                '[DY]'
+            ))
+        else:
+            csv(f, (
+                '#',
+                '[STITCH_INDEX]',
+                '[STITCH_TYPE]',
+                '[X]',
+                '[Y]'
+            ))
         names = get_common_name_dictionary()
         current_x = 0
         current_y = 0
@@ -93,17 +104,26 @@ def write(pattern, f, settings=None):
                 name = names[stitch[2]]
             except IndexError:
                 name = "UNKNOWN " + str(stitch[2])
-            csv(f, (
-                '*',
-                str(i),
-                name,
-                str(stitch[0]),
-                str(stitch[1]),
-                str(stitch[0] - current_x),
-                str(stitch[1] - current_y)
-            ))
+            if deltas:
+                csv(f, (
+                    '*',
+                    str(i),
+                    name,
+                    str(stitch[0]),
+                    str(stitch[1]),
+                    str(stitch[0] - current_x),
+                    str(stitch[1] - current_y)
+                ))
+            else:
+                csv(f, (
+                    '*',
+                    str(i),
+                    name,
+                    str(stitch[0]),
+                    str(stitch[1]),
+                ))
             current_x = stitch[0]
-            current_y = stitch[0]
+            current_y = stitch[1]
 
 
 def get_common_name_dictionary():

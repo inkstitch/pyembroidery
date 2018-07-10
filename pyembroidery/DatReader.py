@@ -2,6 +2,8 @@ from .EmbConstant import *
 from .ReadHelper import read_int_16le, read_int_8, signed8
 
 
+# This code proved to be utterly untestable as I never found a copy of the filetype
+
 def read(f, out, settings=None):
     f.seek(0x02, 0)
     stitches = read_int_16le(f)

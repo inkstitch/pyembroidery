@@ -65,7 +65,7 @@ def read(f, out, settings=None):
                 in_jump = True
                 out.move(sx, sy)
                 continue
-        dx = signed8(b0)  # originally signed16 but wtf
+        dx = signed8(b0)
         dy = signed8(b1)
         stitches_since_stop += 1
         out.add_stitch_relative(flags, dx, dy)

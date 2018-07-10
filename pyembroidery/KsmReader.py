@@ -9,9 +9,10 @@ def read(f, out, settings=None):
         if len(byte) != 3:
             break
 
-        x = byte[1]
         y = -byte[0]
+        x = byte[1]
         ctrl = byte[2]
+
         if ctrl & 0b01000000 != 0:
             x = -x
         if ctrl & 0b00100000 != 0:
@@ -23,7 +24,8 @@ def read(f, out, settings=None):
             else:
                 out.stitch(x, y)
             continue
-        if ctrl == 0b00011001:  # 0x19
+        print(str(count), " ", str("{0:b}").format(ctrl), " 0x%0.2X" % ctrl)
+        if ctrl == 0b00011001:  # 0x19, start sewing again.
             trimmed = False
             continue
         trimmed = True

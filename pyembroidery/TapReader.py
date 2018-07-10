@@ -1,4 +1,4 @@
-from DstReader import dst_read_stitches
+from .DstReader import dst_read_stitches
 
 
 def read(f, out, settings=None):

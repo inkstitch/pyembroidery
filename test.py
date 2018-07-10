@@ -95,11 +95,11 @@ settings["extended header"] = True
 write(pattern, "generated-eh.dst", settings)
 write(pattern, "generated.jef", settings)
 write(pattern, "generated.vp3", settings)
-settings["pes version"] = PesWriter.VERSION_1
+settings["pes version"] = 1
 write(pattern, "generatedv1.pes", settings)
 settings["truncated"] = True
 write(pattern, "generatedv1t.pes", settings)
-settings["pes version"] = PesWriter.VERSION_6
+settings["pes version"] = 6
 write(pattern, "generatedv6t.pes", settings)
 
 convert("generated.exp", "genconvert.dst", {"stable": False, "encode": False})
@@ -122,8 +122,9 @@ for file in os.listdir("convert"):
         results_file = os.path.join("results", file) + \
                        '.' + emb_format["extension"]
         write(pattern, results_file, {
-            "tie_on": True,
-            "tie_off": True,
+            "deltas": True
+            # "tie_on": True,
+            # "tie_off": True,
             # "translate": (500, 500)
             # "scale": 2,
             # "rotate": 45
