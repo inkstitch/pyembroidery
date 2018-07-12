@@ -242,8 +242,8 @@ def write_stitches_block(f, stitches, first_pos_x, first_pos_y):
             continue
         dx = int(x - last_x)
         dy = int(y - last_y)
-        last_x = last_x + dx
-        last_y = last_y + dy
+        last_x += dx
+        last_y += dy
         if flags == STITCH:
             if -127 <= dx <= 127 and -127 <= dy <= 127:
                 write_int_8(f, dx)

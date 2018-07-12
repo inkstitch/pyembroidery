@@ -14,16 +14,18 @@ def write(pattern, f, settings=None):
         x = stitch[0]
         y = stitch[1]
         data = stitch[2]
-        dx = x - xx
-        dy = y - yy
+        dx = int(round(x - xx))
+        dy = int(round(y - yy))
+        xx += dx
+        yy += dy
         if data is STITCH:
             # consider bounds checking the delta_x, delta_y and raising ValueError if exceeds.
-            delta_x = int(round(dx)) & 0xFF
-            delta_y = -int(round(dy)) & 0xFF
+            delta_x = dx & 0xFF
+            delta_y = -dy & 0xFF
             f.write(bytes(bytearray([delta_x, delta_y])))
         elif data == JUMP:
-            delta_x = int(round(dx)) & 0xFF
-            delta_y = -int(round(dy)) & 0xFF
+            delta_x = dx & 0xFF
+            delta_y = -dy & 0xFF
             f.write(b'\x80\x04')
             f.write(bytes(bytearray([delta_x, delta_y])))
         elif data == TRIM:
@@ -37,5 +39,3 @@ def write(pattern, f, settings=None):
             continue
         elif data == END:
             pass
-        xx = x
-        yy = y

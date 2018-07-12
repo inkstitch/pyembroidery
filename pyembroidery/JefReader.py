@@ -11,7 +11,7 @@ def read(f, out, settings=None):
     f.seek(84, 1)
     for i in range(0, count_colors):
         index = abs(read_int_32le(f))
-        out.add_thread(jef_threads[index % 79])
+        out.add_thread(jef_threads[index % len(jef_threads)])
 
     f.seek(stitch_offset - 116 - (count_colors * 4), 1)
     for i in range(0, count_stitches + 100):

@@ -1,10 +1,9 @@
-
 from .EmbConstant import *
 from .EmbThreadJef import get_thread_set
 from .WriteHelper import write_string_utf8, write_int_32le, write_int_8, write_int_array_8
 
 STRIP_SEQUINS = True
-FULL_JUMP = True
+FULL_JUMP = False
 MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127
 
@@ -14,6 +13,9 @@ HOOP_50X50 = 1
 HOOP_140X200 = 2
 HOOP_126X110 = 3
 HOOP_200X200 = 4
+
+
+# Full Jump on means it adds an extra 00,00 stitch at the ends of jumps which is not included in the count
 
 
 def write(pattern, f, settings=None):
@@ -65,28 +67,26 @@ def write(pattern, f, settings=None):
     for thread in pattern.threadlist:
         thread_index = thread.find_nearest_color_index(jef_threads)
         write_int_32le(f, thread_index)
-
     for i in range(0, color_count):
         write_int_32le(f, 0x0D)
 
     xx = 0
     yy = 0
-    data = NO_COMMAND
     for stitch in pattern.stitches:
         x = stitch[0]
         y = stitch[1]
         data = stitch[2]
-        dx = x - xx
-        dy = y - yy
+        dx = int(round(x - xx))
+        dy = int(round(y - yy))
+        xx += dx
+        yy += dy
         encoded_bytes = jef_encode(dx, -dy, data)
         write_int_array_8(f, encoded_bytes)
-        xx = x
-        yy = y
     if data != END:
         f.write(b'\x80\x10')
 
 
-def get_jef_hoop_size(width,height):
+def get_jef_hoop_size(width, height):
     if width < 500 and height < 500:
         return HOOP_50X50
     if width < 1100 and height < 1100:
@@ -104,11 +104,11 @@ def jef_encode(dx, dy, data):
     if data == STOP:
         return [0x80, 0x01, int(dx), int(dy)]
     if data == END:
-        return [0x80, 0x10, int(dx), int(dy)]
+        return [0x80, 0x10]
     if data == JUMP:
         return [0x80, 0x02, int(dx), int(dy)]
     if data == TRIM:
-        return [0x80, 0x02, int(dx), int(dy)]
+        return []
     return [dx, dy]
 
 

@@ -133,44 +133,42 @@ def pec_encode(pattern, f):
         x = stitch[0]
         y = stitch[1]
         data = stitch[2]
-        dx = x - xx
-        dy = y - yy
+        dx = int(round(x - xx))
+        dy = int(round(y - yy))
+        xx += dx
+        yy += dy
         if data is STITCH:
-            delta_x = int(round(dx))
-            delta_y = int(round(dy))
-            if jumping and delta_x is not 0 and delta_y is not 0:
+            if jumping and dx is not 0 and dy is not 0:
                 f.write(b'\x00\x00')
                 jumping = False
-            if -64 < delta_x < 63 and -64 < delta_y < 63:
-                f.write(bytes(bytearray([delta_x & MASK_07_BIT, delta_y & MASK_07_BIT])))
+            if -64 < dx < 63 and -64 < dy < 63:
+                f.write(bytes(bytearray([dx & MASK_07_BIT, dy & MASK_07_BIT])))
             else:
-                delta_x = encode_long_form(delta_x)
-                delta_y = encode_long_form(delta_y)
+                dx = encode_long_form(dx)
+                dy = encode_long_form(dy)
                 data = [
-                    (delta_x >> 8) & 0xFF,
-                    delta_x & 0xFF,
-                    (delta_y >> 8) & 0xFF,
-                    delta_y & 0xFF]
+                    (dx >> 8) & 0xFF,
+                    dx & 0xFF,
+                    (dy >> 8) & 0xFF,
+                    dy & 0xFF]
                 f.write(bytes(bytearray(data)))
         elif data == JUMP:
             jumping = True
-            delta_x = int(round(dx))
-            delta_x = encode_long_form(delta_x)
+            dx = encode_long_form(dx)
             if color_change_jump:
-                delta_x = flag_jump(delta_x)
+                dx = flag_jump(dx)
             else:
-                delta_x = flag_trim(delta_x)
-            delta_y = int(round(dy))
-            delta_y = encode_long_form(delta_y)
+                dx = flag_trim(dx)
+            dy = encode_long_form(dy)
             if color_change_jump:
-                delta_y = flag_jump(delta_y)
+                dy = flag_jump(dy)
             else:
-                delta_y = flag_trim(delta_y)
+                dy = flag_trim(dy)
             f.write(bytes(bytearray([
-                (delta_x >> 8) & 0xFF,
-                delta_x & 0xFF,
-                (delta_y >> 8) & 0xFF,
-                delta_y & 0xFF
+                (dx >> 8) & 0xFF,
+                dx & 0xFF,
+                (dy >> 8) & 0xFF,
+                dy & 0xFF
             ])))
             color_change_jump = False
         elif data == COLOR_CHANGE:
@@ -194,5 +192,3 @@ def pec_encode(pattern, f):
                 f.write(b'\x00\x00')
                 jumping = False
             f.write(b'\xff')
-        xx = x
-        yy = y

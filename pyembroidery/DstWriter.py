@@ -149,13 +149,13 @@ def write(pattern, f, settings=None):
         x = stitch[0]
         y = stitch[1]
         data = stitch[2]
-        dx = x - xx
-        dy = y - yy
+        dx = int(round(x - xx))
+        dy = int(round(y - yy))
+        xx += dx
+        yy += dy
         if data == TRIM:
             f.write(encode_record(2, 2, JUMP))
             f.write(encode_record(-4, -4, JUMP))
             f.write(encode_record(2, 2, JUMP))
         else:
-            f.write(encode_record(round(dx), round(dy), data))
-        xx = x
-        yy = y
+            f.write(encode_record(dx, dy, data))

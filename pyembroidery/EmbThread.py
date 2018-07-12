@@ -1,4 +1,3 @@
-
 def find_nearest_color_index(find_color, values):
     if isinstance(find_color, EmbThread):
         find_color = find_color.color
@@ -19,7 +18,7 @@ def find_nearest_color_index(find_color, values):
             t.get_red(),
             t.get_green(),
             t.get_blue())
-        if dist <= current_closest_value:
+        if dist <= current_closest_value:  # <= choose second if they tie.
             current_closest_value = dist
             closest_index = current_index
     return closest_index
@@ -52,9 +51,9 @@ class EmbThread:
 
     def set_color(self, r, g, b):
         self.color = 0xFF000000 | (
-            (r & 255) << 16) | (
-            (g & 255) << 8) | (
-            b & 255)
+                (r & 255) << 16) | (
+                             (g & 255) << 8) | (
+                             b & 255)
 
     def get_opaque_color(self):
         return 0xFF000000 | self.color
