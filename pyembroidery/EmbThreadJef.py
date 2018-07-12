@@ -1,10 +1,6 @@
 from .EmbThread import EmbThread
 
 
-
-
-
-
 def get_thread_set():
     return [
         EmbThreadJef(0x000000, "Placeholder", "000"),
@@ -80,6 +76,12 @@ def get_thread_set():
         EmbThreadJef(0xcba21c, "Old Gold", "272"),
         EmbThreadJef(0xff9805, "Honey Dew", "273"),
         EmbThreadJef(0xfcb257, "Tangerine", "274"),
+        EmbThreadJef(0xffe505, "Canary Yellow", "275"),
+        EmbThreadJef(0xf0331f, "Vermilion", "202"),
+        EmbThreadJef(0x1a842d, "Bright Green", "206"),
+        EmbThreadJef(0x386cae, "Ocean Blue", "222"),
+        EmbThreadJef(0xe3c4b4, "Beige Gray", "223"),
+        EmbThreadJef(0xe3ac81, "Bamboo", "224")
     ]
 
 

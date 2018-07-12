@@ -3,7 +3,7 @@ from .EmbThreadJef import get_thread_set
 from .WriteHelper import write_string_utf8, write_int_32le, write_int_8, write_int_array_8
 
 STRIP_SEQUINS = True
-FULL_JUMP = False
+FULL_JUMP = True
 MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127
 
@@ -15,13 +15,9 @@ HOOP_126X110 = 3
 HOOP_200X200 = 4
 
 
-# Full Jump on means it adds an extra 00,00 stitch at the ends of jumps which is not included in the count
-
-
 def write(pattern, f, settings=None):
     pattern.fix_color_count()
     color_count = pattern.count_threads()
-    point_count = pattern.count_stitches()
     offsets = 0x74 + (color_count * 8)
     write_int_32le(f, offsets)
     write_int_32le(f, 0x14)
@@ -29,6 +25,17 @@ def write(pattern, f, settings=None):
     write_int_8(f, 0)
     write_int_8(f, 0)
     write_int_32le(f, color_count)
+    point_count = 2  # 2 bytes for END statement.
+    for stitch in pattern.stitches:
+        data = stitch[2]
+        if data == STITCH:
+            point_count += 1
+        elif data == JUMP:
+            point_count += 2
+        elif data == COLOR_CHANGE:
+            point_count += 2
+        elif data == END:
+            break
     write_int_32le(f, point_count)
     extends = pattern.extends()
     design_width = int(round(extends[2] - extends[0]))
@@ -80,10 +87,23 @@ def write(pattern, f, settings=None):
         dy = int(round(y - yy))
         xx += dx
         yy += dy
-        encoded_bytes = jef_encode(dx, -dy, data)
-        write_int_array_8(f, encoded_bytes)
-    if data != END:
-        f.write(b'\x80\x10')
+        if data == STITCH:
+            write_int_8(f, dx)
+            write_int_8(f, -dy)
+            continue
+        elif data == COLOR_CHANGE:
+            f.write(b'\x80\x01')
+            write_int_8(f, dx)
+            write_int_8(f, -dy)
+            continue
+        elif data == JUMP:
+            f.write(b'\x80\x02')
+            write_int_8(f, dx)
+            write_int_8(f, -dy)
+            continue
+        elif data == END:
+            break
+    f.write(b'\x80\x10')
 
 
 def get_jef_hoop_size(width, height):
@@ -94,22 +114,6 @@ def get_jef_hoop_size(width, height):
     if width < 1400 and height < 2000:
         return HOOP_140X200
     return HOOP_200X200
-
-
-def jef_encode(dx, dy, data):
-    if data == STITCH:
-        return [int(dx), int(dy)]
-    if data == COLOR_CHANGE:
-        return [0x80, 0x01, int(dx), int(dy)]
-    if data == STOP:
-        return [0x80, 0x01, int(dx), int(dy)]
-    if data == END:
-        return [0x80, 0x10]
-    if data == JUMP:
-        return [0x80, 0x02, int(dx), int(dy)]
-    if data == TRIM:
-        return []
-    return [dx, dy]
 
 
 def write_hoop_edge_distance(f, x_hoop_edge, y_hoop_edge):
