@@ -43,10 +43,11 @@ def write_truncated_version_1(pattern, f):
 
 
 def write_truncated_version_6(pattern, f):
+    chart = pattern.threadlist
     write_string_utf8(f, PES_VERSION_6_SIGNATURE)
     placeholder_pec_block = f.tell()
     write_int_32le(f, 0)  # Placeholder for PEC BLOCK
-    write_pes_header_v6(pattern, f, 0)
+    write_pes_header_v6(pattern, f, chart, 0)
     write_int_16le(f, 0x0000)
     write_int_16le(f, 0x0000)
     current_position = f.tell()
@@ -92,7 +93,7 @@ def write_version_1(pattern, f):
 
 
 def write_version_6(pattern, f):
-    chart = set(pattern.threadlist)
+    chart = pattern.threadlist
     write_string_utf8(f, PES_VERSION_6_SIGNATURE)
 
     extends = pattern.extends()
@@ -108,11 +109,11 @@ def write_version_6(pattern, f):
     write_int_32le(f, 0)  # Placeholder for PEC BLOCK
 
     if len(pattern.stitches) == 0:
-        write_pes_header_v6(pattern, f, 0)
+        write_pes_header_v6(pattern, f, chart, 0)
         write_int_16le(f, 0x0000)
         write_int_16le(f, 0x0000)
     else:
-        write_pes_header_v6(pattern, f, 1)
+        write_pes_header_v6(pattern, f, chart, 1)
         write_int_16le(f, 0xFFFF)
         write_int_16le(f, 0x0000)
         log = write_pes_blocks(f, pattern, chart, left, top, right, bottom, cx, cy)
@@ -136,7 +137,7 @@ def write_pes_header_v1(f, distinct_block_objects):
     write_int_16le(f, distinct_block_objects)
 
 
-def write_pes_header_v6(pattern, f, distinct_block_objects):
+def write_pes_header_v6(pattern, f, chart, distinct_block_objects):
     write_int_16le(f, 0x01)  # 0 = 100x100, 130x180 hoop
     f.write(b'02')  # This is an 2-digit ascii number.
     write_pes_string_8(f, pattern.get_metadata("name", None))
@@ -173,9 +174,9 @@ def write_pes_header_v6(pattern, f, distinct_block_objects):
     write_int_16le(f, 0)  # numberOfProgrammableFillPatterns
     write_int_16le(f, 0)  # numberOfMotifPatterns
     write_int_16le(f, 0)  # featherPatternCount
-    count_thread = pattern.count_threads()
+    count_thread = len(chart)
     write_int_16le(f, count_thread)  # numberOfColors
-    for thread in pattern.threadlist:
+    for thread in chart:
         write_pes_thread(f, thread)
     write_int_16le(f, distinct_block_objects)  # number ofdistinct blocks
 

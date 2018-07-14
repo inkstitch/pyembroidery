@@ -75,7 +75,6 @@ for file in os.listdir("convert"):
     while pattern.get_metadata(i) is not None:
         print(get_graphic_as_string(pattern.get_metadata(i)))
         i += 1
-    # TODO: REMOVED STABLIZER TO GET SEQUINS THROUGH.
     pattern = pattern.get_stable_pattern()
     for emb_format in supported_formats():
         if emb_format.get('writer', None) is None:

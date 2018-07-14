@@ -1,7 +1,8 @@
 from .EmbConstant import *
 from .EmbThreadPec import get_thread_set
 from .PecGraphics import get_blank, draw_scaled
-from .WriteHelper import write_int_8, write_int_16le, write_int_24le, write_string_utf8
+from .WriteHelper import write_int_8, write_int_16le, write_int_16be, \
+    write_int_24le, write_string_utf8
 
 STRIP_SEQUINS = True
 FULL_JUMP = True
@@ -21,46 +22,45 @@ def write(pattern, f, settings=None):
     write_pec(pattern, f)
 
 
-def write_pec(pattern, f):
+def write_pec(pattern, f, threadlist=None):
+    if threadlist is None:
+        pattern.fix_color_count()
+        threadlist = pattern.threadlist
     extends = pattern.extends()
-    pattern.fix_color_count()
 
-    write_pec_header(pattern, f)
+    write_pec_header(pattern, f, threadlist)
     write_pec_block(pattern, f, extends)
     write_pec_graphics(pattern, f, extends)
 
 
-def write_pec_header(pattern, f):
+def write_pec_header(pattern, f, threadlist):
     name = pattern.get_metadata("name", "Untitled")
     write_string_utf8(f, "LA:%-16s\r" % name[:8])
     f.write(b'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\xFF\x00')
     write_int_8(f, int(PEC_ICON_WIDTH / 8))  # PEC BYTE STRIDE
     write_int_8(f, int(PEC_ICON_HEIGHT))  # PEC ICON HEIGHT
 
-    threadlist = pattern.threadlist
     thread_set = get_thread_set()
-    chart = [None] * len(thread_set)
 
-    if len(thread_set) <= len(threadlist):
+    if len(thread_set) <= len(set(threadlist)):
         threadlist = thread_set[:]
         # Data is corrupt. Cheat so it won't crash.
 
-    unique_threads = set(threadlist)
-    for thread in unique_threads:
+    chart = [None] * len(thread_set)
+    for thread in set(threadlist):
         index = thread.find_nearest_color_index(thread_set)
         thread_set[index] = None
         chart[index] = thread
 
-    colorlist = []
+    color_index_list = []
     for thread in threadlist:
-        colorlist.append(thread.find_nearest_color_index(chart))
+        color_index_list.append(thread.find_nearest_color_index(chart))
 
-    current_thread_count = len(colorlist)
-
+    current_thread_count = len(color_index_list)
     if current_thread_count is not 0:
         f.write(b'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20')
-        colorlist.insert(0, current_thread_count - 1)
-        f.write(bytes(bytearray(colorlist)))
+        color_index_list.insert(0, current_thread_count - 1)
+        f.write(bytes(bytearray(color_index_list)))
     else:
         f.write(b'\x20\x20\x20\x20\x64\x20\x00\x20\x00\x20\x20\x20\xFF')
 
@@ -81,8 +81,8 @@ def write_pec_block(pattern, f, extends):
     write_int_16le(f, 0x1E0)
     write_int_16le(f, 0x1B0)
 
-    write_int_16le(f, 0x9000 | -int(round(extends[0])))
-    write_int_16le(f, 0x9000 | -int(round(extends[1])))
+    write_int_16be(f, 0x9000 | -int(round(extends[0])))
+    write_int_16be(f, 0x9000 | -int(round(extends[1])))
 
     pec_encode(pattern, f)
 

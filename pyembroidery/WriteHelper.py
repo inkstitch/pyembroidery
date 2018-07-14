@@ -75,14 +75,16 @@ def write_float_32le(stream, value):
 
 
 def write_string(stream, string, encoding='utf8'):
+    # python 2,3 code
     try:
         stream.write(bytes(string).encode(encoding))
     except TypeError:
-        stream.write(bytes(string,encoding))
+        stream.write(bytes(string, encoding))
 
 
 def write_string_utf8(stream, string):
+    # python 2,3 code
     try:
         stream.write(bytes(string).encode('utf8'))
     except TypeError:
-        stream.write(bytes(string,'utf8'))
+        stream.write(bytes(string, 'utf8'))
