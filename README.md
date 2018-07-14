@@ -336,6 +336,9 @@ If a format takes stitch to mean needle_strike, move_position(x,y) in that order
 
 Note: This is true for sequin_eject too. DST files are the only currently supported format with sequins and they use dx,dy then command. But, note the sequin is ejected at the destination of the dx dy. It will move, then sequin eject is the assumed order. It is also the DST order.
 
+Coords System
+---
+Fundamentally pyembroidery stores the positions in global positionings where the +y direction is down and -y is up (when viewed horizontally) with +x right and -x left. This is consistent with most modern coordinate systems within graphics but it is different than how this is stored within embroidery formats. pyembroidery for consistency sake reads the by flipping the y direction, and writes by flipping the y direction. This is to allow seemless interfacing between the two. This flips occur at the level of the format reader and writer, and is not subject to the encoding. 
 
 ---
 
