@@ -324,7 +324,6 @@ The encoder needs to decide what to do when a stitch is too long. The current mo
 
 When a stitch is beyond max_stitch (whether set by the format or by the user) it must deal with this event, however opinions differ as to how what a stitch beyond the maximum should do. If it is your intent that STITCH means SEW_TO this location then setting the stitch contingency to SEW_TO will create a series of stitches until we get to the end location. If you use the command SEW_TO this overtly works like a stitch with CONTINGENCY_SEW_TO. Likewise NEEDLE_AT is the STITCH flavor that jumps to to the end location and then stitches. If you set CONTINGENCY_NONE then no contingency method is used, long stitches are simply fed to the writer as they appear which may throw an error or crash.
 
-
 Units
 ---
 * The core units are 1/10th mm. This is what 1 refers to within most formats, and internally within pyembroidery itself. You are entirely permitted to use floating point numbers. When writing to a format, fractional values will be lost, but this shall happen in such a way to avoid the propagation of error. Relative stitches from position ( 0.0,  0.31 ) of (+5.4, +5.4), (+5.4, +5,4), (+5.4, +5,4) should encode as changes of 5,6 6,5 5,6. Taking the relative distance in the format as the integer change from the last integer position to the new one, maintaining a position as close to the absolute position as possible.
@@ -338,7 +337,7 @@ Note: This is true for sequin_eject too. DST files are the only currently suppor
 
 Coords System
 ---
-Fundamentally pyembroidery stores the positions in global positionings where the +y direction is down and -y is up (when viewed horizontally) with +x right and -x left. This is consistent with most modern coordinate systems within graphics but it is different than how this is stored within embroidery formats. pyembroidery for consistency sake reads the by flipping the y direction, and writes by flipping the y direction. This is to allow seemless interfacing between the two. This flips occur at the level of the format reader and writer, and is not subject to the encoding. 
+Fundamentally pyembroidery stores the positions such that the +y direction is down and -y is up (when viewed horizontally) with +x right and -x left. This is consistent with most modern graphics coordinate systems, but this is different than how these values are stored within embroidery formats. pyembroidery consistency reads by flipping the y-axis, and writes by flipping the y-axis. This allows for seemless reading, writing, and interfacing. This flips occur at the level of the format readers and writers and is not subject to encoding. 
 
 ---
 
