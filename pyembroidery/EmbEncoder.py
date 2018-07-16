@@ -34,7 +34,7 @@ class Transcoder:
             try:
                 m = get_scale(scale[0], scale[1])
                 self.matrix = matrix_multiply(self.matrix, m)
-            except IndexError:
+            except (IndexError, TypeError):
                 try:
                     m = get_scale(scale.x, scale.y)
                     self.matrix = matrix_multiply(self.matrix, m)
