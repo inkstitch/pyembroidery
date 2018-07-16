@@ -3,27 +3,20 @@ from __future__ import print_function
 import test_fractals
 from pyembroidery import *
 
-#
-# from pyembroidery.EmbPattern import EmbPattern
-# import pyembroidery.PyEmbroidery as pyemb
-# from pyembroidery.EmbConstant import *
-# import pyembroidery.PecGraphics as pg
-
 
 # Initial test code. pyembroidery
-
-# Do not emulate the following pattern,
-# using rotates and translates like this is crazy.
 pattern2 = EmbPattern()
-pattern2.color_change()
+pattern2.add_command(COLOR_BREAK)
 pattern2.add_stitch_absolute(SEW_TO, -100, -100)
 pattern2.add_stitch_absolute(SEW_TO, -100, +100)
 pattern2.add_stitch_absolute(SEW_TO, +100, +100)
+pattern2.add_command(COLOR_BREAK)
 pattern2.add_stitch_absolute(SEW_TO, +100, -100)
 pattern2.add_stitch_absolute(SEW_TO, -100, -100)
-pattern2.fix_color_count()
+pattern2.add_command(COLOR_BREAK)
 pattern2.add_thread({"color": 0xFF0000})
-write(pattern2, "example.jef")
+pattern2.fix_color_count()
+write(pattern2, "example.csv", {"explicit_trim": False})
 
 pattern = EmbPattern()
 
@@ -82,7 +75,8 @@ for file in os.listdir("convert"):
         results_file = os.path.join("results", file) + \
                        '.' + emb_format["extension"]
         write(pattern, results_file, {
-            "deltas": True
+            "deltas": True,
+            "scale": 2
             # "tie_on": True,
             # "tie_off": True,
             # "translate": (500, 500)

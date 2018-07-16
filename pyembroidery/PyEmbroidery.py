@@ -32,6 +32,8 @@ import pyembroidery.TbfReader as TbfReader
 import pyembroidery.KsmReader as KsmReader
 import pyembroidery.TapReader as TapReader
 import pyembroidery.StxReader as StxReader
+
+
 # import pyembroidery.ExyReader as ExyReader
 # import pyembroidery.FxyReader as FxyReader
 # import pyembroidery.GtReader as GtReader
@@ -345,13 +347,25 @@ def write_embroidery(writer, pattern, stream, settings=None):
         settings = settings.copy()
     if settings.get("encode", True):
         if not ("max_jump" in settings):
-            settings["max_jump"] = writer.MAX_JUMP_DISTANCE
+            try:
+                settings["max_jump"] = writer.MAX_JUMP_DISTANCE
+            except AttributeError:
+                pass
         if not ("max_stitch" in settings):
-            settings["max_stitch"] = writer.MAX_STITCH_DISTANCE
+            try:
+                settings["max_stitch"] = writer.MAX_STITCH_DISTANCE
+            except AttributeError:
+                pass
         if not ("full_jump" in settings):
-            settings["full_jump"] = writer.FULL_JUMP
+            try:
+                settings["full_jump"] = writer.FULL_JUMP
+            except AttributeError:
+                pass
         if not ("strip_sequins" in settings):
-            settings["strip_sequins"] = writer.STRIP_SEQUINS
+            try:
+                settings["strip_sequins"] = writer.STRIP_SEQUINS
+            except AttributeError:
+                pass
         pattern = pattern.get_normalized_pattern(settings)
 
     if isinstance(stream, str):

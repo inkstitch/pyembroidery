@@ -206,18 +206,17 @@ class EmbPattern:
             stitch[1] += dy
 
     def fix_color_count(self):
+        """Ensure the there are threads for all color blocks."""
         thread_index = 0
-        starting = True
+        init_color = True
         for stitch in self.stitches:
             data = stitch[2] & COMMAND_MASK
-            if data == STITCH:
-                if starting:
+            if data == STITCH or data == SEW_TO or data == NEEDLE_AT:
+                if init_color:
                     thread_index += 1
-                    starting = False
-            elif data == COLOR_CHANGE:
-                if starting:
-                    continue
-                thread_index += 1
+                    init_color = False
+            elif data == COLOR_CHANGE or data == COLOR_BREAK:
+                init_color = True
         while len(self.threadlist) < thread_index:
             self.add_thread(self.get_thread_or_filler(len(self.threadlist)))
 

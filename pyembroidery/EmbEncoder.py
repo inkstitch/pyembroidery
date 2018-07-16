@@ -11,6 +11,7 @@ class Transcoder:
         self.max_jump = settings.get("max_jump", float('inf'))
         self.full_jump = settings.get("full_jump", False)
         self.strip_sequins = settings.get("strip_sequins", True)
+        self.explicit_trim = settings.get("explicit_trim", True)
 
         self.has_tie_on = settings.get("tie_on", False)
         self.has_tie_off = settings.get("tie_off", False)
@@ -129,8 +130,7 @@ class Transcoder:
             elif flags == SEQUENCE_BREAK:
                 self.tie_off_and_trim_if_needed()
             elif flags == COLOR_BREAK:
-                self.tie_off_and_trim_if_needed()
-                self.color_change_here_if_needed()
+                self.color_break()
             elif flags == TIE_OFF:
                 self.tie_off()
             elif flags == TIE_ON:
@@ -153,8 +153,7 @@ class Transcoder:
                     self.toggle_sequins()
                 self.sequin_at(x, y)
             elif flags == COLOR_CHANGE:
-                self.tie_off_and_trim_if_needed()
-                self.color_change_here()
+                self.tie_off_trim_color_change()
                 # If we are told to do something we do it.
                 # Even if it's the first command and makes no sense.
             elif flags == STOP:
@@ -178,6 +177,10 @@ class Transcoder:
             elif flags == OPTION_MAX_STITCH_LENGTH:
                 x = self.stitch[0]
                 self.max_stitch = x
+            elif flags == OPTION_EXPLICIT_TRIM:
+                self.explicit_trim = True
+            elif flags == OPTION_IMPLICIT_TRIM:
+                self.explicit_trim = False
             elif flags == CONTINGENCY_NONE:
                 self.long_stitch_contingency = CONTINGENCY_NONE
             elif flags == CONTINGENCY_JUMP_NEEDLE:
@@ -214,6 +217,52 @@ class Transcoder:
         if y is None:
             y = self.needle_y
         self.destination_pattern.stitches.append([x, y, flags])
+
+    def lookahead_stitch(self):
+        """Looks forward from current position and
+         determines if anymore stitching will occur."""
+        source = self.source_pattern.stitches
+        for pos in range(self.position, len(source)):
+            stitch = source[pos]
+            flags = stitch[2]
+            if flags == STITCH:
+                return True
+            elif flags == NEEDLE_AT:
+                return True
+            elif flags == SEW_TO:
+                return True
+            elif flags == TIE_ON:
+                return True
+            elif flags == SEQUIN_EJECT:
+                return True
+            elif flags == END:
+                return False
+        return False
+
+    def color_break(self):
+        """Implements color break. Should add color changes add needed only."""
+        if self.color_index < 0:
+            return  # We haven't stitched anything, colorbreak happens, before start. Ignore.
+        if not self.state_trimmed:
+            if self.has_tie_off:
+                self.tie_off()
+            if self.explicit_trim:
+                self.trim_here()
+        if not self.lookahead_stitch():
+            return  # No more stitching will happen, colorchange unneeded.
+        self.add(COLOR_CHANGE)
+        self.color_index += 1
+        self.state_trimmed = True
+
+    def tie_off_trim_color_change(self):
+        if not self.state_trimmed:
+            if self.has_tie_off:
+                self.tie_off()
+            if self.explicit_trim:
+                self.trim_here()
+        self.add(COLOR_CHANGE)
+        self.color_index += 1
+        self.state_trimmed = True
 
     def tie_off_and_trim_if_needed(self):
         if not self.state_trimmed:
@@ -346,13 +395,6 @@ class Transcoder:
     def end_here(self):
         self.add(END)
         self.state_trimmed = True
-
-    def color_change_here_if_needed(self):
-        if self.color_index >= 0:  # Have we stitched anything yet?
-            self.color_change_here()
-            # We should actually look ahead and ensure
-            # there are no more objects that will become stitches.
-            # post-stitch color-changes are pointless.
 
     def color_change_here(self):
         self.add(COLOR_CHANGE)
