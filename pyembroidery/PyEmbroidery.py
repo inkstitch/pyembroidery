@@ -32,13 +32,21 @@ import pyembroidery.TbfReader as TbfReader
 import pyembroidery.KsmReader as KsmReader
 import pyembroidery.TapReader as TapReader
 import pyembroidery.StxReader as StxReader
+import pyembroidery.PhbReader as PhbReader
+import pyembroidery.PcdReader as PcdReader
+import pyembroidery.PcmReader as PcmReader
+import pyembroidery.PcqReader as PcqReader
+import pyembroidery.PcsReader as PcsReader
 
 
+# import pyembroidery.MaxReader as MaxReader
+# import pyembroidery.MitReader as MitReader
+# import pyembroidery.NewReader as NewReader
 # import pyembroidery.ExyReader as ExyReader
 # import pyembroidery.FxyReader as FxyReader
 # import pyembroidery.GtReader as GtReader
 # import pyembroidery.DatReader as DatReader
-
+# import pyembroidery.PhcReader as PhcReader
 
 def supported_formats():
     """Generates dictionary entries for supported formats. Each entry will
@@ -261,6 +269,69 @@ def supported_formats():
         "mimetype": "application/x-stx",
         "category": "embroidery",
         "reader": StxReader
+    })
+    yield ({
+        "description": "Brother Embroidery Format",
+        "extension": "phb",
+        "mimetype": "application/x-phb",
+        "category": "embroidery",
+        "reader": PhbReader
+    })
+    # yield ({
+    #     "description": "Brother Embroidery Format",
+    #     "extension": "phc",
+    #     "mimetype": "application/x-phc",
+    #     "category": "embroidery",
+    #     "reader": PhcReader
+    # })
+    # yield ({
+    #     "description": "Ameco Embroidery Format",
+    #     "extension": "new",
+    #     "mimetype": "application/x-new",
+    #     "category": "embroidery",
+    #     "reader": NewReader
+    # })
+    # yield ({
+    #     "description": "Pfaff Embroidery Format",
+    #     "extension": "max",
+    #     "mimetype": "application/x-max",
+    #     "category": "embroidery",
+    #     "reader": MaxReader
+    # })
+    # yield ({
+    #     "description": "Mitsubishi Embroidery Format",
+    #     "extension": "mit",
+    #     "mimetype": "application/x-mit",
+    #     "category": "embroidery",
+    #     "reader": MitReader
+    # })
+    yield ({
+        "description": "Pfaff Embroidery Format",
+        "extension": "pcd",
+        "mimetype": "application/x-pcd",
+        "category": "embroidery",
+        "reader": PcdReader
+    })
+    yield ({
+        "description": "Pfaff Embroidery Format",
+        "extension": "pcq",
+        "mimetype": "application/x-pcq",
+        "category": "embroidery",
+        "reader": PcqReader
+    })
+    yield ({
+        "description": "Pfaff Embroidery Format",
+        "extension": "pcm",
+        "mimetype": "application/x-pcm",
+        "category": "embroidery",
+        "reader": PcmReader
+    })
+    yield ({
+        "description": "Pfaff Embroidery Format",
+        "extension": "pcs",
+        "mimetype": "application/x-pcs",
+        "category": "embroidery",
+        "reader": PcsReader
     })
 
 

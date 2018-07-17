@@ -116,8 +116,7 @@ def read_pec_stitches(f, out):
         val1 = read_int_8(f)
         val2 = read_int_8(f)
         if (val1 == 0xFF and val2 == 0x00) or val2 is None:
-            out.end(0, 0)
-            return
+            break
         if val1 == 0xFE and val2 == 0xB0:
             f.seek(1, 1)
             out.color_change(0, 0)
@@ -132,6 +131,8 @@ def read_pec_stitches(f, out):
             code = (val1 << 8) | val2
             x = signed12(code)
             val2 = read_int_8(f)
+            if val2 is None:
+                break
         else:
             x = signed7(val1)
 
@@ -141,6 +142,8 @@ def read_pec_stitches(f, out):
             if val2 & JUMP_CODE != 0:
                 jump = True
             val3 = read_int_8(f)
+            if val3 is None:
+                break
             code = val2 << 8 | val3
             y = signed12(code)
         else:
@@ -151,3 +154,4 @@ def read_pec_stitches(f, out):
             out.trim(x, y)
         else:
             out.stitch(x, y)
+    out.end()

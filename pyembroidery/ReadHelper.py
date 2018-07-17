@@ -13,6 +13,14 @@ def signed16(v):
         return v
 
 
+def signed24(v):
+    v &= 0xFFFFFF
+    if v > 0x7FFFFF:
+        return - 0x1000000 + v
+    else:
+        return v
+
+
 def read_signed(stream, n):
     byte = bytearray(stream.read(n))
     signed_bytes = []

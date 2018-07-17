@@ -26,6 +26,10 @@ class EmbPattern:
         """Stitch dx, dy"""
         self.add_stitch_relative(STITCH, dx, dy)
 
+    def stitch_abs(self, x, y):
+        """Stitch absolute x, y"""
+        self.add_stitch_absolute(STITCH, x, y)
+
     def stop(self, dx=0, dy=0):
         """Stop dx, dy"""
         self.add_stitch_relative(STOP, dx, dy)
