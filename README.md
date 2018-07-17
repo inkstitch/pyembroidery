@@ -73,7 +73,12 @@ Pyembroidery will read:
 * .emd
 * .inb
 * .ksm
+* .pcd
+* .pcm
+* .pcq
+* .pcs
 * .pec
+* .phb
 * .sew
 * .shv
 * .stx
