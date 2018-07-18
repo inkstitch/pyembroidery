@@ -1,27 +1,27 @@
-from .EmbConstant import *
-from .ReadHelper import read_int_8, signed8
-
-
-# I found no copies of this file.
-
 def read(f, out, settings=None):
-    f.seek(0x200)  # Fxy with longer header.
+    f.seek(0x200)
     while True:
-        stitch_type = STITCH
-        b1 = signed8(read_int_8(f))
-        b2 = signed8(read_int_8(f))
-        command_byte = read_int_8(f)
-        if command_byte is None:
+        byte = bytearray(f.read(3))
+        if len(byte) != 3:
             break
-        if command_byte == 0x91:
+        y = -byte[0]
+        x = byte[1]
+        ctrl = byte[2]
+        if ctrl & 0b01000000 != 0:
+            x = -x
+        if ctrl & 0b00100000 != 0:
+            y = -y
+        ctrl &= ~0b11100000
+
+        if ctrl == 0:
+            out.stitch(x, y)
+            continue
+        if ctrl == 0x11:
             break
-        if (command_byte & 0x01) == 0x01:
-            stitch_type = TRIM
-        if (command_byte & 0x02) == 0x02:
-            stitch_type = COLOR_CHANGE
-        if (command_byte & 0x20) == 0x20:
-            b1 = -b1
-        if (command_byte & 0x40) == 0x40:
-            b2 = -b2
-        out.add_stitch_relative(stitch_type, b2, b1)
+        if (ctrl & 0x02) == 0x02:
+            out.color_change()
+            continue
+        if (ctrl & 0x01) == 0x01:
+            out.move(x, y)
+            continue
     out.end()

@@ -76,7 +76,16 @@ class EmbPattern:
             if "manufacturer" in thread:
                 thread_object.brand = thread["manufacturer"]
             if "color" in thread:
-                thread_object.color = thread["color"]
+                color = thread["color"]
+                if isinstance(color, int):
+                    thread_object.color = thread["color"]
+                elif isinstance(color, str):
+                    if color == "random":
+                        thread_object.color = 0xFF000000 | random.randint(0, 0xFFFFFF)
+                elif isinstance(color, tuple) or isinstance(color, list):
+                    thread_object.color = (color[0] & 0xFF) << 16 | \
+                                          (color[1] & 0xFF) << 8 | \
+                                          (color[2] & 0xFF)
             if "rgb" in thread:
                 thread_object.color = thread["rgb"]
             if "hex" in thread:

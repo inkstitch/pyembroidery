@@ -1,8 +1,6 @@
 from .ReadHelper import read_int_8, read_int_32le, read_int_24le, signed24
 
 
-# I found no copies of this file.
-
 def read(f, out, settings=None):
     f.seek(0xD5, 0)
     stitch_count = read_int_32le(f)
