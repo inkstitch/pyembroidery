@@ -68,24 +68,35 @@ Pyembroidery will read:
 * .10o
 * .100
 * .bro
+* .dat (barudan & sunstar)
 * .dsb
 * .dsz
 * .emd
+* .exy
+* .fxy
+* .gt
 * .inb
+* .jpx
 * .ksm
+* .max
+* .mit
+* .new
 * .pcd
 * .pcm
 * .pcq
 * .pcs
 * .pec
 * .phb
+* .phc
 * .sew
 * .shv
+* .stc
 * .stx
 * .tap
 * .tbf
 * .u01
 * .xxx
+* .zxy
 
 
 Writing to SVG:
@@ -166,6 +177,7 @@ The parameters currently have recognized values for:
 * `max_jump`
 * `full_jump`
 * `strip_sequins`
+* `explicit_trim`
 * `translate`
 * `scale`
 * `rotate`
@@ -179,6 +191,8 @@ The max_stitch, max_jump, full_jump, and strip_sequins properties are appended b
 Translate, Scale and Rotate occur in that order. If you want finer grain control over these they can be modified on the fly with middle-level commands.
 
 long_stitch_contingency sets the contingency protocol for when a stitch is longer than the format can encode and how to deal with that event.
+
+Explicit Trim sets whether it should overtly include a trim before color change events or not. Default is True. Setting this to false will omit the trim if it is going to perform a color-change action.
 
 Conversion:
 ---
@@ -291,6 +305,8 @@ The middle-level commands, as they currently stand:
 * OPTION_DISABLE_TIE_OFF - Disables Tie_off on the fly.
 * OPTION_MAX_STITCH_LENGTH(x) - Sets the max stitch length on the fly.
 * OPTION_MAX_JUMP_LENGTH(x) - Sets the max jump length on the fly.
+* OPTION_EXPLICIT_TRIM - (Default) includes trim command before color-change command explicitly. 
+* OPTION_IMPLICIT_TRIM - Sets trim to be implied by the color-change event.
 * SEW_TO - STITCH but with forced CONTINGENCY_SEW_TO
 * NEEDLE_AT - STITCH but with forced CONTINGENCY_JUMP_NEEDLE
 * CONTINGENCY_NONE - Disables long stitch contingency encoding.
