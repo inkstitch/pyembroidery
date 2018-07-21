@@ -42,7 +42,7 @@ def write_pec_header(pattern, f, threadlist):
 
     thread_set = get_thread_set()
 
-    if len(thread_set) <= len(set(threadlist)):
+    if len(thread_set) <= len(threadlist):
         threadlist = thread_set[:]
         # Data is corrupt. Cheat so it won't crash.
 
@@ -59,7 +59,8 @@ def write_pec_header(pattern, f, threadlist):
     current_thread_count = len(color_index_list)
     if current_thread_count is not 0:
         f.write(b'\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20')
-        color_index_list.insert(0, current_thread_count - 1)
+        add_value = current_thread_count - 1
+        color_index_list.insert(0, add_value)
         f.write(bytes(bytearray(color_index_list)))
     else:
         f.write(b'\x20\x20\x20\x20\x64\x20\x00\x20\x00\x20\x20\x20\xFF')

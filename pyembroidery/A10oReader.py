@@ -1,4 +1,4 @@
-def read(f, out, settings=None):
+def read_10o_sttiches(f, out):
     count = 0
     while True:
         count += 1
@@ -8,30 +8,34 @@ def read(f, out, settings=None):
         ctrl = byte[0]
         y = -byte[1]
         x = byte[2]
-        if ctrl & 0b00100000 != 0:
+        if ctrl & 0x20 != 0:
             x = -x
-        if ctrl & 0b01000000 != 0:
+        if ctrl & 0x40 != 0:
             y = -y
-        ctrl &= 0b00011111
-        if ctrl == 0:
+
+        if (ctrl & 0b11111) == 0:
             out.stitch(x, y)
             continue
-        if ctrl == 0x0A:
-            # Start.
-            continue
-        if ctrl == 0x10:
+        if (ctrl & 0b11111) == 0x10:
             out.move(x, y)
             continue
-        if ctrl == 0x05:
+        if ctrl == 0x8A:
+            # Start.
+            continue
+        if ctrl == 0x85:
             out.color_change()
             continue
-        if ctrl == 0x01:
+        if ctrl == 0x82:
+            out.stop()
+            continue
+        if ctrl == 0x81:
             out.trim()
             continue
-        if ctrl == 0x07:
-            out.end()
-            return
-        # We shouldn't get here.
-        break
-
+        if ctrl == 0x87:
+            break
+        break  # Unknown Control
     out.end()
+
+
+def read(f, out, settings=None):
+    read_10o_sttiches(f, out)

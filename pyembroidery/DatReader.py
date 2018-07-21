@@ -1,7 +1,5 @@
-from .ReadHelper import read_int_16le, read_int_8, signed8
-
-
 def read_barudan_dat(f, out):
+    stitched_yet = False
     count = 0
     while True:
         count += 1
@@ -13,35 +11,40 @@ def read_barudan_dat(f, out):
         y = -byte[1]
         x = byte[2]
 
-        if ctrl & 0b10000000 == 0:
+        if ctrl & 0x80 == 0:
             # This bit should always be set, must be other dat type.
             return False
-        if ctrl & 0b01000000 != 0:
+        if ctrl & 0x40 != 0:
             y = -y
-        if ctrl & 0b00100000 != 0:
+        if ctrl & 0x20 != 0:
             x = -x
-
-        ctrl &= ~0b11100000
-        if ctrl == 0:
+        if (ctrl & 0b11111) == 0:
+            stitched_yet = True
             out.stitch(x, y)
             continue
-        if ctrl & 0b00010000 != 0:
+        if (ctrl & 0b11111) == 1:
+            out.move(x, y)
+            continue
+        if ctrl == 0xF8:
             break
-        if ctrl & 0b00001000 != 0:
-            # Set needle. Needle is: ctrl & 0b111
+        if ctrl == 0xE7:
+            out.trim()
+            continue
+        if ctrl == 0xE8:
             if count > 1:
+                out.stop()
+            continue
+        if 0xE9 <= ctrl < 0xF8:
+            needle = ctrl - 0xE8
+            if stitched_yet:
                 out.color_change()
             continue
-        if ctrl & 0b00000001 != 0:
-            out.move(x, y)
+        break  # Uncaught Control
     out.end()
     return True
 
 
-def read_sunstar_dat(f, out):
-    f.seek(0x02, 0)
-    stitches = read_int_16le(f)
-    f.seek(0x100, 0)
+def read_sunstar_dat_stitches(f, out):
     count = 0
     while True:
         count += 1
@@ -62,17 +65,28 @@ def read_sunstar_dat(f, out):
         if ctrl == 0x04:
             out.move(x, y)
             continue
+        if ctrl == 0x80:
+            out.trim(x, y)
+            continue
         if ctrl == 0x87:
             out.color_change()
-            out.stitch(x, y)
+            if x != 0 or y != 0:
+                out.stitch(x, y)
             continue
-        if ctrl == 0x84:
+        if ctrl == 0x84:  # Initialized info.
             out.stitch(x, y)
             continue
         elif ctrl == 0:
             break
-        out.stitch(x, y)
+        break  # Uncaught Control
     out.end()
+
+
+def read_sunstar_dat(f, out):
+    # f.seek(0x02, 0)
+    # stitches = read_int_16le(f)
+    f.seek(0x100, 0)
+    read_sunstar_dat_stitches(f, out)
 
 
 def read(f, out, settings=None):

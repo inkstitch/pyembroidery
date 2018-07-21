@@ -3,8 +3,7 @@ from .ReadHelper import read_int_16le, read_int_8, signed8, signed16
 
 # Do you even embroider .bro?
 
-def read(f, out, settings=None):
-    f.seek(0x100, 0)
+def read_bro_stitches(f, out):
     count = 0
     while True:
         count += 1
@@ -17,12 +16,31 @@ def read(f, out, settings=None):
         control = read_int_8(f)
         if control == 0x00:
             continue
-        elif control == 0x02:
+        if control == 0x02:
             break
-        if control != 0x03:
+        if control == 0xE0:
+            break
+        if control == 0x7E:
+            x = signed16(read_int_16le(f))
+            y = signed16(read_int_16le(f))
+            out.move(x, -y)
+            continue
+        if control == 0x03:
+            x = signed16(read_int_16le(f))
+            y = signed16(read_int_16le(f))
+            out.move(x, -y)
+            continue
+        if 0xE0 < control < 0xF0:
             needle = control - 0xE0
             out.color_change()
-        x = signed16(read_int_16le(f))
-        y = signed16(read_int_16le(f))
-        out.move(x, -y)
+            x = signed16(read_int_16le(f))
+            y = signed16(read_int_16le(f))
+            out.move(x, -y)
+            continue
+        break  # Uncaught Control
     out.end()
+
+
+def read(f, out, settings=None):
+    f.seek(0x100, 0)
+    read_bro_stitches(f, out)

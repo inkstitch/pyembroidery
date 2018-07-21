@@ -16,7 +16,7 @@ def read(f, out, settings=None):
 
     count = 0
     while True:
-
+        count += 1
         byte = bytearray(f.read(3))
         if len(byte) != 3:
             break
@@ -25,6 +25,7 @@ def read(f, out, settings=None):
         ctrl = byte[2]
         if ctrl == 0x80:
             out.stitch(signed8(x), -signed8(y))
+            continue
         elif ctrl == 0x81:
             if count > 1:
                 out.color_change()
@@ -33,8 +34,15 @@ def read(f, out, settings=None):
                 out.trim()
             else:
                 out.move(signed8(x), -signed8(y))
+            continue
+        elif ctrl == 0x40:
+            out.stop()
+            continue
+        elif ctrl == 0x86:
+            out.trim()
+            continue
         elif ctrl == 0x8F:
-            out.end()
-            return
-        count += 1
+            break
+        else:
+            print("odd.")
     out.end()

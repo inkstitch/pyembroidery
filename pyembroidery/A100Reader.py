@@ -1,10 +1,7 @@
-from .ReadHelper import signed8
-
-
-# This code doesn't work. I am unsure how to decode the format.
-
-def read(f, out, settings=None):
+def read_100_stitches(f, out):
+    count = 0
     while True:
+        count += 1
         b = bytearray(f.read(4))
         if len(b) != 4:
             break
@@ -16,11 +13,18 @@ def read(f, out, settings=None):
         if y > 0x80:  # because 2s complement is for chumps?
             y -= 0x80
             y = -y
-
         if b[0] == 0x61:
             out.stitch(x, -y)
+            continue
         elif (b[0] & 0x01) != 0:
             out.move(x, -y)
-        else:
+            continue
+        else:  # too broad of catch
             out.color_change()
+            continue
+        break  # Uncaught Control
     out.end()
+
+
+def read(f, out, settings=None):
+    read_100_stitches(f, out)

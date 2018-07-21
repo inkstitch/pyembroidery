@@ -1,5 +1,5 @@
 from .EmbConstant import *
-from .WriteHelper import write_int_8, write_int_24be,\
+from .WriteHelper import write_int_8, write_int_24be, \
     write_int_32be, write_int_16be, write_string_utf8, write_string
 
 STRIP_SEQUINS = True
@@ -13,7 +13,7 @@ MAX_STITCH_DISTANCE = 255
 
 def vp3_write_string_8(stream, string):
     write_int_16be(stream, len(string))
-    write_string_utf8(stream,string)
+    write_string_utf8(stream, string)
     # vp3_write_length_and_bytes(stream, bytestring)
 
 
@@ -159,14 +159,19 @@ def write_vp3_colorblock(f, first, center_x, center_y, stitches, thread):
     placeholder_distance_end_of_color_block_050 = f.tell()
     write_int_32be(f, 0)
 
-    first_pos_x = stitches[0][0]
-    first_pos_y = stitches[0][1]
-    if first:
+    if len(stitches) > 0:
+        first_pos_x = stitches[0][0]
+        first_pos_y = stitches[0][1]
+        if first:
+            first_pos_x = 0
+            first_pos_y = 0
+        last_pos_x = stitches[-1][0]
+        last_pos_y = stitches[-1][1]
+    else:
         first_pos_x = 0
         first_pos_y = 0
-    last_pos_x = stitches[-1][0]
-    last_pos_y = stitches[-1][1]
-
+        last_pos_x = 0
+        last_pos_y = 0
     start_position_from_center_x = first_pos_x - center_x
     start_position_from_center_y = -(first_pos_y - center_y)
     write_int_32be(f, int(start_position_from_center_x) * 100)

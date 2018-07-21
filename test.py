@@ -3,7 +3,6 @@ from __future__ import print_function
 import test_fractals
 from pyembroidery import *
 
-
 # Initial test code. pyembroidery
 pattern2 = EmbPattern()
 pattern2.add_command(COLOR_BREAK)
@@ -41,6 +40,7 @@ settings = {
     "tie_off": True
 }
 
+write(pattern, "generated.u01", settings)
 write(pattern, "generated.pec", settings)
 write(pattern, "generated.pes", settings)
 write(pattern, "generated.exp", settings)
@@ -68,7 +68,7 @@ for file in os.listdir("convert"):
     while pattern.get_metadata(i) is not None:
         print(get_graphic_as_string(pattern.get_metadata(i)))
         i += 1
-    pattern = pattern.get_stable_pattern()
+    # pattern = pattern.get_stable_pattern()
     for emb_format in supported_formats():
         if emb_format.get('writer', None) is None:
             continue
@@ -76,7 +76,6 @@ for file in os.listdir("convert"):
                        '.' + emb_format["extension"]
         write(pattern, results_file, {
             "deltas": True,
-            "scale": 2
             # "tie_on": True,
             # "tie_off": True,
             # "translate": (500, 500)

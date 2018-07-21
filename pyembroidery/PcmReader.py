@@ -24,7 +24,8 @@ def read_pc_file(f, out, settings=None):
     f.seek(2, 0)
 
     colors = read_int_16be(f)
-
+    if colors is None:
+        return  # File is blank.
     for i in range(0, colors):
         color_index = read_int_16be(f)
         thread = pcm_threads[color_index]

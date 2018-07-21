@@ -9,6 +9,7 @@ import pyembroidery.Vp3Writer as Vp3Writer
 import pyembroidery.JefWriter as JefWriter
 import pyembroidery.SvgWriter as SvgWriter
 import pyembroidery.CsvWriter as CsvWriter
+import pyembroidery.U01Writer as U01Writer
 
 import pyembroidery.DstReader as DstReader
 import pyembroidery.PecReader as PecReader
@@ -154,7 +155,8 @@ def supported_formats():
         "extension": "u01",
         "mimetype": "application/x-u01",
         "category": "embroidery",
-        "reader": U01Reader
+        "reader": U01Reader,
+        "writer": U01Writer
     })
     yield ({
         "description": "Husqvarna Viking Embroidery Format",
@@ -217,7 +219,6 @@ def supported_formats():
         "extension": "exy",  # e??, e01
         "mimetype": "application/x-exy",
         "category": "embroidery",
-        "stable": False,
         "reader": ExyReader
     })
     yield ({
@@ -225,7 +226,6 @@ def supported_formats():
         "extension": "fxy",  # f??, f01
         "mimetype": "application/x-fxy",
         "category": "embroidery",
-        "stable": False,
         "reader": FxyReader
     })
     yield ({
@@ -233,7 +233,6 @@ def supported_formats():
         "extension": "gt",
         "mimetype": "application/x-exy",
         "category": "embroidery",
-        "stable": False,
         "reader": GtReader
     })
     yield ({

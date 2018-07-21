@@ -1,26 +1,34 @@
-from .EmbConstant import *
-from .ReadHelper import read_int_8, signed8
+
+
+def read_inb_stitches(f, out):
+    count = 0
+    while True:
+        count += 1
+        byte = bytearray(f.read(3))
+        if len(byte) != 3:
+            break
+        x = byte[0]
+        y = -byte[1]
+        ctrl = byte[2]
+        if ctrl & 0x20 != 0:
+            y = -y
+        if ctrl & 0x40 != 0:
+            x = -x
+        if (ctrl & 0b1111) == 0x00:
+            out.stitch(x, y)
+            continue
+        if (ctrl & 0b1111) == 0x01:
+            out.color_change(x, y)
+            continue
+        if (ctrl & 0b1111) == 0x02:
+            out.move(x, y)
+            continue
+        if ctrl == 0x04:
+            break
+        break  # Uncaught Control
+    out.end()
 
 
 def read(f, out, settings=None):
     f.seek(0x2000, 0)
-    while True:
-        stitch_type = STITCH
-
-        x = read_int_8(f)
-        y = read_int_8(f)
-        command_byte = read_int_8(f)
-        if command_byte is None:
-            break
-        x = signed8(x)
-        y = -signed8(y)
-        if (command_byte & 0x20) == 0x20:
-            y = -y
-        if (command_byte & 0x40) == 0x40:
-            x = -x
-        if (command_byte & 0x01) == 0x01:
-            stitch_type = COLOR_CHANGE
-        if (command_byte & 0x02) == 0x02:
-            stitch_type = TRIM
-        out.add_stitch_relative(stitch_type, x, y)
-    out.end()
+    read_inb_stitches(f, out)
