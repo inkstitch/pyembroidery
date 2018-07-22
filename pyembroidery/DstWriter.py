@@ -1,9 +1,7 @@
-import math
-
 from .EmbConstant import *
 from .WriteHelper import write_string_utf8
 
-STRIP_SEQUINS = False
+SEQUIN_CONTINGENCY = CONTINGENCY_SEQUIN_UTILIZE
 FULL_JUMP = False
 MAX_JUMP_DISTANCE = 121
 MAX_STITCH_DISTANCE = 121
@@ -114,8 +112,8 @@ def write(pattern, f, settings=None):
     write_string_utf8(f, "LA:%-16s\r" % name)
     write_string_utf8(f, "ST:%7d\r" % pattern.count_stitches())
     write_string_utf8(f, "CO:%3d\r" % pattern.count_color_changes())
-    x_extend = math.ceil(PPMM * width / 2)
-    y_extend = math.ceil(PPMM * height / 2)
+    x_extend = int(round(PPMM * width / 2))
+    y_extend = int(round(PPMM * height / 2))
     write_string_utf8(f, "+X:%5d\r" % x_extend)
     write_string_utf8(f, "-X:%5d\r" % x_extend)
     write_string_utf8(f, "+Y:%5d\r" % y_extend)

@@ -460,9 +460,14 @@ def write_embroidery(writer, pattern, stream, settings=None):
                 settings["full_jump"] = writer.FULL_JUMP
             except AttributeError:
                 pass
-        if not ("strip_sequins" in settings):
+        if not ("strip_speeds" in settings):
             try:
-                settings["strip_sequins"] = writer.STRIP_SEQUINS
+                settings["strip_speeds"] = writer.STRIP_SPEEDS
+            except AttributeError:
+                pass
+        if not ("sequin_contingency" in settings):
+            try:
+                settings["sequin_contingency"] = writer.SEQUIN_CONTINGENCY
             except AttributeError:
                 pass
         pattern = pattern.get_normalized_pattern(settings)

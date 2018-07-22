@@ -38,6 +38,11 @@ CONTINGENCY_NONE = 0xF0
 CONTINGENCY_JUMP_NEEDLE = 0xF1
 CONTINGENCY_SEW_TO = 0xF2
 
+CONTINGENCY_SEQUIN_UTILIZE = 0xF5
+CONTINGENCY_SEQUIN_JUMP = 0xF6
+CONTINGENCY_SEQUIN_STITCH = 0xF7
+CONTINGENCY_SEQUIN_REMOVE = 0xF8
+
 # Eventually the commands are supposed to be limited to 255 thereby
 # allowing additional information like, color change to color in position n
 # To be stored in the higher level bits.

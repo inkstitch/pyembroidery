@@ -326,7 +326,7 @@ class EmbPattern:
         """Appends translation to the pattern.
         All commands will be translated by the given amount,
         including absolute location commands."""
-        self.add_stitch_relative(TRANSLATE, x, y, )
+        self.add_stitch_relative(MATRIX_TRANSLATE, x, y, )
 
     def append_enable_tie_on(self, x=0, y=0):
         """Appends enable tie on.

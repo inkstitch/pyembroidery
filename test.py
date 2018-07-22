@@ -5,20 +5,14 @@ from pyembroidery import *
 
 # Initial test code. pyembroidery
 pattern2 = EmbPattern()
-pattern2.add_stitch_absolute(SEW_TO, -100, -100)
-pattern2.add_command(SEQUIN_EJECT)
-pattern2.add_stitch_absolute(SEW_TO, -100, +100)
-pattern2.add_command(SEQUIN_EJECT)
-pattern2.add_stitch_absolute(SEW_TO, +100, +100)
-pattern2.add_command(SEQUIN_EJECT)
-pattern2.add_stitch_absolute(SEW_TO, +100, -100)
-pattern2.add_command(SEQUIN_EJECT)
-pattern2.add_stitch_absolute(SEW_TO, -100, -100)
-pattern2.add_command(COLOR_BREAK)
+pattern2.add_stitch_absolute(STITCH, 0, 0)
+pattern2.add_stitch_relative(SEW_TO, 100, 100)
+pattern2.add_stitch_relative(JUMP, 20, 20)
+pattern2.add_stitch_relative(SEW_TO, 100, 100)
 pattern2.add_thread({"color": 0xFF0000})
 pattern2.fix_color_count()
-write(pattern2, "sequin.u01", {
-    "max_stitch": 25,
+write(pattern2, "command0test.u01", {
+    "max_stitch": 50,
     "explicit_trim": False
 })
 

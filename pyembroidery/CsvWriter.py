@@ -3,7 +3,8 @@ from .WriteHelper import write_string_utf8
 from .PecGraphics import get_graphic_as_string
 import math
 
-STRIP_SEQUINS = False
+STRIP_SPEEDS = False
+SEQUIN_CONTINGENCY = CONTINGENCY_SEQUIN_UTILIZE
 MAX_JUMP_DISTANCE = 121
 MAX_STITCH_DISTANCE = 121
 

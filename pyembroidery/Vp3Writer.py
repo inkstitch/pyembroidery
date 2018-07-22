@@ -2,7 +2,7 @@ from .EmbConstant import *
 from .WriteHelper import write_int_8, write_int_24be, \
     write_int_32be, write_int_16be, write_string_utf8, write_string
 
-STRIP_SEQUINS = True
+SEQUIN_CONTINGENCY = CONTINGENCY_SEQUIN_JUMP
 FULL_JUMP = False
 # Since jump is stitch, full jump will result in pointless double stitch.
 # Vp3 can encode signed 16 bit deltas.

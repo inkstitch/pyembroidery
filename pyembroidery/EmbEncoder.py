@@ -10,7 +10,14 @@ class Transcoder:
         self.max_stitch = settings.get("max_stitch", float('inf'))
         self.max_jump = settings.get("max_jump", float('inf'))
         self.full_jump = settings.get("full_jump", False)
-        self.strip_sequins = settings.get("strip_sequins", True)
+        strip_sequins = settings.get("strip_sequins", True)
+        if strip_sequins:
+            self.sequin_contingency = CONTINGENCY_SEQUIN_UTILIZE
+        else:
+            self.sequin_contingency = CONTINGENCY_SEQUIN_JUMP
+        self.sequin_contingency = settings.get("sequin_contingency", self.sequin_contingency)
+
+        self.strip_speeds = settings.get("strip_speeds", True)
         self.explicit_trim = settings.get("explicit_trim", True)
 
         self.has_tie_on = settings.get("tie_on", False)
@@ -158,6 +165,10 @@ class Transcoder:
                 # Even if it's the first command and makes no sense.
             elif flags == STOP:
                 self.stop_here()
+            elif flags == SLOW:
+                self.slow_command_here()
+            elif flags == FAST:
+                self.fast_command_here()
             elif flags == END:
                 self.end_here()
                 break
@@ -187,6 +198,20 @@ class Transcoder:
                 self.long_stitch_contingency = CONTINGENCY_JUMP_NEEDLE
             elif flags == CONTINGENCY_SEW_TO:
                 self.long_stitch_contingency = CONTINGENCY_SEW_TO
+            elif flags == CONTINGENCY_SEQUIN_REMOVE:
+                if self.state_sequin_mode:  # if sequin_mode, turn it off.
+                    self.toggle_sequins()
+                self.sequin_contingency = CONTINGENCY_SEQUIN_REMOVE
+            elif flags == CONTINGENCY_SEQUIN_STITCH:
+                if self.state_sequin_mode:  # if sequin_mode, turn it off.
+                    self.toggle_sequins()
+                self.sequin_contingency = CONTINGENCY_SEQUIN_STITCH
+            elif flags == CONTINGENCY_SEQUIN_JUMP:
+                if self.state_sequin_mode:  # if sequin_mode, turn it off.
+                    self.toggle_sequins()
+                self.sequin_contingency = CONTINGENCY_SEQUIN_REMOVE
+            elif flags == CONTINGENCY_SEQUIN_UTILIZE:
+                self.sequin_contingency = CONTINGENCY_SEQUIN_UTILIZE
             elif flags == MATRIX_TRANSLATE:
                 m = get_translate(self.stitch[0], self.stitch[1])
                 self.matrix = matrix_multiply(self.matrix, m)
@@ -303,15 +328,18 @@ class Transcoder:
 
     def trim_here(self):
         if self.state_sequin_mode:
-            # Can't trim in sequin mode. DST use jumps to trigger sequin eject and trim.
+            # Can't trim in sequin mode. DST uses jumps to trigger sequin eject and to trim.
             self.toggle_sequins()
         self.add(TRIM)
         self.state_trimmed = True
 
     def toggle_sequins(self):
-        if not self.strip_sequins:
+        """Sequin mode toggle can be called whenever but will only actually turn on if set
+        to utilize mode for the sequin contingency."""
+        contingency = self.sequin_contingency
+        if contingency == CONTINGENCY_SEQUIN_UTILIZE:
             self.add(SEQUIN_MODE)
-        self.state_sequin_mode = not self.state_sequin_mode
+            self.state_sequin_mode = not self.state_sequin_mode
 
     def jump_to_within_stitchrange(self, new_x, new_y):
         """Jumps close enough to stitch a position in x,y
@@ -384,12 +412,26 @@ class Transcoder:
         self.declare_not_trimmed()
 
     def sequin_at(self, new_x, new_y):
-        if self.strip_sequins:
-            self.add(JUMP, new_x, new_y)
-        else:
+        contingency = self.sequin_contingency
+        if contingency == CONTINGENCY_SEQUIN_UTILIZE:
             self.add(SEQUIN_EJECT, new_x, new_y)
+        elif contingency == CONTINGENCY_SEQUIN_JUMP:
+            self.add(JUMP, new_x, new_y)
+        elif contingency == CONTINGENCY_SEQUIN_STITCH:
+            self.add(STITCH, new_x, new_y)
+        elif contingency == CONTINGENCY_SEQUIN_REMOVE:
+            # Do not update the needle position or declare untrimmed.
+            return
         self.update_needle_position(new_x, new_y)
         self.declare_not_trimmed()
+
+    def slow_command_here(self):
+        if not self.strip_speeds:
+            self.add(SLOW)
+
+    def fast_command_here(self):
+        if not self.strip_speeds:
+            self.add(FAST)
 
     def stop_here(self):
         self.add(STOP)

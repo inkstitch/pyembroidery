@@ -1,7 +1,8 @@
 from .EmbConstant import *
 from .WriteHelper import write_int_16le, write_int_32le
 
-STRIP_SEQUINS = True
+SEQUIN_CONTINGENCY = CONTINGENCY_SEQUIN_JUMP
+STRIP_SPEEDS = False
 FULL_JUMP = False
 MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127

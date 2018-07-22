@@ -24,6 +24,7 @@ class Turtle:
         self.x += distance * math.cos(self.angle)
         self.y += distance * math.sin(self.angle)
         self.pattern.add_stitch_absolute(STITCH, self.x, self.y)
+        # self.pattern.add_stitch_absolute(SEQUIN_EJECT, self.x, self.y)
 
     def turn(self, angle):
         self.angle += angle

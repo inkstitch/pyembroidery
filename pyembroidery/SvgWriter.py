@@ -1,7 +1,8 @@
 from xml.etree.cElementTree import Element, ElementTree, SubElement
 
+from .EmbConstant import CONTINGENCY_SEQUIN_STITCH
 
-STRIP_SEQUINS = True
+SEQUIN_CONTINGENCY = CONTINGENCY_SEQUIN_STITCH
 # technically I could use svg to draw a sequin as a 2 element circle path.
 FULL_JUMP = False  # just drops all jumps anyway.
 MAX_JUMP_DISTANCE = float('inf')

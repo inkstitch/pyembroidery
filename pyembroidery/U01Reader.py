@@ -24,12 +24,12 @@ def read_u01_stitches(f, out):
             out.move(dx, dy)
             continue
         if command == 0x2:
-            out.command(FAST)
+            out.add_stitch_relative(FAST)
             if dx != 0 or dy != 0:
                 out.stitch(dx, dy)
             continue
         if command == 0x4:
-            out.command(SLOW)
+            out.add_stitch_relative(SLOW)
             if dx != 0 or dy != 0:
                 out.stitch(dx, dy)
             continue

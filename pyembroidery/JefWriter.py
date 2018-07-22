@@ -2,7 +2,7 @@ from .EmbConstant import *
 from .EmbThreadJef import get_thread_set
 from .WriteHelper import write_string_utf8, write_int_32le, write_int_8, write_int_array_8
 
-STRIP_SEQUINS = True
+SEQUIN_CONTINGENCY = CONTINGENCY_SEQUIN_JUMP
 FULL_JUMP = True
 MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127
