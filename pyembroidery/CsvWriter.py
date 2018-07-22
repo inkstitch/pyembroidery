@@ -1,6 +1,7 @@
 from .EmbConstant import *
 from .WriteHelper import write_string_utf8
 from .PecGraphics import get_graphic_as_string
+import math
 
 STRIP_SEQUINS = False
 MAX_JUMP_DISTANCE = 121
@@ -16,8 +17,25 @@ def csv(f, values):
     write_string_utf8(f, string + "\n")
 
 
+def distance(dx, dy):
+    dx *= dx
+    dy *= dy
+    return math.sqrt(dx + dy)
+
+
+def angle(dx, dy):
+    tau = math.pi * 2
+    angle = math.atan2(dy, dx)
+    angle += tau / float(2)
+    angle /= tau
+    return angle
+
+
 def write(pattern, f, settings=None):
+    names = get_common_name_dictionary()
+
     deltas = settings is not None and "deltas" in settings
+    displacement = settings is not None and "displacement" in settings
 
     extends = pattern.extends()
     width = extends[2] - extends[0]
@@ -34,6 +52,27 @@ def write(pattern, f, settings=None):
     csv(f, ('>', 'EXTENTS_BOTTOM:', str(extends[3])))
     csv(f, ('>', 'EXTENTS_WIDTH:', str(width)))
     csv(f, ('>', 'EXTENTS_HEIGHT:', str(height)))
+
+    stitch_counts = {}
+    for s in pattern.stitches:
+        command = s[2]
+        if command in stitch_counts:
+            stitch_counts[command] += 1
+        else:
+            stitch_counts[command] = 1
+
+    if len(stitch_counts) != 0:
+        for the_key, the_value in stitch_counts.items():
+            try:
+                name = "COMMAND_" + names[the_key]
+            except IndexError:
+                name = "COMMAND_UNKNOWN_" + str(the_key)
+            csv(f, (
+                '>',
+                name,
+                str(the_value)
+            ))
+
     write_string_utf8(f, "\n")
 
     if len(pattern.extras) > 0:
@@ -77,7 +116,18 @@ def write(pattern, f, settings=None):
         write_string_utf8(f, "\n")
 
     if len(pattern.stitches) > 0:
-        if deltas:
+        if displacement:
+            csv(f, (
+                '#',
+                '[STITCH_INDEX]',
+                '[STITCH_TYPE]',
+                '[X]',
+                '[Y]',
+                '[DX]',
+                '[R]',
+                '[ANGLE]'
+            ))
+        elif deltas:
             csv(f, (
                 '#',
                 '[STITCH_INDEX]',
@@ -95,7 +145,6 @@ def write(pattern, f, settings=None):
                 '[X]',
                 '[Y]'
             ))
-        names = get_common_name_dictionary()
         current_x = 0
         current_y = 0
         for i, stitch in enumerate(pattern.stitches):
@@ -103,15 +152,31 @@ def write(pattern, f, settings=None):
                 name = names[stitch[2]]
             except IndexError:
                 name = "UNKNOWN " + str(stitch[2])
-            if deltas:
+            if displacement:
+                dx = stitch[0] - current_x
+                dy = stitch[1] - current_y
                 csv(f, (
                     '*',
                     str(i),
                     name,
                     str(stitch[0]),
                     str(stitch[1]),
-                    str(stitch[0] - current_x),
-                    str(stitch[1] - current_y)
+                    str(dx),
+                    str(dy),
+                    str(distance(dx, dy)),
+                    str(angle(dx, dy))
+                ))
+            elif deltas:
+                dx = stitch[0] - current_x
+                dy = stitch[1] - current_y
+                csv(f, (
+                    '*',
+                    str(i),
+                    name,
+                    str(stitch[0]),
+                    str(stitch[1]),
+                    str(dx),
+                    str(dy)
                 ))
             else:
                 csv(f, (
@@ -133,6 +198,8 @@ def get_common_name_dictionary():
         TRIM: "TRIM",
         STOP: "STOP",
         END: "END",
+        SLOW: "SLOW",
+        FAST: "FAST",
         COLOR_CHANGE: "COLOR_CHANGE",
         SEQUIN_MODE: "SEQUIN_MODE",
         SEQUIN_EJECT: "SEQUIN_EJECT",

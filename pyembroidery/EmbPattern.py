@@ -266,6 +266,47 @@ class EmbPattern:
             except AttributeError:
                 self.add_stitch_absolute(stitch[2], stitch[0], stitch[1])
 
+    def get_pattern_interpolate_trim(self, jumps_to_require_trim):
+        """Gets a processed pattern with untrimmed jumps merged
+        and trims added if merged jumps are beyond the given value.
+        The expectation is that it has core commands and not
+        middle-level commands"""
+        new_pattern = EmbPattern()
+        i = -1
+        ie = len(self.stitches) - 1
+        count = 0
+        trimmed = True
+        while i < ie:
+            i += 1
+            stitch = self.stitches[i]
+            command = stitch[2]
+            if command == STITCH or command == SEQUIN_EJECT:
+                trimmed = False
+            elif command == COLOR_CHANGE or command == TRIM:
+                trimmed = True
+            if trimmed or stitch[2] != JUMP:
+                new_pattern.add_stitch_absolute(stitch[2],
+                                                stitch[0],
+                                                stitch[1])
+                continue
+            while i < ie and command == JUMP:
+                i += 1
+                stitch = self.stitches[i]
+                command = stitch[2]
+                count += 1
+            if command != JUMP:
+                i -= 1
+            stitch = self.stitches[i]
+            if count >= jumps_to_require_trim:
+                new_pattern.trim()
+            count = 0
+            new_pattern.add_stitch_absolute(stitch[2],
+                                            stitch[0],
+                                            stitch[1])
+        new_pattern.threadlist.extend(self.threadlist)
+        new_pattern.extras.update(self.extras)
+        return new_pattern
+
     def get_stable_pattern(self):
         """Gets a stablized version of the pattern."""
         stable_pattern = EmbPattern()

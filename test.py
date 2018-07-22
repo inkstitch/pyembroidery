@@ -5,17 +5,22 @@ from pyembroidery import *
 
 # Initial test code. pyembroidery
 pattern2 = EmbPattern()
-pattern2.add_command(COLOR_BREAK)
 pattern2.add_stitch_absolute(SEW_TO, -100, -100)
+pattern2.add_command(SEQUIN_EJECT)
 pattern2.add_stitch_absolute(SEW_TO, -100, +100)
+pattern2.add_command(SEQUIN_EJECT)
 pattern2.add_stitch_absolute(SEW_TO, +100, +100)
-pattern2.add_command(COLOR_BREAK)
+pattern2.add_command(SEQUIN_EJECT)
 pattern2.add_stitch_absolute(SEW_TO, +100, -100)
+pattern2.add_command(SEQUIN_EJECT)
 pattern2.add_stitch_absolute(SEW_TO, -100, -100)
 pattern2.add_command(COLOR_BREAK)
 pattern2.add_thread({"color": 0xFF0000})
 pattern2.fix_color_count()
-write(pattern2, "example.csv", {"explicit_trim": False})
+write(pattern2, "sequin.u01", {
+    "max_stitch": 25,
+    "explicit_trim": False
+})
 
 pattern = EmbPattern()
 
@@ -69,13 +74,15 @@ for file in os.listdir("convert"):
         print(get_graphic_as_string(pattern.get_metadata(i)))
         i += 1
     # pattern = pattern.get_stable_pattern()
+    pattern = pattern.get_pattern_interpolate_trim(3)
     for emb_format in supported_formats():
         if emb_format.get('writer', None) is None:
             continue
         results_file = os.path.join("results", file) + \
                        '.' + emb_format["extension"]
         write(pattern, results_file, {
-            "deltas": True,
+            # "deltas": True
+            # "displacement": True,
             # "tie_on": True,
             # "tie_off": True,
             # "translate": (500, 500)

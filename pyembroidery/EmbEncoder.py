@@ -302,6 +302,9 @@ class Transcoder:
             pass  # must be an island stitch. jump-stitch-jump
 
     def trim_here(self):
+        if self.state_sequin_mode:
+            # Can't trim in sequin mode. DST use jumps to trigger sequin eject and trim.
+            self.toggle_sequins()
         self.add(TRIM)
         self.state_trimmed = True
 

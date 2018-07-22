@@ -7,6 +7,8 @@ END = 4
 COLOR_CHANGE = 5
 SEQUIN_MODE = 6
 SEQUIN_EJECT = 7
+SLOW = 0xB
+FAST = 0xC
 
 # Stitch with implied contingency.
 SEW_TO = 0xB0

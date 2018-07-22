@@ -1,6 +1,7 @@
-def read(f, out, settings=None):
-    f.seek(0x80, 1)  # first block of hell if I know
-    f.seek(0x80, 1)  # 2nd block of hell if I know
+from .EmbConstant import *
+
+
+def read_u01_stitches(f, out):
     count = 0
     while True:
         count += 1
@@ -14,21 +15,41 @@ def read(f, out, settings=None):
             dx = -dx
         if (ctrl & 0x40) != 0:
             dy = -dy
-        if (ctrl & 0b00011111) == 0x0:
+        command = ctrl & 0b11111
+        #print(str(count), " ", str("{0:b}").format(ctrl), " 0x%0.2X " % ctrl, str(command), " " + str(dx), " ", str(dy))
+        if command == 0x0:
             out.stitch(dx, dy)
             continue
-        if (ctrl & 0b00011111) == 0x1:
+        if command == 0x1:
             out.move(dx, dy)
             continue
-        if ctrl == 0xE7:
+        if command == 0x2:
+            out.command(FAST)
+            if dx != 0 or dy != 0:
+                out.stitch(dx, dy)
+            continue
+        if command == 0x4:
+            out.command(SLOW)
+            if dx != 0 or dy != 0:
+                out.stitch(dx, dy)
+            continue
+        if command == 0x7:
             out.trim(dx, dy)
             continue
-        if ctrl == 0xE8:
-            out.stop()
+        if command == 0x8:  # ww, stop file had proper A8 rather than E8 and displacement
+            out.stop(dx, dy)
             continue
         if 0xE9 <= ctrl <= 0xEF:
             if count > 1:
                 out.color_change(dx, dy)
             continue
-        # print(str(count), " ", str("{0:b}").format(ctrl), " 0x%0.2X " % ctrl, dx, " ", dy)
+        if ctrl == 0xF8:
+            break
+        break  # Uncaught Command
     out.end()
+
+
+def read(f, out, settings=None):
+    f.seek(0x80, 1)
+    f.seek(0x80, 1)
+    read_u01_stitches(f, out)

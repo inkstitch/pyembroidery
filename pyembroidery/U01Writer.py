@@ -1,7 +1,7 @@
 from .EmbConstant import *
 from .WriteHelper import write_int_16le, write_int_32le
 
-STRIP_SEQUINS = False
+STRIP_SEQUINS = True
 FULL_JUMP = False
 MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127
@@ -27,7 +27,6 @@ def write(pattern, f, settings=None):
     write_int_16le(f, -int(last_stitch[1]))
     for i in range(f.tell(), 0x100):
         f.write(b'\x00')
-    sequin_mode = False
     xx = 0
     yy = 0
     needle = 1
@@ -40,6 +39,7 @@ def write(pattern, f, settings=None):
         dy = int(round(y - yy))
         xx += dx
         yy += dy
+
         cmd = 0x80
         if dy >= 0:
             cmd |= 0x40
@@ -53,22 +53,21 @@ def write(pattern, f, settings=None):
             cmd |= 0x01
             f.write(bytes(bytearray([cmd, delta_y, delta_x])))
         elif data == STOP:
-            f.write(b'\xE8\x00\x00')  # C0 Stop
+            cmd |= 0x08
+            f.write(bytes(bytearray([cmd, delta_y, delta_x])))
+        elif data == TRIM:
+            cmd |= 0x07
+            f.write(bytes(bytearray([cmd, delta_y, delta_x])))
+        elif data == FAST:
+            cmd |= 0x02
+            f.write(bytes(bytearray([cmd, delta_y, delta_x])))
+        elif data == SLOW:
+            cmd |= 0x04
+            f.write(bytes(bytearray([cmd, delta_y, delta_x])))
         elif data == COLOR_CHANGE:
             needle %= 7
             needle += 1
-            cmd = 0xE8 + needle
-            f.write(bytes(bytearray([cmd, delta_y, delta_x])))
-        elif data == SEQUIN_MODE:
-            if sequin_mode:
-                f.write(b'\xE8\x00\x00')  # Need to know this command. S2
-            else:
-                f.write(b'\xE8\x00\x00')  # Need to know this command. S1
-            sequin_mode = not sequin_mode
-        elif data == TRIM:
-            f.write(b'\xE7\x00\x00')  # Trim
-        elif data == SEQUIN_EJECT:
-            cmd = 0xE8  # I don't know the command for this.
+            cmd = cmd + 8 + needle
             f.write(bytes(bytearray([cmd, delta_y, delta_x])))
         elif data == END:
             f.write(b'\xF8\x00\x00')
