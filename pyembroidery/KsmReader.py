@@ -27,7 +27,7 @@ def read_ksm_stitches(f, out):
 
         if ctrl == 0x00:
             continue
-        print(str(f), " ", str(count), " ", str("{0:b}").format(ctrl), " 0x%0.2X " % ctrl, x, " ", y)
+        # print(str(f), " ", str(count), " ", str("{0:b}").format(ctrl), " 0x%0.2X " % ctrl, x, " ", y)
 
         if ctrl == 0x07 or ctrl == 0x13 or ctrl == 0x1D:
             if stitched_yet:

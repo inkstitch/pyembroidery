@@ -29,8 +29,9 @@ def z_stitch_encoding_read(f, out):
         if ctrl == 0x82:
             out.stop()
             continue
-        if ctrl == 0x9B:  # 9b
-            break
+        if ctrl == 0x9B:
+            out.trim()
+            continue
         if 0x83 <= ctrl <= 0x9A:
             needle = (ctrl - 0x83) >> 1
             if stitched_yet:
