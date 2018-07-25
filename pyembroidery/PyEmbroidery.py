@@ -49,6 +49,7 @@ import pyembroidery.JpxReader as JpxReader
 import pyembroidery.StcReader as StcReader
 # import pyembroidery.ZhsReader as ZhsReader
 import pyembroidery.ZxyReader as ZxyReader
+import pyembroidery.PmvReader as PmvReader
 
 
 def supported_formats():
@@ -360,6 +361,13 @@ def supported_formats():
         "mimetype": "application/x-zxy",
         "category": "embroidery",
         "reader": ZxyReader
+    })
+    yield ({
+        "description": "Brother Stitch Format",
+        "extension": "pmv",
+        "mimetype": "application/x-pmv",
+        "category": "stitch",
+        "reader": PmvReader
     })
 
 

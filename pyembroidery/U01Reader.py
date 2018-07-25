@@ -68,6 +68,8 @@ def read_u01_stitches(f, out):
             continue
         if command == 0x18:
             break
+        if ctrl == 0x2B:
+            break  # Rare postfix data from machine. Do not read this.
         break  # Uncaught Command
     out.end()
 
