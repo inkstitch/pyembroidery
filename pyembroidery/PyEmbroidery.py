@@ -50,6 +50,7 @@ import pyembroidery.StcReader as StcReader
 # import pyembroidery.ZhsReader as ZhsReader
 import pyembroidery.ZxyReader as ZxyReader
 import pyembroidery.PmvReader as PmvReader
+import pyembroidery.PmvWriter as PmvWriter
 
 
 def supported_formats():
@@ -367,7 +368,8 @@ def supported_formats():
         "extension": "pmv",
         "mimetype": "application/x-pmv",
         "category": "stitch",
-        "reader": PmvReader
+        "reader": PmvReader,
+        "writer": PmvWriter
     })
 
 
