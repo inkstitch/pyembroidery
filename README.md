@@ -30,6 +30,23 @@ Pyembroidery fully meets and exceeds all of these requirements.
 * SEQUINS work in all supported formats (.dst) that are known to support sequins. Further it supports SEQUIN to JUMP operations on the other formats.
   * It is currently fully compatable with Python 2.7 and Python 3.6
 
+Philosophy
+---
+Pyembroidery will always attempt to minimize information loss. Embroidery reading and writing, the exporting and importing of these files, is always lossy. If there is information in a file, it is within the purview of the project (but not the mandate) to read that information and provide it to the user. If information can be written to a file, it is within the purview of the project to write that information to the file or provide means by which that can be done.
+
+* Low level commands: Those commands actually found in binary encoded embroidery files.
+    * Low level commands will be transcribed and preserved in their exact order, unless doing so will cause an error.
+* Middle level commands: Useful ways of thinking about blocks of low level commands. Commands which describe the way the low level commands are encoded, but are not themselves commands executed by embroidery machines.
+    * Middle level commands will be helpful and converted to low-level commands during writing events.
+    * These will often be context sensitive converting to slightly different low level commands depending on intended writer, or encoder settings.
+* High level commands: Conversion of shapes and fills into useful structures, patterning within stitches, modifiers of structures.
+    * High level commands will not exist.
+
+Other reasonable elements:
+* Higher level objects like .PES or .THR containing shapes are currently ignored in favor of reading raw stitches, However, loading such things would be less lossy and thus within the scope of the project.
+* Conversions from raw low level commands to some middle level interpretations or iterable generators are provided in the EmbPattern class. Additional methods are entirely reasonable feature requests.
+   
+
 How it works:
 ---
 Readers are sent a fileobject and an EmbPattern and parses the file, filling in the metadata, threads, stitches.
@@ -313,6 +330,7 @@ The middle-level commands, as they currently stand:
 * SEQUENCE_BREAK - Break between stitches. Inserts a trim and jumps to the next stitch in the sequence.
 * COLOR_BREAK - Breaks between stitches. Changes to the next color (unless called before anything was stitched)
 * FRAME_EJECT(x,y) - Breaks the stitches, jumps to the given location, performs a stop, then goes to next stitch accordingly.
+* STITCH_BREAK - Next location is jumped to. Existing jumps are reallocated.
 * MATRIX_TRANSLATE(tx,ty) - Applies an inline translation shift for the encoder. It will treat all future stitches translated from here.
 * MATRIX_SCALE(sx,sy) - Applies an inline scale shift. It will scale by that factor for future stitches.
 * MATRIX_ROTATE(r) - Applies an inline rotateion shift. It will rotate by that factor for future stitches (in degrees).
@@ -357,6 +375,10 @@ The encoder will by default ignore any COLOR_BREAK that occurs before any stitch
 You can expressly add any of the core commands to the patterns. These are generalized and try to play nice with other commands. When the patterns are written to disk, they call pattern.get_normalized_pattern() and save the normalized pattern. Saving to any format does not modify the pattern, ever. It writes the modified pattern out. It adds the max_jump and max_stitch to the encoding when it normalizes this to save. So each format can compile to a different set of stitches due to the max_jump etc. This is expressly an attempt to maintain as much data integrity as possible.
 
 After a load, the pattern will be filled with raw basic stitch data, it's perfectly reasonable call .get_stable_pattern() on this which will make it into a series of stitches, color_breaks, sequence_breaks or get_pattern_interpolate_trim() which will allow you to introduce trim commands after a series of JUMP commands as specified and merge the untrimmed jumps. Or to iterate through the data with .get_as_stitchblocks() which is a generator that will produce stitch blocks from the raw loaded data. The stablized pattern simply makes a new pattern, iterates through the current pattern by the stitchblocks and feeds that into add_stitch_block(). This results in a pattern without any jumps, trims, etc.
+
+STITCH_BREAK
+
+Stitch break is only needed for reallocating jumps. It requires that the long stitch contingency is needle_to for the next stitch and any existing jumps directly afterwards are ignored. This causes the jump sequences to reallocate. If an existing jump sequence exists because it was loaded from a file and fed into a write routine. The write routine may only seek a contingency for the long jumps by providing extra subdivisions, because low level commands are only tweaked if a literal transcription would cause errors. However, calling pattern.get_pattern_merge_jumps() returns a pattern with all sequences of JUMP replaced with a single STITCH_BREAK command which is middle level and converted by the encoder into a series of jumps produced by the encoder rather than directly transcribed from their current sequence.
 
 Stitch Contingency
 ---
