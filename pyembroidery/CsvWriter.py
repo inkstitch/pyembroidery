@@ -66,7 +66,7 @@ def write(pattern, f, settings=None):
         for the_key, the_value in stitch_counts.items():
             try:
                 name = "COMMAND_" + names[the_key]
-            except IndexError:
+            except (IndexError, KeyError):
                 name = "COMMAND_UNKNOWN_" + str(the_key)
             csv(f, (
                 '>',
@@ -151,7 +151,7 @@ def write(pattern, f, settings=None):
         for i, stitch in enumerate(pattern.stitches):
             try:
                 name = names[stitch[2]]
-            except IndexError:
+            except (IndexError, KeyError):
                 name = "UNKNOWN " + str(stitch[2])
             if displacement:
                 dx = stitch[0] - current_x
@@ -206,6 +206,7 @@ def get_common_name_dictionary():
         SEQUIN_EJECT: "SEQUIN_EJECT",
         SEW_TO: "SEW_TO",
         NEEDLE_AT: "NEEDLE_AT",
+        STITCH_BREAK: "STITCH_BREAK",
         SEQUENCE_BREAK: "SEQUENCE_BREAK",
         COLOR_BREAK: "COLOR_BREAK",
         TIE_ON: "TIE_ON",

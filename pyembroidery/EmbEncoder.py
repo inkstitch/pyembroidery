@@ -62,6 +62,7 @@ class Transcoder:
         self.state_sequin_mode = False
         self.needle_x = 0
         self.needle_y = 0
+        self.state_jumping = False
 
     def transcode(self, source_pattern, destination_pattern):
         self.source_pattern = source_pattern
@@ -110,6 +111,9 @@ class Transcoder:
                     self.stitch_at(x, y)
                     if self.has_tie_on:
                         self.tie_on()
+                elif self.state_jumping:
+                    self.needle_to(x, y)
+                    self.state_jumping = False
                 else:
                     self.stitch_with_contingency(x, y)
             elif flags == NEEDLE_AT:
@@ -118,6 +122,9 @@ class Transcoder:
                     self.stitch_at(x, y)
                     if self.has_tie_on:
                         self.tie_on()
+                elif self.state_jumping:
+                    self.needle_to(x, y)
+                    self.state_jumping = False
                 else:
                     self.needle_to(x, y)
             elif flags == SEW_TO:
@@ -126,10 +133,15 @@ class Transcoder:
                     self.stitch_at(x, y)
                     if self.has_tie_on:
                         self.tie_on()
+                elif self.state_jumping:
+                    self.needle_to(x, y)
+                    self.state_jumping = False
                 else:
                     self.sew_to(x, y)
 
             # Middle Level Commands.
+            elif flags == STITCH_BREAK:
+                self.state_jumping = True
             elif flags == FRAME_EJECT:
                 self.tie_off_and_trim_if_needed()
                 self.jump_to(x, y)
@@ -147,7 +159,8 @@ class Transcoder:
             elif flags == TRIM:
                 self.tie_off_and_trim_if_needed()
             elif flags == JUMP:
-                self.jump_to(x, y)
+                if not self.state_jumping:
+                    self.jump_to(x, y)
             elif flags == SEQUIN_MODE:
                 self.toggle_sequins()
             elif flags == SEQUIN_EJECT:
@@ -361,7 +374,6 @@ class Transcoder:
         y0 = self.needle_y
         max_length = self.max_jump
         self.interpolate_gap_stitches(x0, y0, new_x, new_y, max_length, JUMP)
-        # above code is technically not jump_to_within_stitchrange it jumps to within jump range.
         self.jump_at(new_x, new_y)
 
     def jump_at(self, new_x, new_y):

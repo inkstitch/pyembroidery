@@ -1,6 +1,7 @@
 from .EmbConstant import *
 from .EmbThreadJef import get_thread_set
-from .WriteHelper import write_string_utf8, write_int_32le, write_int_8, write_int_array_8
+from .WriteHelper import write_string_utf8, write_int_32le, write_int_8
+import datetime
 
 SEQUIN_CONTINGENCY = CONTINGENCY_SEQUIN_JUMP
 FULL_JUMP = True
@@ -21,11 +22,13 @@ def write(pattern, f, settings=None):
     offsets = 0x74 + (color_count * 8)
     write_int_32le(f, offsets)
     write_int_32le(f, 0x14)
-    write_string_utf8(f, "20122017218088")
+    date_string = datetime.datetime.today().strftime('%Y%m%d%H%M%S')
+    # write_string_utf8(f, "20122017218088")
+    write_string_utf8(f, date_string)
     write_int_8(f, 0)
     write_int_8(f, 0)
     write_int_32le(f, color_count)
-    point_count = 2  # 2 bytes for END statement.
+    point_count = 1  # 1 command for END statement
     for stitch in pattern.stitches:
         data = stitch[2]
         if data == STITCH:
@@ -40,7 +43,7 @@ def write(pattern, f, settings=None):
     extends = pattern.extends()
     design_width = int(round(extends[2] - extends[0]))
     design_height = int(round(extends[3] - extends[1]))
-    write_int_32le(f, get_jef_hoop_size(design_width, design_width))
+    write_int_32le(f, get_jef_hoop_size(design_width, design_height))
     half_width = int(round(design_width / 2))
     half_height = int(round(design_height / 2))
 
@@ -65,9 +68,9 @@ def write(pattern, f, settings=None):
     y_hoop_edge = 1000 - half_height
     write_hoop_edge_distance(f, x_hoop_edge, y_hoop_edge)
 
-    # distance from default 126 x 50 hoop
-    x_hoop_edge = 630 - half_width
-    y_hoop_edge = 550 - half_height
+    # distance from custom hoop, but this should be accepted.
+    x_hoop_edge = 700 - half_width
+    y_hoop_edge = 1000 - half_height
     write_hoop_edge_distance(f, x_hoop_edge, y_hoop_edge)
 
     jef_threads = get_thread_set()
@@ -109,11 +112,13 @@ def write(pattern, f, settings=None):
 def get_jef_hoop_size(width, height):
     if width < 500 and height < 500:
         return HOOP_50X50
-    if width < 1100 and height < 1100:
-        return HOOP_110X110
+    if width < 1260 and height < 1100:
+        return HOOP_126X110
     if width < 1400 and height < 2000:
         return HOOP_140X200
-    return HOOP_200X200
+    if width < 2000 and height < 2000:
+        return HOOP_200X200
+    return HOOP_110X110
 
 
 def write_hoop_edge_distance(f, x_hoop_edge, y_hoop_edge):

@@ -307,6 +307,28 @@ class EmbPattern:
         new_pattern.extras.update(self.extras)
         return new_pattern
 
+    def get_pattern_merge_jumps(self):
+        """Returns a pattern with all multiple jumps merged."""
+        new_pattern = EmbPattern()
+        i = -1
+        ie = len(self.stitches) - 1
+        stitch_break = False
+        while i < ie:
+            i += 1
+            stitch = self.stitches[i]
+            if stitch[2] == JUMP:
+                if stitch_break:
+                    continue
+                new_pattern.add_command(STITCH_BREAK)
+                stitch_break = True
+                continue
+            new_pattern.add_stitch_absolute(stitch[2],
+                                            stitch[0],
+                                            stitch[1])
+        new_pattern.threadlist.extend(self.threadlist)
+        new_pattern.extras.update(self.extras)
+        return new_pattern
+
     def get_stable_pattern(self):
         """Gets a stablized version of the pattern."""
         stable_pattern = EmbPattern()
