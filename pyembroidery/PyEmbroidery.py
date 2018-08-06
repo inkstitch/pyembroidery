@@ -51,6 +51,7 @@ import pyembroidery.StcReader as StcReader
 import pyembroidery.ZxyReader as ZxyReader
 import pyembroidery.PmvReader as PmvReader
 import pyembroidery.PmvWriter as PmvWriter
+import pyembroidery.CsvReader as CsvReader
 
 
 def supported_formats():
@@ -133,6 +134,7 @@ def supported_formats():
         "extension": "csv",
         "mimetype": "text/csv",
         "category": "debug",
+        "reader": CsvReader,
         "writer": CsvWriter,
         "options": {
             "deltas": (True, False)
@@ -396,12 +398,25 @@ def read_embroidery(reader, f, settings=None, pattern=None):
     if pattern is None:
         pattern = EmbPattern()
     if isinstance(f, str):
+        text_mode = False
         try:
-            with open(f, "rb") as stream:
-                reader.read(stream, pattern, settings)
-                stream.close()
-        except IOError:
+            text_mode = reader.READ_FILE_IN_TEXT_MODE
+        except AttributeError:
             pass
+        if text_mode:
+            try:
+                with open(f, "r") as stream:
+                    reader.read(stream, pattern, settings)
+                    stream.close()
+            except IOError:
+                pass
+        else:
+            try:
+                with open(f, "rb") as stream:
+                    reader.read(stream, pattern, settings)
+                    stream.close()
+            except IOError:
+                pass
     else:
         reader.read(f, pattern, settings)
     return pattern

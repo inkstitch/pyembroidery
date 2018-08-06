@@ -32,6 +32,8 @@ def write(pattern, f, settings=None):
     yy = 0
     needle = 1
     f.write(b'\xE9\x00\x00')  # Needle to C1
+    trigger_fast = False
+    trigger_slow = False
     for stitch in stitches:
         x = stitch[0]
         y = stitch[1]
@@ -40,7 +42,12 @@ def write(pattern, f, settings=None):
         dy = int(round(y - yy))
         xx += dx
         yy += dy
-
+        if data == SLOW:
+            trigger_slow = True
+            continue
+        if data == FAST:
+            trigger_fast = True
+            continue
         cmd = 0x80
         if dy >= 0:
             cmd |= 0x40
@@ -49,8 +56,20 @@ def write(pattern, f, settings=None):
         delta_x = abs(dx)
         delta_y = abs(dy)
         if data == STITCH:
+            if trigger_fast:
+                trigger_fast = False
+                cmd |= 0x02
+            if trigger_slow:
+                trigger_slow = False
+                cmd |= 0x04
             f.write(bytes(bytearray([cmd, delta_y, delta_x])))
-        elif data == JUMP:
+        elif data == JUMP:  # If you did both FAST, SLOW, and JUMP, you'd get a trim.
+            if trigger_fast:
+                trigger_fast = False
+                cmd |= 0x02
+            if trigger_slow:
+                trigger_slow = False
+                cmd |= 0x04
             cmd |= 0x01
             f.write(bytes(bytearray([cmd, delta_y, delta_x])))
         elif data == STOP:
@@ -58,12 +77,6 @@ def write(pattern, f, settings=None):
             f.write(bytes(bytearray([cmd, delta_y, delta_x])))
         elif data == TRIM:
             cmd |= 0x07
-            f.write(bytes(bytearray([cmd, delta_y, delta_x])))
-        elif data == FAST:
-            cmd |= 0x02
-            f.write(bytes(bytearray([cmd, delta_y, delta_x])))
-        elif data == SLOW:
-            cmd |= 0x04
             f.write(bytes(bytearray([cmd, delta_y, delta_x])))
         elif data == COLOR_CHANGE:
             needle %= 7
