@@ -94,6 +94,7 @@ def write_version_1(pattern, f):
 
 
 def write_version_6(pattern, f):
+    pattern.fix_color_count()
     chart = pattern.threadlist
     write_string_utf8(f, PES_VERSION_6_SIGNATURE)
 

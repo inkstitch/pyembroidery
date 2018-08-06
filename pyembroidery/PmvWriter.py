@@ -1,7 +1,7 @@
 from .EmbConstant import *
 from .WriteHelper import write_string_utf8, write_int_8, write_int_16le
 
-MAX_STITCH_DISTANCE = 64
+MAX_STITCH_DISTANCE = 70
 MAX_PERMITTED_STITCHES = 100
 
 
