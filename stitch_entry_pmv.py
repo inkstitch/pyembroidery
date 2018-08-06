@@ -33,12 +33,12 @@ while True:
             break
         int_needle -= 7
         int_needle *= 2
-        pattern.stitch_abs(int_fabric, int_needle)
+        pattern.stitch_abs(int_fabric * 2.5, int_needle * 2.5)
         if triple:
             try:
                 previous = pattern.stitches[-2]
                 pattern.stitch_abs(previous[0], previous[1])
-                pattern.stitch_abs(int_fabric, int_needle)
+                pattern.stitch_abs(int_fabric * 2.5, int_needle * 2.5)
             except IndexError:
                 pass
 
