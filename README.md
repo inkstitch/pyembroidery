@@ -439,3 +439,7 @@ Thanks to,
 * Purple-bobby
 * Jason Weiler
 * And the countless other people who put forward good works in figuring out these formats, and those who may yet do so. 
+
+---
+
+This software is in no way derived from or based on Jackson Yee's abandoned 2015 "pyembroidery" project. The name was simply taken from libEmbroidery and written in python and thus a portmanteau of those. I was unaware of the project until after the all the principle work on this project was complete. I apologize for any confusion this may cause.
