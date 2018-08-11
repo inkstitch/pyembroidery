@@ -38,19 +38,19 @@ def write(pattern, f, settings=None):
     deltas = settings is not None and "deltas" in settings
     displacement = settings is not None and "displacement" in settings
 
-    extends = pattern.extends()
-    width = extends[2] - extends[0]
-    height = extends[3] - extends[1]
+    extents = pattern.extents()
+    width = extents[2] - extents[0]
+    height = extents[3] - extents[1]
 
     csv(f, ('#', '[VAR_NAME]', '[VAR_VALUE]'))
     count_stitches = pattern.count_stitches()
     csv(f, ('>', 'STITCH_COUNT:', str(count_stitches)))
     count_threads = pattern.count_color_changes()
     csv(f, ('>', 'THREAD_COUNT:', str(count_threads)))
-    csv(f, ('>', 'EXTENTS_LEFT:', str(extends[0])))
-    csv(f, ('>', 'EXTENTS_TOP:', str(extends[1])))
-    csv(f, ('>', 'EXTENTS_RIGHT:', str(extends[2])))
-    csv(f, ('>', 'EXTENTS_BOTTOM:', str(extends[3])))
+    csv(f, ('>', 'EXTENTS_LEFT:', str(extents[0])))
+    csv(f, ('>', 'EXTENTS_TOP:', str(extents[1])))
+    csv(f, ('>', 'EXTENTS_RIGHT:', str(extents[2])))
+    csv(f, ('>', 'EXTENTS_BOTTOM:', str(extents[3])))
     csv(f, ('>', 'EXTENTS_WIDTH:', str(width)))
     csv(f, ('>', 'EXTENTS_HEIGHT:', str(height)))
 

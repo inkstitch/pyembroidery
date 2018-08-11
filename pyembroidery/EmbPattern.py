@@ -107,7 +107,7 @@ class EmbPattern:
     def get_metadata(self, name, default=None):
         return self.extras.get(name, default)
 
-    def extends(self):
+    def extents(self):
         min_x = float('inf')
         min_y = float('inf')
         max_x = -float('inf')
@@ -123,6 +123,9 @@ class EmbPattern:
             if stitch[1] < min_y:
                 min_y = stitch[1]
         return min_x, min_y, max_x, max_y
+
+    # legacy compatibility for typo
+    extends = extents
 
     def count_stitch_commands(self, command):
         count = 0
@@ -211,9 +214,9 @@ class EmbPattern:
         return singleton
 
     def move_center_to_origin(self):
-        extends = self.extends()
-        cx = round((extends[2] - extends[0]) / 2.0)
-        cy = round((extends[3] - extends[1]) / 2.0)
+        extents = self.extents()
+        cx = round((extents[2] - extents[0]) / 2.0)
+        cy = round((extents[3] - extents[1]) / 2.0)
         self.translate(-cx, -cy)
 
     def translate(self, dx, dy):

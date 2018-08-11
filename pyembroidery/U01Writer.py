@@ -15,11 +15,11 @@ def write(pattern, f, settings=None):
         f.write(b'0')
     if stitch_count == 0:
         return
-    extends = pattern.extends()
-    write_int_16le(f, int(extends[0]))
-    write_int_16le(f, -int(extends[3]))
-    write_int_16le(f, int(extends[2]))
-    write_int_16le(f, -int(extends[1]))
+    extents = pattern.extents()
+    write_int_16le(f, int(extents[0]))
+    write_int_16le(f, -int(extents[3]))
+    write_int_16le(f, int(extents[2]))
+    write_int_16le(f, -int(extents[1]))
     write_int_32le(f, 0)  # Dunno.
 
     write_int_32le(f, stitch_count + 1)  # force write first needle position

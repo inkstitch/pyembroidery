@@ -76,11 +76,11 @@ def write_file(pattern, f):
 
     count_colorblocks_total = len(colorblocks)
 
-    extends = pattern.extends()
-    write_int_32be(f, int(extends[2] * 100))  # right
-    write_int_32be(f, int(extends[1] * -100))  # -top
-    write_int_32be(f, int(extends[0] * 100))  # left
-    write_int_32be(f, int(extends[3] * -100))  # -bottom
+    extents = pattern.extents()
+    write_int_32be(f, int(extents[2] * 100))  # right
+    write_int_32be(f, int(extents[1] * -100))  # -top
+    write_int_32be(f, int(extents[0] * 100))  # left
+    write_int_32be(f, int(extents[3] * -100))  # -bottom
 
     # EmbroiderModder Comment:
     # "this would be some(unknown) function of thread length"
@@ -98,23 +98,23 @@ def write_file(pattern, f):
     count_designs = 1
     write_int_8(f, count_designs)  # Number of designs.
     for i in range(0, count_designs):
-        write_design_block(f, extends, colorblocks)
+        write_design_block(f, extents, colorblocks)
     vp3_patch_byte_offset(f, placeholder_distance_end_of_file_block_020)
 
 
-def write_design_block(f, extends, colorblocks):
+def write_design_block(f, extents, colorblocks):
     f.write(b'\x00\x03\x00')
     placeholder_distance_end_of_design_block_030 = f.tell()
     write_int_32be(f, 0)
 
     count_colorblocks_total = len(colorblocks)
 
-    width = extends[2] - extends[0]
-    height = extends[3] - extends[1]
+    width = extents[2] - extents[0]
+    height = extents[3] - extents[1]
     half_width = width / 2
     half_height = height / 2
-    center_x = extends[2] - half_width
-    center_y = extends[3] - half_height
+    center_x = extents[2] - half_width
+    center_y = extents[3] - half_height
 
     write_int_32be(f, int(center_x) * 100)  # initial x
     write_int_32be(f, int(center_y) * -100)  # initial y
@@ -122,7 +122,7 @@ def write_design_block(f, extends, colorblocks):
     write_int_8(f, 0)
     write_int_8(f, 0)
 
-    # extends 2
+    # extents 2
     write_int_32be(f, int(half_width) * -100)
     write_int_32be(f, int(half_width) * 100)
     write_int_32be(f, int(half_height) * -100)

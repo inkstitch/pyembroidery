@@ -26,11 +26,11 @@ def write_pec(pattern, f, threadlist=None):
     if threadlist is None:
         pattern.fix_color_count()
         threadlist = pattern.threadlist
-    extends = pattern.extends()
+    extents = pattern.extents()
 
     write_pec_header(pattern, f, threadlist)
-    write_pec_block(pattern, f, extends)
-    write_pec_graphics(pattern, f, extends)
+    write_pec_block(pattern, f, extents)
+    write_pec_graphics(pattern, f, extents)
 
 
 def write_pec_header(pattern, f, threadlist):
@@ -69,9 +69,9 @@ def write_pec_header(pattern, f, threadlist):
         f.write(b'\x20')  # 520
 
 
-def write_pec_block(pattern, f, extends):
-    width = extends[2] - extends[0]
-    height = extends[3] - extends[1]
+def write_pec_block(pattern, f, extents):
+    width = extents[2] - extents[0]
+    height = extents[3] - extents[1]
 
     stitch_block_start_position = f.tell()
     f.write(b'\x00\x00')
@@ -82,8 +82,8 @@ def write_pec_block(pattern, f, extends):
     write_int_16le(f, 0x1E0)
     write_int_16le(f, 0x1B0)
 
-    write_int_16be(f, 0x9000 | -int(round(extends[0])))
-    write_int_16be(f, 0x9000 | -int(round(extends[1])))
+    write_int_16be(f, 0x9000 | -int(round(extents[0])))
+    write_int_16be(f, 0x9000 | -int(round(extents[1])))
 
     pec_encode(pattern, f)
 
@@ -95,17 +95,17 @@ def write_pec_block(pattern, f, extends):
     f.seek(current_position, 0)
 
 
-def write_pec_graphics(pattern, f, extends):
+def write_pec_graphics(pattern, f, extents):
     blank = get_blank()
     for block in pattern.get_as_stitchblock():
         stitches = block[0]
-        draw_scaled(extends, stitches, blank, 6, 4)
+        draw_scaled(extents, stitches, blank, 6, 4)
     f.write(bytes(bytearray(blank)))
 
     for block in pattern.get_as_colorblocks():
         stitches = [s for s in block[0] if s[2] == STITCH]
         blank = get_blank()  # [ 0 ] * 6 * 38
-        draw_scaled(extends, stitches, blank, 6)
+        draw_scaled(extents, stitches, blank, 6)
         f.write(bytes(bytearray(blank)))
 
 

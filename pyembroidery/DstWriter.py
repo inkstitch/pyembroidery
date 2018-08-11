@@ -103,9 +103,9 @@ def write(pattern, f, settings=None):
     if settings is not None:
         extended_header = settings.get("extended header", extended_header)
 
-    extends = pattern.extends()
-    width = extends[2] - extends[0]
-    height = extends[3] - extends[1]
+    extents = pattern.extents()
+    width = extents[2] - extents[0]
+    height = extents[3] - extents[1]
 
     name = pattern.get_metadata("name", "Untitled")
 

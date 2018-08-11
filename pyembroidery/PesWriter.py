@@ -63,14 +63,14 @@ def write_version_1(pattern, f):
     chart = get_thread_set()
     write_string_utf8(f, PES_VERSION_1_SIGNATURE)
 
-    extends = pattern.extends()
-    cx = (extends[2] + extends[0]) / 2.0
-    cy = (extends[3] + extends[1]) / 2.0
+    extents = pattern.extents()
+    cx = (extents[2] + extents[0]) / 2.0
+    cy = (extents[3] + extents[1]) / 2.0
 
-    left = extends[0] - cx
-    top = extends[1] - cy
-    right = extends[2] - cx
-    bottom = extends[3] - cy
+    left = extents[0] - cx
+    top = extents[1] - cy
+    right = extents[2] - cx
+    bottom = extents[3] - cy
 
     placeholder_pec_block = f.tell()
     write_int_32le(f, 0)  # Placeholder for PEC BLOCK
@@ -98,14 +98,14 @@ def write_version_6(pattern, f):
     chart = pattern.threadlist
     write_string_utf8(f, PES_VERSION_6_SIGNATURE)
 
-    extends = pattern.extends()
-    cx = (extends[2] + extends[0]) / 2.0
-    cy = (extends[3] + extends[1]) / 2.0
+    extents = pattern.extents()
+    cx = (extents[2] + extents[0]) / 2.0
+    cy = (extents[3] + extents[1]) / 2.0
 
-    left = extends[0] - cx
-    top = extends[1] - cy
-    right = extends[2] - cx
-    bottom = extends[3] - cy
+    left = extents[0] - cx
+    top = extents[1] - cy
+    right = extents[2] - cx
+    bottom = extents[3] - cy
 
     placeholder_pec_block = f.tell()
     write_int_32le(f, 0)  # Placeholder for PEC BLOCK

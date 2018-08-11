@@ -36,14 +36,14 @@ def write(pattern, f, settings=None):
     root.set(ATTR_XMLNS, VALUE_XMLNS)
     root.set(ATTR_XMLNS_LINK, VALUE_XLINK)
     root.set(ATTR_XMLNS_EV, VALUE_XMLNS_EV)
-    extends = pattern.extends()
-    width = extends[2] - extends[0]
-    height = extends[3] - extends[1]
+    extents = pattern.extents()
+    width = extents[2] - extents[0]
+    height = extents[3] - extents[1]
     root.set(ATTR_WIDTH, str(width))
     root.set(ATTR_HEIGHT, str(height))
     viewbox = \
-        str(extends[0]) + " " +\
-        str(extends[1]) + " " +\
+        str(extents[0]) + " " +\
+        str(extents[1]) + " " +\
         str(width) + " " +\
         str(height)
     root.set(ATTR_VIEWBOX, viewbox)

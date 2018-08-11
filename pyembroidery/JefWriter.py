@@ -40,9 +40,9 @@ def write(pattern, f, settings=None):
         elif data == END:
             break
     write_int_32le(f, point_count)
-    extends = pattern.extends()
-    design_width = int(round(extends[2] - extends[0]))
-    design_height = int(round(extends[3] - extends[1]))
+    extents = pattern.extents()
+    design_width = int(round(extents[2] - extents[0]))
+    design_height = int(round(extents[3] - extents[1]))
     write_int_32le(f, get_jef_hoop_size(design_width, design_height))
     half_width = int(round(design_width / 2))
     half_height = int(round(design_height / 2))

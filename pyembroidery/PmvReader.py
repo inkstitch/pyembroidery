@@ -1,7 +1,7 @@
 from .ReadHelper import read_int_8, read_int_16le
 
 
-def find_extends(stitches):
+def find_extents(stitches):
     min_x = float('inf')
     min_y = float('inf')
     max_x = -float('inf')
@@ -77,7 +77,7 @@ def read_pmv_stitches(f, out, settings=None):
     # if none_bytes is None:
     #     pass
     #
-    # extends = find_extends(stitches)
+    # extents = find_extents(stitches)
     # print(f)
     # print("Stitches: Total ", len(stitches), " : ", stitches)
     # print("Unknown0:", dunno0)
@@ -85,11 +85,11 @@ def read_pmv_stitches(f, out, settings=None):
     # print("Length Position:", length_steps)
     # print("Length Lookup: ", len(steps), " : ", steps)
     # print("Length value:", steps[length_steps])
-    # length_max = extends[2] - extends[0]
-    # width_max = extends[3] - extends[1]
+    # length_max = extents[2] - extents[0]
+    # width_max = extents[3] - extents[1]
     # print("Max Length:", length_max)
-    # print("Max dx+:", extends[2])
-    # print("Max dx-:", extends[0])
+    # print("Max dx+:", extents[2])
+    # print("Max dx-:", extents[0])
     # print("Width Position:", width_units)
     # print("Width Lookup:", len(steps2), " : ", steps2)
     # print("Width value:", steps2[width_units])

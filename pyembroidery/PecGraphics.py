@@ -68,20 +68,20 @@ def draw(points, graphic, stride=6):
             pass
 
 
-def draw_scaled(extends, points, graphic, stride, buffer=5):
-    if extends is None:
+def draw_scaled(extents, points, graphic, stride, buffer=5):
+    if extents is None:
         draw(points, graphic, stride)
         return
     try:
-        left = extends.left
-        top = extends.top
-        right = extends.right
-        bottom = extends.bottom
+        left = extents.left
+        top = extents.top
+        right = extents.right
+        bottom = extents.bottom
     except AttributeError:
-        left = extends[0]
-        top = extends[1]
-        right = extends[2]
-        bottom = extends[3]
+        left = extents[0]
+        top = extents[1]
+        right = extents[2]
+        bottom = extents[3]
 
     diagram_width = right - left
     diagram_height = bottom - top
