@@ -71,6 +71,7 @@ def supported_formats():
         "category": "embroidery",
         "reader": PecReader,
         "writer": PecWriter,
+        "status": "stable",
         "metadata": ("name")
     })
     yield ({
@@ -80,6 +81,7 @@ def supported_formats():
         "category": "embroidery",
         "reader": PesReader,
         "writer": PesWriter,
+        "status": "stable",
         "options": {
             "pes version": (1, 6),
             "truncated": (True, False)
@@ -91,6 +93,7 @@ def supported_formats():
         "extension": "exp",
         "mimetype": "application/x-exp",
         "category": "embroidery",
+        "status": "stable",
         "reader": ExpReader,
         "writer": ExpWriter,
     })
@@ -101,6 +104,7 @@ def supported_formats():
         "category": "embroidery",
         "reader": DstReader,
         "writer": DstWriter,
+        "status": "stable",
         "options": {
             "extended headers": (True, False)
         },
@@ -111,6 +115,7 @@ def supported_formats():
         "extension": "jef",
         "mimetype": "application/x-jef",
         "category": "embroidery",
+        "status": "stable",
         "reader": JefReader,
         "writer": JefWriter,
     })
@@ -119,6 +124,7 @@ def supported_formats():
         "extension": "vp3",
         "mimetype": "application/x-vp3",
         "category": "embroidery",
+        "status": "stable",
         "reader": Vp3Reader,
         "writer": Vp3Writer,
     })
@@ -126,6 +132,7 @@ def supported_formats():
         "description": "Scalable Vector Graphics",
         "extension": "svg",
         "mimetype": "image/svg+xml",
+        "status": "stable",
         "category": "vector",
         "writer": SvgWriter,
     })
@@ -136,6 +143,7 @@ def supported_formats():
         "category": "debug",
         "reader": CsvReader,
         "writer": CsvWriter,
+        "status": "stable",
         "options": {
             "deltas": (True, False)
         },
@@ -145,6 +153,7 @@ def supported_formats():
         "extension": "xxx",
         "mimetype": "application/x-xxx",
         "category": "embroidery",
+        "status": "stable",
         "reader": XxxReader
     })
     yield ({
@@ -152,6 +161,7 @@ def supported_formats():
         "extension": "sew",
         "mimetype": "application/x-sew",
         "category": "embroidery",
+        "status": "stable",
         "reader": SewReader
     })
     yield ({
@@ -159,6 +169,7 @@ def supported_formats():
         "extension": "u01",
         "mimetype": "application/x-u01",
         "category": "embroidery",
+        "status": "stable",
         "reader": U01Reader,
         "writer": U01Writer
     })
@@ -167,6 +178,7 @@ def supported_formats():
         "extension": "shv",
         "mimetype": "application/x-shv",
         "category": "embroidery",
+        "status": "stable",
         "reader": ShvReader
     })
     yield ({
@@ -174,6 +186,7 @@ def supported_formats():
         "extension": "10o",
         "mimetype": "application/x-10o",
         "category": "embroidery",
+        "status": "stable",
         "reader": A10oReader
     })
     yield ({
@@ -181,6 +194,7 @@ def supported_formats():
         "extension": "100",
         "mimetype": "application/x-100",
         "category": "embroidery",
+        "status": "stable",
         "reader": A100Reader
     })
     yield ({
@@ -188,6 +202,7 @@ def supported_formats():
         "extension": "bro",
         "mimetype": "application/x-Bro",
         "category": "embroidery",
+        "status": "stable",
         "reader": BroReader
     })
     yield ({
@@ -195,6 +210,7 @@ def supported_formats():
         "extension": "dat",
         "mimetype": "application/x-dat",
         "category": "embroidery",
+        "status": "stable",
         "reader": DatReader
     })
     yield ({
@@ -202,6 +218,7 @@ def supported_formats():
         "extension": "dsb",
         "mimetype": "application/x-dsb",
         "category": "embroidery",
+        "status": "stable",
         "reader": DsbReader
     })
     yield ({
@@ -209,6 +226,7 @@ def supported_formats():
         "extension": "dsz",
         "mimetype": "application/x-dsz",
         "category": "embroidery",
+        "status": "stable",
         "reader": DszReader
     })
     yield ({
@@ -216,6 +234,7 @@ def supported_formats():
         "extension": "emd",
         "mimetype": "application/x-emd",
         "category": "embroidery",
+        "status": "stable",
         "reader": EmdReader
     })
     yield ({
@@ -223,6 +242,7 @@ def supported_formats():
         "extension": "exy",  # e??, e01
         "mimetype": "application/x-exy",
         "category": "embroidery",
+        "status": "stable",
         "reader": ExyReader
     })
     yield ({
@@ -230,6 +250,7 @@ def supported_formats():
         "extension": "fxy",  # f??, f01
         "mimetype": "application/x-fxy",
         "category": "embroidery",
+        "status": "stable",
         "reader": FxyReader
     })
     yield ({
@@ -237,6 +258,7 @@ def supported_formats():
         "extension": "gt",
         "mimetype": "application/x-exy",
         "category": "embroidery",
+        "status": "stable",
         "reader": GtReader
     })
     yield ({
@@ -244,6 +266,7 @@ def supported_formats():
         "extension": "inb",
         "mimetype": "application/x-inb",
         "category": "embroidery",
+        "status": "stable",
         "reader": InbReader
     })
     yield ({
@@ -251,6 +274,7 @@ def supported_formats():
         "extension": "tbf",
         "mimetype": "application/x-tbf",
         "category": "embroidery",
+        "status": "stable",
         "reader": TbfReader
     })
     yield ({
@@ -258,6 +282,7 @@ def supported_formats():
         "extension": "ksm",
         "mimetype": "application/x-ksm",
         "category": "embroidery",
+        "status": "stable",
         "reader": KsmReader
     })
     yield ({
@@ -265,6 +290,7 @@ def supported_formats():
         "extension": "tap",
         "mimetype": "application/x-tap",
         "category": "embroidery",
+        "status": "stable",
         "reader": TapReader
     })
     yield ({
@@ -272,6 +298,7 @@ def supported_formats():
         "extension": "stx",
         "mimetype": "application/x-stx",
         "category": "embroidery",
+        "status": "stable",
         "reader": StxReader
     })
     yield ({
@@ -279,6 +306,7 @@ def supported_formats():
         "extension": "phb",
         "mimetype": "application/x-phb",
         "category": "embroidery",
+        "status": "alpha",
         "reader": PhbReader
     })
     yield ({
@@ -286,6 +314,7 @@ def supported_formats():
         "extension": "phc",
         "mimetype": "application/x-phc",
         "category": "embroidery",
+        "status": "alpha",
         "reader": PhcReader
     })
     yield ({
@@ -293,6 +322,7 @@ def supported_formats():
         "extension": "new",
         "mimetype": "application/x-new",
         "category": "embroidery",
+        "status": "stable",
         "reader": NewReader
     })
     yield ({
@@ -300,6 +330,7 @@ def supported_formats():
         "extension": "max",
         "mimetype": "application/x-max",
         "category": "embroidery",
+        "status": "stable",
         "reader": MaxReader
     })
     yield ({
@@ -307,6 +338,7 @@ def supported_formats():
         "extension": "mit",
         "mimetype": "application/x-mit",
         "category": "embroidery",
+        "status": "alpha",
         "reader": MitReader
     })
     yield ({
@@ -314,6 +346,7 @@ def supported_formats():
         "extension": "pcd",
         "mimetype": "application/x-pcd",
         "category": "embroidery",
+        "status": "stable",
         "reader": PcdReader
     })
     yield ({
@@ -321,6 +354,7 @@ def supported_formats():
         "extension": "pcq",
         "mimetype": "application/x-pcq",
         "category": "embroidery",
+        "status": "stable",
         "reader": PcqReader
     })
     yield ({
@@ -328,6 +362,7 @@ def supported_formats():
         "extension": "pcm",
         "mimetype": "application/x-pcm",
         "category": "embroidery",
+        "status": "stable",
         "reader": PcmReader
     })
     yield ({
@@ -335,6 +370,7 @@ def supported_formats():
         "extension": "pcs",
         "mimetype": "application/x-pcs",
         "category": "embroidery",
+        "status": "stable",
         "reader": PcsReader
     })
     yield ({
@@ -342,6 +378,7 @@ def supported_formats():
         "extension": "jpx",
         "mimetype": "application/x-jpx",
         "category": "embroidery",
+        "status": "stable",
         "reader": JpxReader
     })
     yield ({
@@ -349,6 +386,7 @@ def supported_formats():
         "extension": "stc",
         "mimetype": "application/x-stc",
         "category": "embroidery",
+        "status": "stable",
         "reader": StcReader
     })
     # yield ({
@@ -363,6 +401,7 @@ def supported_formats():
         "extension": "zxy",
         "mimetype": "application/x-zxy",
         "category": "embroidery",
+        "status": "stable",
         "reader": ZxyReader
     })
     yield ({
@@ -370,6 +409,7 @@ def supported_formats():
         "extension": "pmv",
         "mimetype": "application/x-pmv",
         "category": "stitch",
+        "status": "stable",
         "reader": PmvReader,
         "writer": PmvWriter
     })
