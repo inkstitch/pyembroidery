@@ -52,4 +52,5 @@ def write(pattern, f, settings=None):
             write_string_utf8(f, "G0 Z%.1f\r\n" % z)
 
     write_string_utf8(f, "\r\n")
+    write_string_utf8(f, "G0 X0.0 Y0.0\r\n")
     write_string_utf8(f, "M30\r\n")
