@@ -416,7 +416,7 @@ def supported_formats():
     })
     yield ({
         "description": "G-code Format",
-        "extension": "gcode",
+        "extension": "txt",
         "mimetype": "text/g-code",
         "category": "embroidery",
         "writer": GcodeWriter,
