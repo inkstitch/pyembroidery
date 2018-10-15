@@ -12,8 +12,8 @@ def write(pattern, f, settings=None):
     if settings is not None:
         settings = {}
 
-    flip_x = settings.get('flip_x', False)
-    flip_y = settings.get('flip_y', False)
+    flip_x = settings.get('flip_x', True)
+    flip_y = settings.get('flip_y', True)
     stitch_z_travel = settings.get('stitch_z_travel', 5)
 
     # pyembroidery natively uses tenths of a millimeter
