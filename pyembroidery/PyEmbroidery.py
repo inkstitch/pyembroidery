@@ -10,6 +10,7 @@ import pyembroidery.JefWriter as JefWriter
 import pyembroidery.SvgWriter as SvgWriter
 import pyembroidery.CsvWriter as CsvWriter
 import pyembroidery.U01Writer as U01Writer
+import pyembroidery.GcodeWriter as GcodeWriter
 
 import pyembroidery.DstReader as DstReader
 import pyembroidery.PecReader as PecReader
@@ -412,6 +413,19 @@ def supported_formats():
         "status": "stable",
         "reader": PmvReader,
         "writer": PmvWriter
+    })
+    yield ({
+        "description": "G-code Format",
+        "extension": "gcode",
+        "mimetype": "text/g-code",
+        "category": "embroidery",
+        "writer": GcodeWriter,
+        "status": "stable",
+        "options": {
+            "flip_x": (True, False),
+            "flip_y": (True, False),
+            "stitch_z_travel": (int),
+        },
     })
 
 
