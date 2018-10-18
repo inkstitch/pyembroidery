@@ -9,7 +9,7 @@ MAX_STITCH_DISTANCE = float('inf')
 
 
 def write(pattern, f, settings=None):
-    if settings is not None:
+    if settings is None:
         settings = {}
 
     flip_x = settings.get('flip_x', True)
