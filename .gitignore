@@ -1,2 +1,4 @@
 *.pyc
 pyembroidery.egg-info/
+.project
+.pydevproject
