@@ -21,10 +21,7 @@ def read_jef_stitches(f, out):
         x = signed8(b[0])
         y = -signed8(b[1])
         if ctrl == 0x02:
-            if x == 0 and y == 0:
-                out.trim()
-            else:
-                out.move(x, y)
+            out.move(x, y)
             continue
         if ctrl == 0x01:
             out.color_change(0, 0)

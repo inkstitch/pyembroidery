@@ -41,7 +41,7 @@ def write(pattern, f, settings=None):
             point_count += 2
         elif data == TRIM:
             if trims:
-                point_count += 2
+                point_count += 6
         elif data == COLOR_CHANGE:
             point_count += 2
         elif data == END:
@@ -108,7 +108,8 @@ def write(pattern, f, settings=None):
             continue
         elif data == TRIM:
             if trims:
-                f.write(b'\x80\x02\x00\x00')
+                # three jumps equal a trim
+                f.write(b'\x80\x02\x00\x00' * 3)
             continue
         elif data == JUMP:
             f.write(b'\x80\x02')
