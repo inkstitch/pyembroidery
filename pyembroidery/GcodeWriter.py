@@ -39,8 +39,6 @@ def write(pattern, f, settings=None):
 
     init(f, laser_mode, max_spindle_speed, min_spindle_speed, spindle_speed, feed_rate)
 
-    write_string_utf8(f, "G0 X0.0 Y0.0\r\n")
-
     z = 0
     stitching = False
     for x, y, command in pattern.stitches:
@@ -94,6 +92,8 @@ def init(f, laser_mode, max_spindle_speed, min_spindle_speed, spindle_speed, fee
     if laser_mode:
         write_string_utf8(f, "$32=1 (enable grbl laser mode)\r\n")
         write_string_utf8(f, "M4 (use dynamic laser power)\r\n")
+
+    write_string_utf8(f, "G0 X0.0 Y0.0\r\n")
 
     if spindle_speed > 0 and feed_rate > 0:
         write_string_utf8(f, "G1 X0 Y0 S%d F%d\r\n" % (spindle_speed, feed_rate))
