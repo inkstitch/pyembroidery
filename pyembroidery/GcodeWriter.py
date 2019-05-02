@@ -15,6 +15,8 @@ def write(pattern, f, settings=None):
         settings = {}
 
     laser_mode = settings.get('laser_mode', False)
+    dynamic_laser_power = settings.get('dynamic_laser_power', True)
+    laser_warm_up_time = settings.get('laser_warm_up_time', 0)
     flip_x = settings.get('flip_x', True)
     flip_y = settings.get('flip_y', True)
     stitch_z_travel = settings.get('stitch_z_travel', 5)
@@ -37,7 +39,7 @@ def write(pattern, f, settings=None):
     write_string_utf8(f, '(EXTENTS_HEIGHT:%.3f)\r\n' % height)
     write_string_utf8(f, "\r\n")
 
-    init(f, laser_mode, max_spindle_speed, min_spindle_speed, spindle_speed, feed_rate)
+    init(f, laser_mode, dynamic_laser_power, max_spindle_speed, min_spindle_speed, spindle_speed, feed_rate)
 
     z = 0
     stitching = False
@@ -56,7 +58,7 @@ def write(pattern, f, settings=None):
             if stitching and spindle_speed >= 0 and feed_rate >= 0:
                 command = "G1"
             else:
-                # If we're in laser mode, G0 automatically turns off the laser for the move.
+                # G0 automatically turns off the laser for the move.
                 command = "G0"
 
             write_string_utf8(f, "%s X%.3f Y%.3f\r\n" % (command, x, y))
@@ -70,6 +72,10 @@ def write(pattern, f, settings=None):
                 z += stitch_z_travel
                 write_string_utf8(f, "G0 Z%.1f\r\n" % z)
 
+            # If we're about to cut, wait and let the laser warm up.
+            if not stitching and laser_mode and laser_warm_up_time > 0:
+                write_string_utf8(f, "G4 %.2f (wait for laser to warm up)\r\n" % laser_warm_up_time)
+
             stitching = True
         else:
             stitching = False
@@ -79,7 +85,7 @@ def write(pattern, f, settings=None):
     write_string_utf8(f, "M30\r\n")
 
 
-def init(f, laser_mode, max_spindle_speed, min_spindle_speed, spindle_speed, feed_rate):
+def init(f, laser_mode, dynamic_laser_power, max_spindle_speed, min_spindle_speed, spindle_speed, feed_rate):
     write_string_utf8(f, "G90 (use absolute coordinates)\r\n")
     write_string_utf8(f, "G21 (coordinates will be specified in millimeters)\r\n")
 
@@ -91,7 +97,11 @@ def init(f, laser_mode, max_spindle_speed, min_spindle_speed, spindle_speed, fee
 
     if laser_mode:
         write_string_utf8(f, "$32=1 (enable grbl laser mode)\r\n")
-        write_string_utf8(f, "M4 (use dynamic laser power)\r\n")
+
+        if dynamic_laser_power:
+            write_string_utf8(f, "M4 (use dynamic laser power)\r\n")
+        else:
+            write_string_utf8(f, "M3 (use constant laser power)\r\n")
 
     write_string_utf8(f, "G0 X0.0 Y0.0\r\n")
 
