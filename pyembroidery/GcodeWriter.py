@@ -63,7 +63,7 @@ def write(pattern, f, settings=None):
 
             write_string_utf8(f, "%s X%.3f Y%.3f\r\n" % (command, x, y))
 
-            if stitch_z_travel > 0:
+            if stitch_z_travel > 0.0001:
                 # For DIY embroidery machines, stitching is modeled as continuous
                 # travel on the Z axis.  The Z motor is hooked up to the hand wheel
                 # of the sewing machine.  For each stitch, we "move" in the Z
@@ -74,7 +74,7 @@ def write(pattern, f, settings=None):
 
             # If we're about to cut, wait and let the laser warm up.
             if not stitching and laser_mode and laser_warm_up_time > 0:
-                write_string_utf8(f, "G4 %.2f (wait for laser to warm up)\r\n" % laser_warm_up_time)
+                write_string_utf8(f, "G1 G4 P%.2f (wait for laser to warm up)\r\n" % laser_warm_up_time)
 
             stitching = True
         else:
