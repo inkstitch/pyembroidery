@@ -1,4 +1,5 @@
 from math import floor
+from .StringHelper import is_string
 
 blank = [
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -149,7 +150,7 @@ def get_graphic_as_string(graphic, one="#", zero=" "):
         stride = graphic[1]
         graphic = graphic[0]
 
-    if isinstance(graphic, str):
+    if is_string(graphic):
         graphic = bytearray(graphic)
 
     list_string = [

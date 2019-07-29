@@ -3,6 +3,7 @@ import random
 from .EmbThread import EmbThread
 from .EmbEncoder import Transcoder as Normalizer
 from .EmbConstant import *
+from .StringHelper import is_string
 
 
 class EmbPattern:
@@ -82,7 +83,7 @@ class EmbPattern:
                     color = thread["rgb"]
                 if isinstance(color, int):
                     thread_object.color = color
-                elif isinstance(color, str):
+                elif is_string(color):
                     if color == "random":
                         thread_object.color = 0xFF000000 | random.randint(0, 0xFFFFFF)
                     if color[0:1] == "#":

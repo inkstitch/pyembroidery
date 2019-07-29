@@ -54,6 +54,8 @@ import pyembroidery.PmvReader as PmvReader
 import pyembroidery.PmvWriter as PmvWriter
 import pyembroidery.CsvReader as CsvReader
 
+from pyembroidery.StringHelper import is_string
+
 
 def supported_formats():
     """Generates dictionary entries for supported formats. Each entry will
@@ -451,7 +453,7 @@ def read_embroidery(reader, f, settings=None, pattern=None):
     """Reads fileobject or filename with reader."""
     if pattern is None:
         pattern = EmbPattern()
-    if isinstance(f, str):
+    if is_string(f):
         text_mode = False
         try:
             text_mode = reader.READ_FILE_IN_TEXT_MODE
@@ -551,11 +553,10 @@ def write_embroidery(writer, pattern, stream, settings=None):
                 pass
         pattern = pattern.get_normalized_pattern(settings)
 
-    if isinstance(stream, basestring):
-        with open(stream, "wb") as stream:
-            writer.write(pattern, stream, settings)
-    else:
-        writer.write(pattern, stream, settings)
+    if is_string(stream):
+        stream = open(stream, "wb")
+
+    writer.write(pattern, stream, settings)
 
 
 def write_dst(pattern, stream, settings=None):
