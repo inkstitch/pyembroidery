@@ -45,3 +45,4 @@ def read(f, out, settings=None):
 
     f.seek(stitch_offset, 0)
     read_jef_stitches(f, out)
+    out.convert_jumps_to_trim()

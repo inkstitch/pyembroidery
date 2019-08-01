@@ -1,8 +1,8 @@
 import random
 
-from .EmbThread import EmbThread
-from .EmbEncoder import Transcoder as Normalizer
 from .EmbConstant import *
+from .EmbEncoder import Transcoder as Normalizer
+from .EmbThread import EmbThread
 from .StringHelper import is_string
 
 
@@ -273,12 +273,11 @@ class EmbPattern:
             except AttributeError:
                 self.add_stitch_absolute(stitch[2], stitch[0], stitch[1])
 
-    def get_pattern_interpolate_trim(self, jumps_to_require_trim):
-        """Gets a processed pattern with untrimmed jumps merged
-        and trims added if merged jumps are beyond the given value.
-        The expectation is that it has core commands and not
-        middle-level commands"""
-        new_pattern = EmbPattern()
+    def convert_jumps_to_trim(self, jumps_to_require_trim=3):
+        """Merges all jumps and converts sequences of jumps greater than the
+        given value to a trim.  The expectation is that it has core commands
+        and not middle-level commands"""
+        temp_pattern = EmbPattern()
         i = -1
         ie = len(self.stitches) - 1
         count = 0
@@ -292,9 +291,9 @@ class EmbPattern:
             elif command == COLOR_CHANGE or command == TRIM:
                 trimmed = True
             if trimmed or stitch[2] != JUMP:
-                new_pattern.add_stitch_absolute(stitch[2],
-                                                stitch[0],
-                                                stitch[1])
+                temp_pattern.add_stitch_absolute(stitch[2],
+                                                 stitch[0],
+                                                 stitch[1])
                 continue
             while i < ie and command == JUMP:
                 i += 1
@@ -305,14 +304,12 @@ class EmbPattern:
                 i -= 1
             stitch = self.stitches[i]
             if count >= jumps_to_require_trim:
-                new_pattern.trim()
+                temp_pattern.trim()
             count = 0
-            new_pattern.add_stitch_absolute(stitch[2],
-                                            stitch[0],
-                                            stitch[1])
-        new_pattern.threadlist.extend(self.threadlist)
-        new_pattern.extras.update(self.extras)
-        return new_pattern
+            temp_pattern.add_stitch_absolute(stitch[2],
+                                             stitch[0],
+                                             stitch[1])
+        self.stitches[:] = temp_pattern.stitches
 
     def get_pattern_merge_jumps(self):
         """Returns a pattern with all multiple jumps merged."""
