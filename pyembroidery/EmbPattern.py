@@ -1,3 +1,4 @@
+from copy import deepcopy
 import random
 
 from .EmbConstant import *
@@ -14,6 +15,9 @@ class EmbPattern:
         # filename, name, category, author, keywords, comments, are typical
         self._previousX = 0  # type: float
         self._previousY = 0  # type: float
+
+    def copy(self):
+        return deepcopy(self)
 
     def move(self, dx=0, dy=0):
         """Move dx, dy"""
@@ -310,6 +314,48 @@ class EmbPattern:
                                              stitch[0],
                                              stitch[1])
         self.stitches[:] = temp_pattern.stitches
+
+    def convert_stop_to_color_change(self):
+        """Convert stops to a color change to the same color."""
+
+        new_pattern = EmbPattern()
+        new_pattern.add_thread(self.get_thread_or_filler(0))
+        thread_index = 1
+
+        for x, y, command in self.stitches:
+            if command in (COLOR_CHANGE, COLOR_BREAK):
+                new_pattern.add_thread(self.get_thread_or_filler(thread_index))
+                thread_index += 1
+            elif command == STOP:
+                new_pattern.color_change()
+                new_pattern.add_thread(self.get_thread_or_filler(thread_index))
+            else:
+                new_pattern.add_stitch_absolute(command, x, y)
+
+        self.stitches[:] = new_pattern.stitches
+        self.threadlist[:] = new_pattern.threadlist
+
+    def convert_duplicate_color_change_to_stop(self):
+        """Converts color change to same thread into a STOP."""
+
+        new_pattern = EmbPattern()
+        new_pattern.add_thread(self.get_thread_or_filler(0))
+
+        thread_index = 0
+        for x, y, command in self.stitches:
+            if command in (COLOR_CHANGE, COLOR_BREAK):
+                thread_index += 1
+                thread = self.get_thread_or_filler(thread_index)
+                if thread == new_pattern.threadlist[-1]:
+                    new_pattern.stop()
+                else:
+                    new_pattern.color_change()
+                    new_pattern.add_thread(thread)
+            else:
+                new_pattern.add_stitch_absolute(command, x, y)
+
+        self.stitches[:] = new_pattern.stitches
+        self.threadlist[:] = new_pattern.threadlist
 
     def get_pattern_merge_jumps(self):
         """Returns a pattern with all multiple jumps merged."""

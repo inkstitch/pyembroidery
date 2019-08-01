@@ -19,6 +19,8 @@ PEC_ICON_HEIGHT = 38
 
 def write(pattern, f, settings=None):
     f.write(bytes("#PEC0001".encode('utf8')))
+    pattern = pattern.copy()
+    pattern.convert_stop_to_color_change()
     write_pec(pattern, f)
 
 
