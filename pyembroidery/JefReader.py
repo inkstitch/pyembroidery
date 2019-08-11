@@ -21,7 +21,14 @@ def read_jef_stitches(f, out):
         x = signed8(b[0])
         y = -signed8(b[1])
         if ctrl == 0x02:
-            out.move(x, y)
+            if x == 0 and y == 0:
+                # My Janome MC400E only trims if there are three jumps in a
+                # row.  However, JEF files found in the wild seem to be written
+                # with the expectation that a single zero-length jump is a
+                # trim, so we read it as such.
+                out.trim(x, y)
+            else:
+                out.move(x, y)
             continue
         if ctrl == 0x01:
             out.color_change(0, 0)
