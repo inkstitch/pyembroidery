@@ -229,6 +229,7 @@ def write_stitches_block(f, stitches, first_pos_x, first_pos_y):
         flags = stitch[2]
         if flags == END:
             f.write(b'\x80\x03')
+            # TODO likely just like for input, we should not break on END, but should we add an END ourselves?
             break
         elif flags == COLOR_CHANGE:
             continue
