@@ -325,6 +325,7 @@ class EmbPattern:
         for x, y, command in self.stitches:
             if command in (COLOR_CHANGE, COLOR_BREAK):
                 new_pattern.add_thread(self.get_thread_or_filler(thread_index))
+                new_pattern.add_stitch_absolute(command, x, y)
                 thread_index += 1
             elif command == STOP:
                 new_pattern.color_change()
