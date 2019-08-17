@@ -54,6 +54,8 @@ def read(f, out, settings=None):
     skip_vp3_string(f)  # "Produced by     Software Ltd"
     count_colors = read_int_16be(f)
     for i in range(0, count_colors):
+        if i != 0:
+            out.color_change()
         vp3_read_colorblock(f, out, center_x, center_y)
 
 
@@ -94,8 +96,7 @@ def vp3_read_colorblock(f, read_object, center_x, center_y):
             elif y == 0x02:
                 pass  # ends long stitch mode.
             elif y == 0x03:
-                read_object.end(0, 0)
-                return
+                read_object.trim()
         else:
             read_object.stitch(x, y)
     read_object.trim()
