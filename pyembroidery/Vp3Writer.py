@@ -222,42 +222,70 @@ def write_stitches_block(f, stitches, first_pos_x, first_pos_y):
     f.write(b'\x0A\xF6\x00')
     last_x = first_pos_x
     last_y = first_pos_y
+    last_flag = None
 
     for stitch in stitches:
         x = stitch[0]
         y = stitch[1]
         flags = stitch[2]
         if flags == END:
-            f.write(b'\x80\x03')
+            f.write(b'\x80\x03')  # if END command, write END, all places in file
+            last_flag = END
             # TODO likely just like for input, we should not break on END, but should we add an END ourselves?
-            break
+            #  check for end of colorblock
+            continue
         elif flags == COLOR_CHANGE:
+            last_flag = COLOR_CHANGE
             continue
         elif flags == TRIM:
+            # dx, dy, last_x, last_y = track_distance_change(last_x, last_y, x, y)
+            # last_flag = output_one_stitch(dx, dy, f, last_flag)
+            if last_flag != TRIM:
+                f.write(b'\x80\x03')  # If Trim command, write TRIM
+                last_flag = TRIM
             continue
         elif flags == SEQUIN_MODE:
+            last_flag = SEQUIN_MODE
             continue
         elif flags == SEQUIN_EJECT:
+            last_flag = SEQUIN_EJECT
             continue
         elif flags == STOP:
             # Not sure what to do here.
             # f.write(b'\x80\x04')
+            last_flag = STOP
             continue
         elif flags == JUMP:
+            # f.write(b'\x80\x01')  # If Jump command, write JUMP
+            # last_flag = JUMP
+            # There is an automatic cut of jump stitches, but not triggered if not called jump stitches
             # Since VP3.Jump == VP3.Stitch, we combine jumps.
             continue
-        dx = int(x - last_x)
-        dy = int(y - last_y)
-        last_x += dx
-        last_y += dy
+        dx, dy, last_x, last_y = track_distance_change(last_x, last_y, x, y)
         if flags == STITCH:
-            if -127 <= dx <= 127 and -127 <= dy <= 127:
-                write_int_8(f, dx)
-                write_int_8(f, dy)
-            else:
-                f.write(b'\x80\x01')
-                write_int_16be(f, dx)
-                write_int_16be(f, dy)
-                f.write(b'\x80\x02')
+            last_flag = output_one_stitch(dx, dy, f, last_flag)
     # VSM gave ending stitches as 80 03 35 A5, so, 80 03 isn't strictly end.
     vp3_patch_byte_offset(f, placeholder_distance_to_end_of_stitches_block_010)
+
+
+def output_one_stitch(dx, dy, f, last_flag):
+    if -127 <= dx <= 127 and -127 <= dy <= 127:
+        write_int_8(f, dx)
+        write_int_8(f, dy)
+        last_flag = STITCH
+    else:
+        if last_flag != JUMP:
+            f.write(b'\x80\x01')
+        write_int_16be(f, dx)
+        write_int_16be(f, dy)
+        f.write(b'\x80\x02')
+        last_flag = TRIM
+    return last_flag
+
+
+def track_distance_change(last_x, last_y, x, y):
+    dx = int(x - last_x)
+    dy = int(y - last_y)
+    last_x += dx
+    last_y += dy
+    return dx, dy, last_x, last_y

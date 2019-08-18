@@ -54,14 +54,13 @@ def read(f, out, settings=None):
     skip_vp3_string(f)  # "Produced by     Software Ltd"
     count_colors = read_int_16be(f)
     for i in range(0, count_colors):
-        vp3_read_colorblock(f, out, center_x, center_y)
+        vp3_read_colorblock(f, out, center_x, center_y, i >= (count_colors - 1))
 
 
-def vp3_read_colorblock(f, read_object, center_x, center_y):
+def vp3_read_colorblock(f, read_object, center_x, center_y, is_last_color_block=False):
     bytescheck = f.read(3)  # \x00\x05\x00
     distance_to_next_block_050 = read_int_32be(f)
     block_end_position = distance_to_next_block_050 + f.tell()
-
     start_position_x = (signed32(read_int_32be(f)) / 100)
     start_position_y = -(signed32(read_int_32be(f)) / 100)
     abs_x = start_position_x + center_x
@@ -101,7 +100,8 @@ def vp3_read_colorblock(f, read_object, center_x, center_y):
         else:
             read_object.stitch(x, y)
     read_object.trim()
-    read_object.color_change()
+    if not is_last_color_block:
+        read_object.color_change()
 
 
 def vp3_read_thread(f):
