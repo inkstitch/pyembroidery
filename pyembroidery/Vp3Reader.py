@@ -86,14 +86,14 @@ def vp3_read_colorblock(f, read_object, center_x, center_y, is_last_color_block=
                 y = signed16(stitch_bytes[i], stitch_bytes[i + 1])
                 i += 2
                 if abs(x) > 255 or abs(y) > 255:
-                    read_object.trim()
                     read_object.move(x, y)
+                    read_object.trim()
                 else:
                     read_object.stitch(x, y)
             elif y == 0x02:
                 pass  # ends long stitch mode.
             elif y == 0x03:
-                read_object.end(0, 0)
+                read_object.end(x, y)
                 # Do not return if this is a colour change inside the colorblock.
                 #  if it is, it actually means it is a trim command
                 # return
