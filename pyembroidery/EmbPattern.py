@@ -203,18 +203,11 @@ class EmbPattern:
     def get_as_colorblocks(self):
         thread_index = 0
         last_pos = 0
-        bol_last_command_was_trim = False
         for pos, stitch in enumerate(self.stitches):
-            command = stitch[2] & COMMAND_MASK
-            if (command != COLOR_CHANGE and command != NEEDLE_SET and command != END and
-                    not (bol_last_command_was_trim and (command == JUMP))):
-                bol_last_command_was_trim = self.last_command_was_trim(command)
+            if stitch[2] != COLOR_CHANGE:
                 continue
-            else:
-                bol_last_command_was_trim = self.last_command_was_trim(command)
             thread = self.get_thread_or_filler(thread_index)
-            if command != END and command != JUMP:
-                thread_index += 1
+            thread_index += 1
             yield (self.stitches[last_pos:pos], thread)
             last_pos = pos
         thread = self.get_thread_or_filler(thread_index)
