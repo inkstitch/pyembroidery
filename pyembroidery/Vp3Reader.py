@@ -93,7 +93,7 @@ def vp3_read_colorblock(f, read_object, center_x, center_y, is_last_color_block=
             elif y == 0x02:
                 pass  # ends long stitch mode.
             elif y == 0x03:
-                read_object.end(x, y)
+                read_object.end(0, 0)
                 # Do not return if this is a colour change inside the colorblock.
                 #  if it is, it actually means it is a trim command
                 # return
