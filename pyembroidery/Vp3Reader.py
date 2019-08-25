@@ -94,6 +94,8 @@ def vp3_read_colorblock(f, read_object, center_x, center_y, is_last_color_block=
                 pass  # ends long stitch mode.
             elif y == 0x03:
                 read_object.end(0, 0)
+                # TODO correlate this with end in writer. If an end command may have a changed address, I need to
+                #  both write it and read it. If not, I must avoid to write it if I do not read it
                 # Do not return if this is a colour change inside the colorblock.
                 #  if it is, it actually means it is a trim command
                 # return
