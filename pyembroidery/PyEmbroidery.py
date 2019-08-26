@@ -57,6 +57,7 @@ import pyembroidery.GcodebCNCWriter as GcodebCNCWriter
 
 from pyembroidery.StringHelper import is_string
 
+
 def supported_formats():
     """Generates dictionary entries for supported formats. Each entry will
     always have description, extension, mimetype, and category. Reader
