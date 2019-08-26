@@ -85,3 +85,4 @@ def dst_read_stitches(f, out):
 def read(f, out, settings=None):
     dst_read_header(f, out)
     dst_read_stitches(f, out)
+    out.convert_jumps_to_trim()

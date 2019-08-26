@@ -1,5 +1,5 @@
-from .PecReader import read_pec
 from .EmbThread import EmbThread
+from .PecReader import read_pec
 from .ReadHelper import read_string_8, read_int_8, read_int_32le, read_int_24be, read_int_16le
 
 
@@ -9,6 +9,7 @@ def read(f, out, settings=None):
 
     if pes_string == "#PEC0001":
         read_pec(f, out, loaded_thread_values)
+        out.convert_duplicate_color_change_to_stop()
         return
 
     pec_block_position = read_int_32le(f)
@@ -36,6 +37,7 @@ def read(f, out, settings=None):
         pass  # Header is unrecognised.
     f.seek(pec_block_position, 0)
     read_pec(f, out, loaded_thread_values)
+    out.convert_duplicate_color_change_to_stop()
 
 
 def read_pes_string(f):

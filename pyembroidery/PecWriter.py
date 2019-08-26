@@ -19,6 +19,8 @@ PEC_ICON_HEIGHT = 38
 
 def write(pattern, f, settings=None):
     f.write(bytes("#PEC0001".encode('utf8')))
+    pattern = pattern.copy()
+    pattern.convert_stop_to_color_change()
     write_pec(pattern, f)
 
 
@@ -124,13 +126,10 @@ def flag_trim(longForm):
 
 
 def pec_encode(pattern, f):
-    color_change_jump = False
     color_two = True
-    jumping = False
-    stitches = pattern.stitches
     xx = 0
     yy = 0
-    for stitch in stitches:
+    for stitch in pattern.stitches:
         x = stitch[0]
         y = stitch[1]
         data = stitch[2]
@@ -138,44 +137,27 @@ def pec_encode(pattern, f):
         dy = int(round(y - yy))
         xx += dx
         yy += dy
-        if data is STITCH:
-            if jumping and dx is not 0 and dy is not 0:
-                f.write(b'\x00\x00')
-                jumping = False
-            if -64 < dx < 63 and -64 < dy < 63:
+        if data in (STITCH, JUMP, TRIM):
+            if data == STITCH and -64 < dx < 63 and -64 < dy < 63:
                 f.write(bytes(bytearray([dx & MASK_07_BIT, dy & MASK_07_BIT])))
             else:
                 dx = encode_long_form(dx)
                 dy = encode_long_form(dy)
+
+                if data == JUMP:
+                    dx = flag_jump(dx)
+                    dy = flag_jump(dy)
+                elif data == TRIM:
+                    dx = flag_trim(dx)
+                    dy = flag_trim(dy)
+
                 data = [
                     (dx >> 8) & 0xFF,
                     dx & 0xFF,
                     (dy >> 8) & 0xFF,
                     dy & 0xFF]
                 f.write(bytes(bytearray(data)))
-        elif data == JUMP:
-            jumping = True
-            dx = encode_long_form(dx)
-            if color_change_jump:
-                dx = flag_jump(dx)
-            else:
-                dx = flag_trim(dx)
-            dy = encode_long_form(dy)
-            if color_change_jump:
-                dy = flag_jump(dy)
-            else:
-                dy = flag_trim(dy)
-            f.write(bytes(bytearray([
-                (dx >> 8) & 0xFF,
-                dx & 0xFF,
-                (dy >> 8) & 0xFF,
-                dy & 0xFF
-            ])))
-            color_change_jump = False
         elif data == COLOR_CHANGE:
-            if jumping:
-                f.write(b'\x00\x00')
-                jumping = False
             f.write(b'\xfe\xb0')
             if color_two:
                 f.write(b'\x02')
@@ -183,13 +165,8 @@ def pec_encode(pattern, f):
                 f.write(b'\x01')
             color_two = not color_two
         elif data == STOP:
-            # if jumping:
-            #     f.write(b'\x00\x00')
-            #     jumping = False
-            # f.write(b'\x80\x01\x00\x00')
+            # This should never happen because we've converted each STOP into a
+            # color change to the same color.
             pass
         elif data == END:
-            if jumping:
-                f.write(b'\x00\x00')
-                jumping = False
             f.write(b'\xff')

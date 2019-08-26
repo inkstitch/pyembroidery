@@ -179,12 +179,11 @@ def switch_thread(f, thread_id, threads_list):
 			selected_thread.catalog_number = None
 		thread_desc += (', Catalog number: %s' % selected_thread.catalog_number) if selected_thread.catalog_number else ""
 		write_string_utf8(f, "(Block-name: Thread #%d%s)\r\n" % (thread_id, thread_desc))
-		thread_desc += (', Description: %s' % selected_thread.description) if selected_thread.description else ""
-		thread_desc += (', Brand: %s' % selected_thread.brand) if selected_thread.brand else ""
 		write_string_utf8(f, "(Block-expand: 0)\r\n")
 		write_string_utf8(f, "(Block-enable: 1)\r\n")
 		write_string_utf8(f, "(Block-color: %s)\r\n" % selected_thread.hex_color())
 		dump_thread_data(f, selected_thread)
 		write_string_utf8(f, "%wait\r\n")
-		write_string_utf8(f, "%%msg Tread thread #%d%s\r\n" % (thread_id, thread_desc))
+		thread_catalog_id = (",ID:%s"%selected_thread.catalog_number) if selected_thread.catalog_number else ""
+		write_string_utf8(f, "%%msg (Change%d)New color:%s%s\r\n" % (thread_id, thread_color.title(),thread_catalog_id))
 		write_string_utf8(f, "M0 (pause)\r\n")

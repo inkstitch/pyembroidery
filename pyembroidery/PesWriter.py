@@ -1,7 +1,8 @@
-from .PecWriter import write_pec
-from .EmbThreadPec import get_thread_set
-from .WriteHelper import write_string_utf8, write_int_32le, write_int_16le, write_int_8, write_float_32le
 from .EmbConstant import *
+from .EmbThreadPec import get_thread_set
+from .PecWriter import write_pec
+from .WriteHelper import write_string_utf8, write_int_32le, write_int_16le, write_int_8, write_float_32le
+
 
 SEQUIN_CONTINGENCY = CONTINGENCY_SEQUIN_JUMP
 FULL_JUMP = True
@@ -19,6 +20,9 @@ EMB_SEG = "CSewSeg"
 
 
 def write(pattern, f, settings=None):
+    pattern = pattern.copy()
+    pattern.convert_stop_to_color_change()
+
     if settings is not None:
         version = settings.get("pes version", VERSION_1)
         truncated = settings.get("truncated", False)

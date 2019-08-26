@@ -1,8 +1,10 @@
+from copy import deepcopy
 import random
 
-from .EmbThread import EmbThread
-from .EmbEncoder import Transcoder as Normalizer
 from .EmbConstant import *
+from .EmbEncoder import Transcoder as Normalizer
+from .EmbThread import EmbThread
+from .StringHelper import is_string
 
 
 class EmbPattern:
@@ -13,6 +15,9 @@ class EmbPattern:
         # filename, name, category, author, keywords, comments, are typical
         self._previousX = 0  # type: float
         self._previousY = 0  # type: float
+
+    def copy(self):
+        return deepcopy(self)
 
     def move(self, dx=0, dy=0):
         """Move dx, dy"""
@@ -82,7 +87,7 @@ class EmbPattern:
                     color = thread["rgb"]
                 if isinstance(color, int):
                     thread_object.color = color
-                elif isinstance(color, str):
+                elif is_string(color):
                     if color == "random":
                         thread_object.color = 0xFF000000 | random.randint(0, 0xFFFFFF)
                     if color[0:1] == "#":
@@ -272,12 +277,11 @@ class EmbPattern:
             except AttributeError:
                 self.add_stitch_absolute(stitch[2], stitch[0], stitch[1])
 
-    def get_pattern_interpolate_trim(self, jumps_to_require_trim):
-        """Gets a processed pattern with untrimmed jumps merged
-        and trims added if merged jumps are beyond the given value.
-        The expectation is that it has core commands and not
-        middle-level commands"""
-        new_pattern = EmbPattern()
+    def convert_jumps_to_trim(self, jumps_to_require_trim=3):
+        """Merges all jumps and converts sequences of jumps greater than the
+        given value to a trim.  The expectation is that it has core commands
+        and not middle-level commands"""
+        temp_pattern = EmbPattern()
         i = -1
         ie = len(self.stitches) - 1
         count = 0
@@ -291,9 +295,9 @@ class EmbPattern:
             elif command == COLOR_CHANGE or command == TRIM:
                 trimmed = True
             if trimmed or stitch[2] != JUMP:
-                new_pattern.add_stitch_absolute(stitch[2],
-                                                stitch[0],
-                                                stitch[1])
+                temp_pattern.add_stitch_absolute(stitch[2],
+                                                 stitch[0],
+                                                 stitch[1])
                 continue
             while i < ie and command == JUMP:
                 i += 1
@@ -304,14 +308,55 @@ class EmbPattern:
                 i -= 1
             stitch = self.stitches[i]
             if count >= jumps_to_require_trim:
-                new_pattern.trim()
+                temp_pattern.trim()
             count = 0
-            new_pattern.add_stitch_absolute(stitch[2],
-                                            stitch[0],
-                                            stitch[1])
-        new_pattern.threadlist.extend(self.threadlist)
-        new_pattern.extras.update(self.extras)
-        return new_pattern
+            temp_pattern.add_stitch_absolute(stitch[2],
+                                             stitch[0],
+                                             stitch[1])
+        self.stitches[:] = temp_pattern.stitches
+
+    def convert_stop_to_color_change(self):
+        """Convert stops to a color change to the same color."""
+
+        new_pattern = EmbPattern()
+        new_pattern.add_thread(self.get_thread_or_filler(0))
+        thread_index = 1
+
+        for x, y, command in self.stitches:
+            if command in (COLOR_CHANGE, COLOR_BREAK):
+                new_pattern.add_thread(self.get_thread_or_filler(thread_index))
+                new_pattern.add_stitch_absolute(command, x, y)
+                thread_index += 1
+            elif command == STOP:
+                new_pattern.color_change()
+                new_pattern.add_thread(self.get_thread_or_filler(thread_index))
+            else:
+                new_pattern.add_stitch_absolute(command, x, y)
+
+        self.stitches[:] = new_pattern.stitches
+        self.threadlist[:] = new_pattern.threadlist
+
+    def convert_duplicate_color_change_to_stop(self):
+        """Converts color change to same thread into a STOP."""
+
+        new_pattern = EmbPattern()
+        new_pattern.add_thread(self.get_thread_or_filler(0))
+
+        thread_index = 0
+        for x, y, command in self.stitches:
+            if command in (COLOR_CHANGE, COLOR_BREAK):
+                thread_index += 1
+                thread = self.get_thread_or_filler(thread_index)
+                if thread == new_pattern.threadlist[-1]:
+                    new_pattern.stop()
+                else:
+                    new_pattern.color_change()
+                    new_pattern.add_thread(thread)
+            else:
+                new_pattern.add_stitch_absolute(command, x, y)
+
+        self.stitches[:] = new_pattern.stitches
+        self.threadlist[:] = new_pattern.threadlist
 
     def get_pattern_merge_jumps(self):
         """Returns a pattern with all multiple jumps merged."""
