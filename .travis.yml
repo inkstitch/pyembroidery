@@ -1,0 +1,25 @@
+dist: xenial
+
+language: python
+python:
+    - 2.7
+    - 3.6
+    - 3.7
+    - 3.8
+    - pypy3
+
+install:
+    - pip install -r requirements.txt
+    - yolk -l
+
+script:
+    - cd ${TRAVIS_BUILD_DIR}
+    - python --version
+    - pytest
+#     - flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+#     - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+notifications:
+    email:
+        on_success: change
+        on_failure: always
