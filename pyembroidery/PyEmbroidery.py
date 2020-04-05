@@ -11,6 +11,7 @@ import pyembroidery.SvgWriter as SvgWriter
 import pyembroidery.CsvWriter as CsvWriter
 import pyembroidery.U01Writer as U01Writer
 import pyembroidery.GcodeWriter as GcodeWriter
+import pyembroidery.ThreadListWriter as ThreadListWriter
 
 import pyembroidery.DstReader as DstReader
 import pyembroidery.PecReader as PecReader
@@ -429,6 +430,14 @@ def supported_formats():
             "stitch_z_travel": (int),
         },
     })
+    yield ({
+        "description": "Thread List",
+        "extension": "txt",
+        "mimetype": "text/plain",
+        "category": "embroidery",
+        "writer": ThreadListWriter,
+        "status": "stable"
+    })
 
 
 def convert(filename_from, filename_to, settings=None):
@@ -565,41 +574,49 @@ def write_dst(pattern, stream, settings=None):
 
 
 def write_pec(pattern, stream, settings=None):
-    """Writes fileobject as DST file"""
+    """Writes fileobject as PEC file"""
     write_embroidery(PecWriter, pattern, stream, settings)
 
 
 def write_pes(pattern, stream, settings=None):
-    """Writes fileobject as DST file"""
+    """Writes fileobject as PES file"""
     write_embroidery(PesWriter, pattern, stream, settings)
 
 
 def write_exp(pattern, stream, settings=None):
-    """Writes fileobject as DST file"""
+    """Writes fileobject as EXP file"""
     write_embroidery(ExpWriter, pattern, stream, settings)
 
 
 def write_vp3(pattern, stream, settings=None):
-    """Writes fileobject as DST file"""
+    """Writes fileobject as VP3 file"""
     write_embroidery(Vp3Writer, pattern, stream, settings)
 
 
 def write_jef(pattern, stream, settings=None):
-    """Writes fileobject as DST file"""
+    """Writes fileobject as JEF file"""
     write_embroidery(JefWriter, pattern, stream, settings)
 
 
 def write_svg(pattern, stream, settings=None):
-    """Writes fileobject as DST file"""
+    """Writes fileobject as SVG file"""
     write_embroidery(SvgWriter, pattern, stream, settings)
 
 
-def write(pattern, filename, settings=None):
+def write(pattern, file, settings=None):
     """Writes file, assuming type by extension"""
+    if type(file) == "str":
+        filename = file
+        mimetype = None
+    else:
+        filename, mimetype = file
+
     extension = get_extension_by_filename(filename)
     extension = extension.lower()
 
     for file_type in supported_formats():
+        if mimetype and file_type['mimetype'] != mimetype:
+            continue
         if file_type['extension'] != extension:
             continue
         writer = file_type.get("writer", None)
