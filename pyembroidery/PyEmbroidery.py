@@ -605,7 +605,7 @@ def write_svg(pattern, stream, settings=None):
 
 def write(pattern, file, settings=None):
     """Writes file, assuming type by extension"""
-    if type(file) == "str":
+    if type(file) is not list:
         filename = file
         mimetype = None
     else:
