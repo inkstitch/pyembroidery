@@ -3,8 +3,10 @@ from .WriteHelper import write_string_utf8
 
 SEQUIN_CONTINGENCY = CONTINGENCY_SEQUIN_UTILIZE
 FULL_JUMP = False
+ROUND = True
 MAX_JUMP_DISTANCE = 121
 MAX_STITCH_DISTANCE = 121
+
 PPMM = 10
 DSTHEADERSIZE = 512
 
@@ -87,41 +89,54 @@ def encode_record(x, y, flags):
             y += 1
         if y != 0:
             raise ValueError("The dy value given to the writer exceeds maximum allowed.")
-    elif flags is COLOR_CHANGE:
+    elif flags == COLOR_CHANGE:
         b2 = 0b11000011
-    elif flags is STOP:
+    elif flags == STOP:
         b2 = 0b11000011
-    elif flags is END:
+    elif flags == END:
         b2 = 0b11110011
-    elif flags is SEQUIN_MODE:
+    elif flags == SEQUIN_MODE:
         b2 = 0b01000011
     return bytes(bytearray([b0, b1, b2]))
 
 
 def write(pattern, f, settings=None):
     extended_header = False
+    trim_at = 3
     if settings is not None:
-        extended_header = settings.get("extended header", extended_header)
-
-    extents = pattern.extents()
-    width = extents[2] - extents[0]
-    height = extents[3] - extents[1]
+        extended_header = settings.get("extended header", extended_header)  # deprecated, use version="extended"
+        version = settings.get("version", "default")
+        if version == "extended":
+            extended_header = True
+        trim_at = settings.get("trim_at", trim_at)
+    bounds = pattern.extents()
 
     name = pattern.get_metadata("name", "Untitled")
 
     write_string_utf8(f, "LA:%-16s\r" % name)
     write_string_utf8(f, "ST:%7d\r" % pattern.count_stitches())
     write_string_utf8(f, "CO:%3d\r" % pattern.count_color_changes())
-    x_extend = int(round(PPMM * width / 2))
-    y_extend = int(round(PPMM * height / 2))
-    write_string_utf8(f, "+X:%5d\r" % x_extend)
-    write_string_utf8(f, "-X:%5d\r" % x_extend)
-    write_string_utf8(f, "+Y:%5d\r" % y_extend)
-    write_string_utf8(f, "-Y:%5d\r" % y_extend)
-    write_string_utf8(f, "AX:+%5d\r" % 0)
-    write_string_utf8(f, "AY:+%5d\r" % 0)
+
+    write_string_utf8(f, "+X:%5d\r" % abs(bounds[2]))
+    write_string_utf8(f, "-X:%5d\r" % abs(bounds[0]))
+    write_string_utf8(f, "+Y:%5d\r" % abs(bounds[3]))
+    write_string_utf8(f, "-Y:%5d\r" % abs(bounds[1]))
+    ax = 0
+    ay = 0
+    if len(pattern.stitches) > 0:
+        last = len(pattern.stitches) - 1
+        ax = int(pattern.stitches[last][0])
+        ay = -int(pattern.stitches[last][1])
+    if ax >= 0:
+        write_string_utf8(f, "AX:+%5d\r" % ax)
+    else:
+        write_string_utf8(f, "AX:-%5d\r" % abs(ax))
+    if ay >= 0:
+        write_string_utf8(f, "AY:+%5d\r" % ay)
+    else:
+        write_string_utf8(f, "AY:-%5d\r" % abs(ay))
     write_string_utf8(f, "MX:+%5d\r" % 0)
-    write_string_utf8(f, "AY:+%5d\r" % 0)
+    write_string_utf8(f, "MY:+%5d\r" % 0)
     write_string_utf8(f, "PD:%6s\r" % "******")
     if extended_header:
         author = pattern.get_metadata("author")
@@ -146,14 +161,18 @@ def write(pattern, f, settings=None):
     for stitch in stitches:
         x = stitch[0]
         y = stitch[1]
-        data = stitch[2]
+        data = stitch[2] & COMMAND_MASK
         dx = int(round(x - xx))
         dy = int(round(y - yy))
+
         xx += dx
         yy += dy
         if data == TRIM:
-            f.write(encode_record(2, 2, JUMP))
-            f.write(encode_record(-4, -4, JUMP))
-            f.write(encode_record(2, 2, JUMP))
+            delta = -4
+            f.write(encode_record(-delta/2, -delta/2, JUMP))
+            for p in range(1,trim_at-1):
+                f.write(encode_record(delta, delta, JUMP))
+                delta = -delta
+            f.write(encode_record(delta/2, delta/2, JUMP))
         else:
             f.write(encode_record(dx, dy, data))
