@@ -84,6 +84,12 @@ def write(pattern, f, settings=None):
                 write_string_utf8(f, "G1 G4 P%.2f (wait for laser to warm up)\r\n" % laser_warm_up_time)
 
             stitching = True
+        elif command == COLOR_CHANGE and not laser_mode:
+            write_string_utf8(f, 'M00\r\n')
+        elif command == STOP and not laser_mode:
+            # Move to frame out position and stop
+            write_string_utf8(f, 'G0 X%.3f Y%.3f\r\n' % (x, y))
+            write_string_utf8(f, 'M00\r\n')
         else:
             stitching = False
 
