@@ -1,4 +1,5 @@
 import math
+from itertools import cycle
 
 from .EmbConstant import *
 from .WriteHelper import write_string_utf8
@@ -19,6 +20,7 @@ def write(pattern, f, settings=None):
     laser_warm_up_time = settings.get('laser_warm_up_time', 0)
     flip_x = settings.get('flip_x', True)
     flip_y = settings.get('flip_y', True)
+    alternate_z_value = settings.get('alternate_z', True)
     stitch_z_travel = settings.get('stitch_z_travel', 5)
     spindle_speed = settings.get('spindle_speed', -1)
     max_spindle_speed = settings.get('max_spindle_speed', -1)
@@ -42,6 +44,7 @@ def write(pattern, f, settings=None):
     init(f, laser_mode, dynamic_laser_power, max_spindle_speed, min_spindle_speed, spindle_speed, feed_rate)
 
     z = 0
+    alternate_z = cycle(range(2))
     stitching = False
     for x, y, command in pattern.stitches:
         # embroidery G-code discussion: https://github.com/inkstitch/inkstitch/issues/335
@@ -63,7 +66,11 @@ def write(pattern, f, settings=None):
 
             write_string_utf8(f, "%s X%.3f Y%.3f\r\n" % (command, x, y))
 
-            if stitch_z_travel > 0.0001:
+            if alternate_z_value:
+                # alternates the z value between 0 and 1
+                z = alternate_z.next()
+                write_string_utf8(f, "G0 Z%.1f\r\n" % z)
+            elif stitch_z_travel > 0.0001:
                 # For DIY embroidery machines, stitching is modeled as continuous
                 # travel on the Z axis.  The Z motor is hooked up to the hand wheel
                 # of the sewing machine.  For each stitch, we "move" in the Z
@@ -77,6 +84,12 @@ def write(pattern, f, settings=None):
                 write_string_utf8(f, "G1 G4 P%.2f (wait for laser to warm up)\r\n" % laser_warm_up_time)
 
             stitching = True
+        elif command == COLOR_CHANGE and not laser_mode:
+            write_string_utf8(f, 'M00\r\n')
+        elif command == STOP and not laser_mode:
+            # Move to frame out position and stop
+            write_string_utf8(f, 'G0 X%.3f Y%.3f\r\n' % (x, y))
+            write_string_utf8(f, 'M00\r\n')
         else:
             stitching = False
 

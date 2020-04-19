@@ -426,6 +426,7 @@ def supported_formats():
         "options": {
             "flip_x": (True, False),
             "flip_y": (True, False),
+            "alternate_z": (True, False),
             "stitch_z_travel": (int),
         },
     })
