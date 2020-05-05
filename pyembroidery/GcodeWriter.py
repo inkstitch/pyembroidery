@@ -97,7 +97,7 @@ def write(pattern, f, settings=None):
                 command = "G0"
 
             write_string_utf8(f, "%s X%.3f Y%.3f\r\n" % (command, x, y))
-            if not alternate_z_value and stitch_z_travel > 0.0001:
+            if alternate_z_value or stitch_z_travel > 0.0001:
                 write_string_utf8(f, "G0 Z%.1f\r\n" % z)
 
             # If we're about to cut, wait and let the laser warm up.
