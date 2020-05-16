@@ -15,13 +15,21 @@ def write(pattern, f, settings=None):
     if settings is None:
         settings = {}
 
-    laser_mode = settings.get('laser_mode', False)
-    dynamic_laser_power = settings.get('dynamic_laser_power', True)
-    laser_warm_up_time = settings.get('laser_warm_up_time', 0)
     flip_x = settings.get('flip_x', True)
     flip_y = settings.get('flip_y', True)
     alternate_z_value = settings.get('alternate_z', True)
     stitch_z_travel = settings.get('stitch_z_travel', 5)
+
+    custom_stitch = settings.get('custom_stitch', '')
+    custom_color_change = settings.get('custom_color_change', '')
+    custom_frameout = settings.get('custom_frameout', '')
+    custom_stop = settings.get('custom_stop', '')
+    custom_start = settings.get('custom_start', '')
+    custom_end = settings.get('custom_end', '')
+
+    laser_mode = settings.get('laser_mode', False)
+    dynamic_laser_power = settings.get('dynamic_laser_power', True)
+    laser_warm_up_time = settings.get('laser_warm_up_time', 0)
     spindle_speed = settings.get('spindle_speed', -1)
     max_spindle_speed = settings.get('max_spindle_speed', -1)
     min_spindle_speed = settings.get('min_spindle_speed', -1)
@@ -41,7 +49,12 @@ def write(pattern, f, settings=None):
     write_string_utf8(f, '(EXTENTS_HEIGHT:%.3f)\r\n' % height)
     write_string_utf8(f, "\r\n")
 
-    init(f, laser_mode, dynamic_laser_power, max_spindle_speed, min_spindle_speed, spindle_speed, feed_rate)
+    if custom_start == '' or laser_mode:
+        init(f, laser_mode, dynamic_laser_power, max_spindle_speed, min_spindle_speed, spindle_speed, feed_rate)
+    else:
+        for value in custom_start.split('\\n'):
+            write_string_utf8(f, "%s\r\n" % value.strip())
+        write_string_utf8(f, "\r\n")
 
     z = 0
     alternate_z = cycle(range(2))
@@ -58,18 +71,9 @@ def write(pattern, f, settings=None):
             x /= 10.0
             y /= 10.0
 
-            if stitching and spindle_speed >= 0 and feed_rate >= 0:
-                command = "G1"
-            else:
-                # G0 automatically turns off the laser for the move.
-                command = "G0"
-
-            write_string_utf8(f, "%s X%.3f Y%.3f\r\n" % (command, x, y))
-
             if alternate_z_value:
                 # alternates the z value between 0 and 1
                 z = alternate_z.next()
-                write_string_utf8(f, "G0 Z%.1f\r\n" % z)
             elif stitch_z_travel > 0.0001:
                 # For DIY embroidery machines, stitching is modeled as continuous
                 # travel on the Z axis.  The Z motor is hooked up to the hand wheel
@@ -77,6 +81,23 @@ def write(pattern, f, settings=None):
                 # direction, which turns the wheel and causes the machine to
                 # stitch.
                 z += stitch_z_travel
+
+            # custom stitch
+            if custom_stitch != '' and not laser_mode:
+                custom_stitch_value = custom_stitch.replace("%X", str(x)).replace("%Y", str(y)).replace("%Z", str(z)).split('\\n')
+                for value in custom_stitch_value:
+                    write_string_utf8(f, "%s\r\n" % (value.strip()))
+                continue
+
+            # default stitch
+            if stitching and spindle_speed >= 0 and feed_rate >= 0:
+                command = "G1"
+            else:
+                # G0 automatically turns off the laser for the move.
+                command = "G0"
+
+            write_string_utf8(f, "%s X%.3f Y%.3f\r\n" % (command, x, y))
+            if alternate_z_value or stitch_z_travel > 0.0001:
                 write_string_utf8(f, "G0 Z%.1f\r\n" % z)
 
             # If we're about to cut, wait and let the laser warm up.
@@ -85,17 +106,34 @@ def write(pattern, f, settings=None):
 
             stitching = True
         elif command == COLOR_CHANGE and not laser_mode:
-            write_string_utf8(f, 'M00\r\n')
+            if custom_color_change == '':
+                color_change = ['M00']
+            else:
+                color_change = custom_color_change.split('\\n')
+            if custom_color_change not in ['None', 'none']:
+                for value in color_change:
+                    write_string_utf8(f, "%s\r\n" % value.strip())
         elif command == STOP and not laser_mode:
-            # Move to frame out position and stop
-            write_string_utf8(f, 'G0 X%.3f Y%.3f\r\n' % (x, y))
-            write_string_utf8(f, 'M00\r\n')
+            if custom_stop != '':
+                stop = custom_stop.replace('%X', str(x)).replace('%Y', str(y)).split('\\n')
+            else:
+                # Move to frame out position
+                stop = ['G0 X%.3f Y%.3f' % (x, y)]
+                # and stop
+                stop.append('M00')
+            if custom_stop not in ['None', 'none']:
+                for value in stop:
+                    write_string_utf8(f, "%s\r\n" % value.strip())
         else:
             stitching = False
 
     write_string_utf8(f, "\r\n")
-    write_string_utf8(f, "G0 X0.0 Y0.0\r\n")
-    write_string_utf8(f, "M30\r\n")
+    if custom_end == '':
+        write_string_utf8(f, "G0 X0.0 Y0.0\r\n")
+        write_string_utf8(f, "M30\r\n")
+    else:
+        for value in custom_end.strip().split('\\n'):
+            write_string_utf8(f, "%s\r\n" % value.strip())
 
 
 def init(f, laser_mode, dynamic_laser_power, max_spindle_speed, min_spindle_speed, spindle_speed, feed_rate):
