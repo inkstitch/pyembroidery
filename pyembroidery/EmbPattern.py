@@ -230,7 +230,7 @@ class EmbPattern:
             stitch[1] += dy
 
     def fix_color_count(self):
-        """Ensure the there are threads for all color blocks."""
+        """Ensure that there are threads for all color blocks."""
         thread_index = 0
         init_color = True
         for stitch in self.stitches:
