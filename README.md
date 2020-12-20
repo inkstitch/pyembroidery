@@ -3,7 +3,7 @@ NOTE: This is a fork of the original, https://github.com/EmbroidePy/pyembroidery
 # pyembroidery
 
 Python library for the reading and writing of embroidery files.
-Compatable with Python 2 and 3 Explictly tested with 3.6 and 2.7.
+Compatible with Python 2 and 3 Explicitly tested with 3.6 and 2.7.
 
 To install:
 ```bash
@@ -30,7 +30,7 @@ Pyembroidery fully meets and exceeds all of these requirements.
 * It reads 38 formats, including the mandated ones.
 * It supports all the core commands where that format can use said command as well as FAST and SLOW for .u01.
 * SEQUINS work in all supported formats (.dst) that are known to support sequins. Further it supports SEQUIN to JUMP operations on the other formats.
-  * It is currently fully compatable with Python 2.7 and Python 3.6
+  * It is currently fully compatible with Python 2.7 and Python 3.6
 
 Philosophy
 ---
@@ -244,7 +244,7 @@ You can perform some finer grain controls like get_pattern_interpolate_trim(), o
 pyembroidery.convert("embroidery.jef", "converted.dst", {"stable": False})
 ```
 
-Depending on the formats and files in question this does not have a guarenteed result. It will still use the encoder and should be effective.
+Depending on the formats and files in question this does not have a guaranteed result. It will still use the encoder and should be effective.
 
 You can disable both the stablizer and the encoder:
 
@@ -393,7 +393,7 @@ When a stitch is beyond max_stitch (whether set by the format or by the user) it
 
 Sequin Contingency
 ---
-The enconder needs to decide what to do when there are sequins in a pattern. The current modes here are:
+The encoder needs to decide what to do when there are sequins in a pattern. The current modes here are:
 * CONTINGENCY_SEQUIN_UTILIZE - sets the equin contingency to use the sequin information.
 * CONTINGENCY_SEQUIN_JUMP - Sets the sequin contingency to call the sequins jumps.
 * CONTINGENCY_SEQUIN_STITCH - Sets the sequin contingency to call the sequins stitches.
@@ -405,7 +405,7 @@ Units
 ---
 * The core units are 1/10th mm. This is what 1 refers to within most formats, and internally within pyembroidery itself. You are entirely permitted to use floating point numbers. When writing to a format, fractional values will be lost, but this shall happen in such a way to avoid the propagation of error. Relative stitches from position ( 0.0,  0.31 ) of (+5.4, +5.4), (+5.4, +5,4), (+5.4, +5,4) should encode as changes of 5,6 6,5 5,6. Taking the relative distance in the format as the integer change from the last integer position to the new one, maintaining a position as close to the absolute position as possible. All fractional values are considered significant. 
 
-In some read formats the formats themselves have a slightly different unit systems such as .PCD or .MIT these alternative units will be presented seemlessly as 1/10th mm units.
+In some read formats the formats themselves have a slightly different unit systems such as .PCD or .MIT these alternative units will be presented seamlessly as 1/10th mm units.
 
 Core Command Ordering
 ---
@@ -418,7 +418,7 @@ So if write your own pattern and you intend to stitch at the origin and then go 
 
 Coordinate System
 ---
-Fundamentally pyembroidery stores the positions such that the +y direction is down and -y is up (when viewed horizontally) with +x right and -x left. This is consistent with most modern graphics coordinate systems, but this is different from how these values are stored within embroidery formats. pyembroidery reads by flipping the y-axis, and writes by flipping the y-axis (except for SVG which uses the same coordinate system). This allows for seemless reading, writing, and interfacing. The flips occur at the level of the format readers and writers and is not subject to encoding. However encoding with scale of (1, -1) would invert this during the encoding. All patterns are stored such that `top` is in the -y direction and `bottom` is in the +y direction.
+Fundamentally pyembroidery stores the positions such that the +y direction is down and -y is up (when viewed horizontally) with +x right and -x left. This is consistent with most modern graphics coordinate systems, but this is different from how these values are stored within embroidery formats. pyembroidery reads by flipping the y-axis, and writes by flipping the y-axis (except for SVG which uses the same coordinate system). This allows for seamless reading, writing, and interfacing. The flips occur at the level of the format readers and writers and is not subject to encoding. However encoding with scale of (1, -1) would invert this during the encoding. All patterns are stored such that `top` is in the -y direction and `bottom` is in the +y direction.
 
 All patterns start at the origin point (0,0).
 
