@@ -57,7 +57,7 @@ def write(pattern, f, settings=None):
         write_string_utf8(f, "\r\n")
 
     z = 0
-    alternate_z = cycle(range(2))
+    alternate_z = cycle(list(range(2)))
     stitching = False
     for x, y, command in pattern.stitches:
         # embroidery G-code discussion: https://github.com/inkstitch/inkstitch/issues/335
@@ -73,7 +73,7 @@ def write(pattern, f, settings=None):
 
             if alternate_z_value:
                 # alternates the z value between 0 and 1
-                z = alternate_z.next()
+                z = next(alternate_z)
             elif stitch_z_travel > 0.0001:
                 # For DIY embroidery machines, stitching is modeled as continuous
                 # travel on the Z axis.  The Z motor is hooked up to the hand wheel

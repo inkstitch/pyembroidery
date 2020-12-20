@@ -63,7 +63,7 @@ def write(pattern, f, settings=None):
             stitch_counts[command] = 1
 
     if len(stitch_counts) != 0:
-        for the_key, the_value in stitch_counts.items():
+        for the_key, the_value in list(stitch_counts.items()):
             try:
                 name = "COMMAND_" + names[the_key]
             except (IndexError, KeyError):
@@ -82,7 +82,7 @@ def write(pattern, f, settings=None):
             '[METADATA_NAME]',
             '[METADATA]'
         ))
-        for the_key, the_value in pattern.extras.items():
+        for the_key, the_value in list(pattern.extras.items()):
             if isinstance(the_value, tuple):
                 the_value = "\n" + get_graphic_as_string(the_value)
             csv(f, (

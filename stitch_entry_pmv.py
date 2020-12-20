@@ -1,13 +1,11 @@
-from __future__ import print_function
-
 from pyembroidery import *
 
 
 def value_input(prompt):
     try:
-        return str(raw_input(prompt))
-    except NameError:
         return str(input(prompt))
+    except NameError:
+        return str(eval(input(prompt)))
 
 
 pattern = EmbPattern()
