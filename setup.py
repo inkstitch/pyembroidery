@@ -13,6 +13,9 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/pyembroidery/pyembroidery",
     packages=setuptools.find_packages(),
+    extras_require = {
+        'with_color_names': ['webcolors>=1.9.1',],	# for color names
+    },
     classifiers=(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",

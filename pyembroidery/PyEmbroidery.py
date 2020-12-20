@@ -53,6 +53,9 @@ import pyembroidery.ZxyReader as ZxyReader
 import pyembroidery.PmvReader as PmvReader
 import pyembroidery.PmvWriter as PmvWriter
 import pyembroidery.CsvReader as CsvReader
+import pyembroidery.GcodebCNCWriter as GcodebCNCWriter
+
+from pyembroidery.StringHelper import is_string
 
 from pyembroidery.StringHelper import is_string
 
@@ -428,6 +431,22 @@ def supported_formats():
             "flip_y": (True, False),
             "alternate_z": (True, False),
             "stitch_z_travel": (int),
+        },
+    })
+    yield ({
+        "description": "G-code Colorful Format",
+        "extension": "ngc",
+        "mimetype": "text/g-code",
+        "category": "embroidery",
+        "writer": GcodebCNCWriter,
+        "status": "stable",
+        "options": {
+            "flip_x": (True, False),
+            "flip_y": (True, False),
+            "drilling_cycle": (True, False),    #Insert drilling cycle instructions instead of Z move
+            "feed_rate": (float),               #If >0 then insert feed parameter
+            "stitch_z_travel": (float),         #Z distance for turning 360 degrees
+            "stitch_z_thread_free": (float)     #Z distance of turning while thread is unlocked
         },
     })
 
