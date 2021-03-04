@@ -558,6 +558,7 @@ def write_embroidery(writer, pattern, stream, settings=None):
         stream = open(stream, "wb")
 
     writer.write(pattern, stream, settings)
+    stream.close()
 
 
 def write_dst(pattern, stream, settings=None):
