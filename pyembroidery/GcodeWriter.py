@@ -84,7 +84,7 @@ def write(pattern, f, settings=None):
 
             # custom stitch
             if custom_stitch != '' and not laser_mode:
-                custom_stitch_value = custom_stitch.replace("%X", str(x)).replace("%Y", str(y)).replace("%Z", str(z)).split('\\n')
+                custom_stitch_value = custom_stitch.replace("%X", str("%.3f" % x)).replace("%Y", str("%.3f" % y)).replace("%Z", str("%.1f" % z)).split('\\n')
                 for value in custom_stitch_value:
                     write_string_utf8(f, "%s\r\n" % (value.strip()))
                 continue
