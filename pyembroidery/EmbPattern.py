@@ -193,6 +193,13 @@ class EmbPattern:
             last_pos = pos
         yield self.stitches[last_pos:]
 
+    def last_command_was_trim(self, command):
+        if command == TRIM:
+            bol_last_command_was_trim = True
+        else:
+            bol_last_command_was_trim = False
+        return bol_last_command_was_trim
+
     def get_as_colorblocks(self):
         thread_index = 0
         last_pos = 0

@@ -54,14 +54,13 @@ def read(f, out, settings=None):
     skip_vp3_string(f)  # "Produced by     Software Ltd"
     count_colors = read_int_16be(f)
     for i in range(0, count_colors):
-        vp3_read_colorblock(f, out, center_x, center_y)
+        vp3_read_colorblock(f, out, center_x, center_y, i >= (count_colors - 1))
 
 
-def vp3_read_colorblock(f, read_object, center_x, center_y):
+def vp3_read_colorblock(f, read_object, center_x, center_y, is_last_color_block=False):
     bytescheck = f.read(3)  # \x00\x05\x00
     distance_to_next_block_050 = read_int_32be(f)
     block_end_position = distance_to_next_block_050 + f.tell()
-
     start_position_x = (signed32(read_int_32be(f)) / 100)
     start_position_y = -(signed32(read_int_32be(f)) / 100)
     abs_x = start_position_x + center_x
@@ -87,19 +86,24 @@ def vp3_read_colorblock(f, read_object, center_x, center_y):
                 y = signed16(stitch_bytes[i], stitch_bytes[i + 1])
                 i += 2
                 if abs(x) > 255 or abs(y) > 255:
-                    read_object.trim()
                     read_object.move(x, y)
+                    read_object.trim()
                 else:
                     read_object.stitch(x, y)
             elif y == 0x02:
                 pass  # ends long stitch mode.
             elif y == 0x03:
                 read_object.end(0, 0)
-                return
+                # TODO correlate this with end in writer. If an end command may have a changed address, I need to
+                #  both write it and read it. If not, I must avoid to write it if I do not read it
+                # Do not return if this is a colour change inside the colorblock.
+                #  if it is, it actually means it is a trim command
+                # return
         else:
             read_object.stitch(x, y)
     read_object.trim()
-    read_object.color_change()
+    if not is_last_color_block:
+        read_object.color_change()
 
 
 def vp3_read_thread(f):
