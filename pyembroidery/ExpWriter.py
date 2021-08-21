@@ -29,8 +29,8 @@ def write(pattern, f, settings=None):
             f.write(b'\x80\x04')
             f.write(bytes(bytearray([delta_x, delta_y])))
         elif data == TRIM:
-            f.write(b'\x80\x80\x07\x00')
-            continue
+            # not supported by file format
+            pass
         elif data == COLOR_CHANGE:
             f.write(b'\x80\x01\x00\x00')
             continue
