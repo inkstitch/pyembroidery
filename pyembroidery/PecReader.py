@@ -32,7 +32,8 @@ def read_pec(f, out, pes_chart=None):
     # The end of this value is already 5 into the stitchblock.
 
     # 3 bytes, '\x31\xff\xf0', 6 2-byte shorts. 15 total.
-    f.seek(0x0F, 1)
+    f.seek(0x0B, 1)
+    
     read_pec_stitches(f, out)
     f.seek(stitch_block_end, 0)
 
