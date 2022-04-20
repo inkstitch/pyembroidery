@@ -43,8 +43,8 @@ def process_header_info(out, prefix, value):
         values = [x.strip() for x in value.split(',')]
         out.add_thread({
             "hex": values[0],
-            "description": value[1],
-            "catalog": value[2]
+            "description": values[1],
+            "catalog": values[2]
         })
     else:
         out.metadata(prefix, value)
