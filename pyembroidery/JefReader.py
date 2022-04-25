@@ -2,10 +2,9 @@ from .EmbThreadJef import get_thread_set
 from .ReadHelper import read_int_32le, signed8
 
 
-def read_jef_stitches(f, out):
-    count = 0
+def read_jef_stitches(f, out, settings=None):
+    color_index = 1
     while True:
-        count += 1
         b = bytearray(f.read(2))
         if len(b) != 2:
             break
@@ -21,22 +20,36 @@ def read_jef_stitches(f, out):
         x = signed8(b[0])
         y = -signed8(b[1])
         if ctrl == 0x02:
-            if x == 0 and y == 0:
-                # My Janome MC400E only trims if there are three jumps in a
-                # row.  However, JEF files found in the wild seem to be written
-                # with the expectation that a single zero-length jump is a
-                # trim, so we read it as such.
-                out.trim(x, y)
-            else:
-                out.move(x, y)
+            out.move(x, y)
             continue
         if ctrl == 0x01:
-            out.color_change(0, 0)
+            # PATCH: None means stop since it was color #0
+            if out.threadlist[color_index] is None:
+                out.stop(0, 0)
+                del out.threadlist[color_index]
+            else:
+                out.color_change(0, 0)
+                color_index += 1
             continue
         if ctrl == 0x10:
             break
         break  # Uncaught Control
     out.end(0, 0)
+
+    clipping = True
+    trims = False
+    count_max = None
+    trim_distance = 3.0
+    if settings is not None:
+        count_max = settings.get("trim_at", count_max)
+        trims = settings.get("trims", trims)
+        trim_distance = settings.get("trim_distance", trim_distance)
+        clipping = settings.get("clipping", clipping)
+    if trims and count_max is None:
+        count_max = 3
+    if trim_distance is not None:
+        trim_distance *= 10  # Pixels per mm. Native units are 1/10 mm.
+    out.interpolate_trims(count_max, trim_distance, clipping)
 
 
 def read(f, out, settings=None):
@@ -48,8 +61,11 @@ def read(f, out, settings=None):
 
     for i in range(0, count_colors):
         index = abs(read_int_32le(f))
-        out.add_thread(jef_threads[index % len(jef_threads)])
+        if index == 0:
+            # Patch: If we have color 0. Go ahead and set that to None.
+            out.threadlist.append(None)
+        else:
+            out.add_thread(jef_threads[index % len(jef_threads)])
 
     f.seek(stitch_offset, 0)
-    read_jef_stitches(f, out)
-    out.convert_jumps_to_trim()
+    read_jef_stitches(f, out, settings)

@@ -1,7 +1,7 @@
 import math
 from itertools import cycle
 
-from .EmbConstant import *
+from .EmbFunctions import *
 from .WriteHelper import write_string_utf8
 
 

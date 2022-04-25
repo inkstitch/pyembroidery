@@ -3,7 +3,7 @@ from .EmbThread import EmbThread
 
 def get_thread_set():
     return [
-        EmbThreadPec(0, 0, 0, "Unknown", "0"),
+        None,  #  EmbThreadPec(0, 0, 0, "Unknown", "0"),
         EmbThreadPec(14, 31, 124, "Prussian Blue", "1"),
         EmbThreadPec(10, 85, 163, "Blue", "2"),
         EmbThreadPec(0, 135, 119, "Teal Green", "3"),
@@ -31,7 +31,7 @@ def get_thread_set():
         EmbThreadPec(246, 74, 138, "Deep Rose", "25"),
         EmbThreadPec(178, 118, 36, "Light Brown", "26"),
         EmbThreadPec(252, 187, 197, "Salmon Pink", "27"),
-        EmbThreadPec(254, 55, 15, "Vermilion", "28"),
+        EmbThreadPec(254, 55, 15, "Vermillion", "28"),
         EmbThreadPec(240, 240, 240, "White", "29"),
         EmbThreadPec(106, 28, 138, "Violet", "30"),
         EmbThreadPec(168, 221, 196, "Seacrest", "31"),
@@ -54,7 +54,7 @@ def get_thread_set():
         EmbThreadPec(247, 56, 102, "Carmine", "48"),
         EmbThreadPec(181, 75, 100, "Amber Red", "49"),
         EmbThreadPec(19, 43, 26, "Olive Green", "50"),
-        EmbThreadPec(199, 1, 86, "Dark Fuchsia", "51"),
+        EmbThreadPec(199, 1, 86, "Dark Fuschia", "51"),
         EmbThreadPec(254, 158, 50, "Tangerine", "52"),
         EmbThreadPec(168, 222, 235, "Light Blue", "53"),
         EmbThreadPec(0, 103, 62, "Emerald Green", "54"),
@@ -67,7 +67,7 @@ def get_thread_set():
         EmbThreadPec(227, 243, 91, "Fresh Green", "61"),
         EmbThreadPec(255, 153, 0, "Orange", "62"),
         EmbThreadPec(255, 240, 141, "Cream Yellow", "63"),
-        EmbThreadPec(255, 200, 200, "Applique", "64")
+        EmbThreadPec(255, 200, 200, "Applique", "64"),
     ]
 
 

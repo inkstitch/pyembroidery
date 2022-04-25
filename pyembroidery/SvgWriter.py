@@ -5,8 +5,8 @@ from .EmbConstant import CONTINGENCY_SEQUIN_STITCH
 SEQUIN_CONTINGENCY = CONTINGENCY_SEQUIN_STITCH
 # technically I could use svg to draw a sequin as a 2 element circle path.
 FULL_JUMP = False  # just drops all jumps anyway.
-MAX_JUMP_DISTANCE = float('inf')
-MAX_STITCH_DISTANCE = float('inf')
+MAX_JUMP_DISTANCE = float("inf")
+MAX_STITCH_DISTANCE = float("inf")
 
 NAME_SVG = "svg"
 ATTR_VERSION = "version"
@@ -28,24 +28,20 @@ ATTR_STROKE_WIDTH = "stroke-width"
 VALUE_NONE = "none"
 
 
-def write(pattern, f, settings=None):
-    """Writes an svg file of the stitchblocks."""
-
+def create_svg_dom(pattern):
     root = Element(NAME_SVG)
     root.set(ATTR_VERSION, VALUE_SVG_VERSION)
     root.set(ATTR_XMLNS, VALUE_XMLNS)
     root.set(ATTR_XMLNS_LINK, VALUE_XLINK)
     root.set(ATTR_XMLNS_EV, VALUE_XMLNS_EV)
-    extents = pattern.extents()
+    extents = pattern.bounds()
     width = extents[2] - extents[0]
     height = extents[3] - extents[1]
     root.set(ATTR_WIDTH, str(width))
     root.set(ATTR_HEIGHT, str(height))
-    viewbox = \
-        str(extents[0]) + " " +\
-        str(extents[1]) + " " +\
-        str(width) + " " +\
-        str(height)
+    viewbox = (
+        str(extents[0]) + " " + str(extents[1]) + " " + str(width) + " " + str(height)
+    )
     root.set(ATTR_VIEWBOX, viewbox)
 
     for stitchblock in pattern.get_as_stitchblock():
@@ -61,5 +57,10 @@ def write(pattern, f, settings=None):
         path.set(ATTR_FILL, VALUE_NONE)
         path.set(ATTR_STROKE, thread.hex_color())
         path.set(ATTR_STROKE_WIDTH, "3")
-    tree = ElementTree(root)
+    return ElementTree(root)
+
+
+def write(pattern, f, settings=None):
+    """Writes an svg file of the stitchblocks."""
+    tree = create_svg_dom(pattern)
     tree.write(f)

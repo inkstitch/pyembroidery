@@ -1,5 +1,5 @@
-from .ReadHelper import signed8, read_int_8, read_int_24be
 from .EmbThread import EmbThread
+from .ReadHelper import read_int_8, read_int_24be, signed8
 
 
 def read(f, out, settings=None):
@@ -27,7 +27,7 @@ def read(f, out, settings=None):
             out.stitch(signed8(x), -signed8(y))
             continue
         elif ctrl == 0x81:
-            if count > 1:
+            if count > 1:  # This might rather be a needle change.
                 out.color_change()
         elif ctrl == 0x90:
             if x == 0 and y == 0:
@@ -44,5 +44,5 @@ def read(f, out, settings=None):
         elif ctrl == 0x8F:
             break
         else:
-            print("odd.")
+            break  # Dunno why it got here.
     out.end()
