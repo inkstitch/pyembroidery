@@ -1,16 +1,23 @@
 from .EmbConstant import *
 from .EmbThreadPec import get_thread_set
 from .PecWriter import write_pec
-from .WriteHelper import write_string_utf8, write_int_32le, write_int_16le, write_int_8, write_float_32le
-
+from .WriteHelper import (
+    write_float_32le,
+    write_int_8,
+    write_int_16le,
+    write_int_24le,
+    write_int_32le,
+    write_string_utf8,
+)
 
 SEQUIN_CONTINGENCY = CONTINGENCY_SEQUIN_JUMP
 FULL_JUMP = True
+ROUND = True
 MAX_JUMP_DISTANCE = 2047
 MAX_STITCH_DISTANCE = 2047
 
-VERSION_1 = 1
-VERSION_6 = 6
+VERSION_1 = 1.0
+VERSION_6 = 6.0
 
 PES_VERSION_1_SIGNATURE = "#PES0001"
 PES_VERSION_6_SIGNATURE = "#PES0060"
@@ -20,15 +27,19 @@ EMB_SEG = "CSewSeg"
 
 
 def write(pattern, f, settings=None):
-    pattern = pattern.copy()
-    pattern.convert_stop_to_color_change()
-
+    pattern.fix_color_count()
+    pattern.interpolate_stop_as_duplicate_color()
+    version = VERSION_1
+    truncated = False
     if settings is not None:
-        version = settings.get("pes version", VERSION_1)
+        version = settings.get("pes version", VERSION_1)  # deprecated, use "version".
+        version = settings.get("version", version)
         truncated = settings.get("truncated", False)
-    else:
-        version = VERSION_1
-        truncated = False
+        if isinstance(version, str):
+            if version.endswith("t"):
+                truncated = True
+                version = float(version[:-1])
+        version = float(version)
     if truncated:
         if version == VERSION_1:
             write_truncated_version_1(pattern, f)
@@ -43,7 +54,7 @@ def write(pattern, f, settings=None):
 
 def write_truncated_version_1(pattern, f):
     write_string_utf8(f, PES_VERSION_1_SIGNATURE)
-    f.write(b'\x16\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+    f.write(b"\x16\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
     write_pec(pattern, f)
 
 
@@ -53,21 +64,23 @@ def write_truncated_version_6(pattern, f):
     placeholder_pec_block = f.tell()
     write_int_32le(f, 0)  # Placeholder for PEC BLOCK
     write_pes_header_v6(pattern, f, chart, 0)
+    f.write(bytes(bytearray([0x00] * 5)))
     write_int_16le(f, 0x0000)
     write_int_16le(f, 0x0000)
     current_position = f.tell()
     f.seek(placeholder_pec_block, 0)
     write_int_32le(f, current_position)
     f.seek(current_position, 0)
-    # this might need that node table thing.
     write_pec(pattern, f)
+    write_pes_addendum(f, ([0xFF], []))
+    write_int_16le(f, 0x0000)  # Found in version 6 not 5,4
 
 
 def write_version_1(pattern, f):
     chart = get_thread_set()
     write_string_utf8(f, PES_VERSION_1_SIGNATURE)
 
-    extents = pattern.extents()
+    extents = pattern.bounds()
     cx = (extents[2] + extents[0]) / 2.0
     cy = (extents[3] + extents[1]) / 2.0
 
@@ -102,7 +115,7 @@ def write_version_6(pattern, f):
     chart = pattern.threadlist
     write_string_utf8(f, PES_VERSION_6_SIGNATURE)
 
-    extents = pattern.extents()
+    extents = pattern.bounds()
     cx = (extents[2] + extents[0]) / 2.0
     cy = (extents[3] + extents[1]) / 2.0
 
@@ -134,7 +147,9 @@ def write_version_6(pattern, f):
     f.seek(placeholder_pec_block, 0)
     write_int_32le(f, current_position)
     f.seek(current_position, 0)
-    write_pec(pattern, f)
+    color_info = write_pec(pattern, f)
+    write_pes_addendum(f, color_info)
+    write_int_16le(f, 0x0000)  # Found in version 6 not 5,4
 
 
 def write_pes_header_v1(f, distinct_block_objects):
@@ -145,7 +160,7 @@ def write_pes_header_v1(f, distinct_block_objects):
 
 def write_pes_header_v6(pattern, f, chart, distinct_block_objects):
     write_int_16le(f, 0x01)  # 0 = 100x100, 130x180 hoop
-    f.write(b'02')  # This is an 2-digit ascii number.
+    f.write(b"02")  # This is an 2-digit ascii number.
     write_pes_string_8(f, pattern.get_metadata("name", None))
     write_pes_string_8(f, pattern.get_metadata("category", None))
     write_pes_string_8(f, pattern.get_metadata("author", None))
@@ -185,6 +200,19 @@ def write_pes_header_v6(pattern, f, chart, distinct_block_objects):
     for thread in chart:
         write_pes_thread(f, thread)
     write_int_16le(f, distinct_block_objects)  # number ofdistinct blocks
+
+
+def write_pes_addendum(f, color_info):
+    color_index_list = color_info[0]
+    rgb_list = color_info[1]
+    count = len(color_index_list)
+    f.write(bytes(bytearray(color_index_list)))
+    f.write(bytes(bytearray([0x20] * (128 - count))))
+    for s in range(0, len(rgb_list)):
+        blank = [0x00] * 0x90
+        f.write(bytes(bytearray(blank)))
+    for r in rgb_list:
+        write_int_24le(f, r)
 
 
 def write_pes_string_8(f, string):
@@ -279,7 +307,7 @@ def write_pes_sewsegheader(f, left, top, right, bottom):
     write_int_16le(f, 0)
     write_int_16le(f, int(width))
     write_int_16le(f, int(height))
-    f.write(b'\x00\x00\x00\x00\x00\x00\x00\x00')
+    f.write(b"\x00\x00\x00\x00\x00\x00\x00\x00")
 
     placeholder_needs_section_data = f.tell()
     # sections
@@ -296,7 +324,7 @@ def get_as_segments_blocks(pattern, chart, adjust_x, adjust_y):
     stitched_y = 0
     for command_block in pattern.get_as_command_blocks():
         block = []
-        command = command_block[0][2]
+        command = command_block[0][2] & COMMAND_MASK
         if command == JUMP:
             block.append([stitched_x - adjust_x, stitched_y - adjust_y])
             last_pos = command_block[-1]

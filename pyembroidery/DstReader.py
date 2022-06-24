@@ -40,25 +40,31 @@ def process_header_info(out, prefix, value):
     elif prefix == "CP":
         out.metadata("copyright", value)
     elif prefix == "TC":
-        values = [x.strip() for x in value.split(',')]
-        out.add_thread({
-            "hex": values[0],
-            "description": values[1],
-            "catalog": values[2]
-        })
+        values = [x.strip() for x in value.split(",")]
+        out.add_thread({"hex": values[0], "description": values[1], "catalog": values[2]})
     else:
         out.metadata(prefix, value)
 
 
 def dst_read_header(f, out):
     header = f.read(512)
-    header_string = header.decode('utf8')
-    for line in [x.strip() for x in header_string.split('\r')]:
-        if len(line) > 3:
-            process_header_info(out, line[0:2].strip(), line[3:].strip())
+    start = 0
+    for i, element in enumerate(header):
+        if (
+            element == 13 or element == 10 or element == "\n" or element == "\r"
+        ):  # 13 =='\r', 10 = '\n'
+            end = i
+            data = header[start:end]
+            start = end
+            try:
+                line = data.decode("utf8").strip()
+                if len(line) > 3:
+                    process_header_info(out, line[0:2].strip(), line[3:].strip())
+            except UnicodeDecodeError:  # Non-utf8 information. See #83
+                continue
 
 
-def dst_read_stitches(f, out):
+def dst_read_stitches(f, out, settings=None):
     sequin_mode = False
     while True:
         byte = bytearray(f.read(3))
@@ -67,7 +73,7 @@ def dst_read_stitches(f, out):
         dx = decode_dx(byte[0], byte[1], byte[2])
         dy = decode_dy(byte[0], byte[1], byte[2])
         if byte[2] & 0b11110011 == 0b11110011:
-            out.stop(dx, dy)
+            break
         elif byte[2] & 0b11000011 == 0b11000011:
             out.color_change(dx, dy)
         elif byte[2] & 0b01000011 == 0b01000011:
@@ -80,9 +86,20 @@ def dst_read_stitches(f, out):
                 out.move(dx, dy)
         else:
             out.stitch(dx, dy)
+    out.end()
+
+    count_max = 3
+    clipping = True
+    trim_distance = None
+    if settings is not None:
+        count_max = settings.get("trim_at", count_max)
+        trim_distance = settings.get("trim_distance", trim_distance)
+        clipping = settings.get("clipping", clipping)
+    if trim_distance is not None:
+        trim_distance *= 10  # Pixels per mm. Native units are 1/10 mm.
+    out.interpolate_trims(count_max, trim_distance, clipping)
 
 
 def read(f, out, settings=None):
     dst_read_header(f, out)
-    dst_read_stitches(f, out)
-    out.convert_jumps_to_trim()
+    dst_read_stitches(f, out, settings)

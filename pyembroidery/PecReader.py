@@ -1,5 +1,5 @@
 from .EmbThreadPec import get_thread_set
-from .ReadHelper import read_string_8, read_int_8, read_int_24le
+from .ReadHelper import read_int_8, read_int_24le, read_string_8
 
 JUMP_CODE = 0x10
 TRIM_CODE = 0x20
@@ -10,14 +10,14 @@ def read(f, out, settings=None):
     pec_string = read_string_8(f, 8)
     # pec_string must equal #PEC0001
     read_pec(f, out)
-    out.convert_duplicate_color_change_to_stop()
+    out.interpolate_duplicate_color_as_stop()
 
 
 def read_pec(f, out, pes_chart=None):
     f.seek(3, 1)  # LA:
     label = read_string_8(f, 16)  # Label
     if label is not None:
-        out.metadata("Label", label.strip())
+        out.metadata("Name", label.strip())
     f.seek(0xF, 1)  # Dunno, spaces then 0xFF 0x00
     pec_graphic_byte_stride = read_int_8(f)
     pec_graphic_icon_height = read_int_8(f)
@@ -31,20 +31,16 @@ def read_pec(f, out, pes_chart=None):
     stitch_block_end = read_int_24le(f) - 5 + f.tell()
     # The end of this value is already 5 into the stitchblock.
 
-    # 3 bytes, '\x31\xff\xf0', 6 2-byte shorts. 15 total.
-    f.seek(0x0F, 1)
+    # 3 bytes, '\x31\xff\xf0', 4 2-byte shorts. 11 total.
+    f.seek(0x0B, 1)
     read_pec_stitches(f, out)
     f.seek(stitch_block_end, 0)
 
     byte_size = pec_graphic_byte_stride * pec_graphic_icon_height
 
-    read_pec_graphics(f,
-                      out,
-                      byte_size,
-                      pec_graphic_byte_stride,
-                      count_colors + 1,
-                      threads
-                      )
+    read_pec_graphics(
+        f, out, byte_size, pec_graphic_byte_stride, count_colors + 1, threads
+    )
 
 
 def read_pec_graphics(f, out, size, stride, count, values):
@@ -53,7 +49,8 @@ def read_pec_graphics(f, out, size, stride, count, values):
     for i in range(0, count):
         graphic = bytearray(f.read(size))
         if f is not None:
-            out.metadata(i, (graphic, stride, v[i]))
+            name = "pec_graphic_" + str(i)
+            out.metadata(name, (graphic, stride, v[i]))
 
 
 def process_pec_colors(colorbytes, out, values):
@@ -101,14 +98,14 @@ def map_pec_colors(colorbytes, out, chart, values):
 def signed12(b):
     b &= 0xFFF
     if b > 0x7FF:
-        return - 0x1000 + b
+        return -0x1000 + b
     else:
         return b
 
 
 def signed7(b):
     if b > 63:
-        return - 128 + b
+        return -128 + b
     else:
         return b
 

@@ -2,10 +2,11 @@ import datetime
 
 from .EmbConstant import *
 from .EmbThreadJef import get_thread_set
-from .WriteHelper import write_string_utf8, write_int_32le, write_int_8
+from .WriteHelper import write_int_8, write_int_32le, write_string_utf8
 
 SEQUIN_CONTINGENCY = CONTINGENCY_SEQUIN_JUMP
 FULL_JUMP = True
+ROUND = True
 MAX_JUMP_DISTANCE = 127
 MAX_STITCH_DISTANCE = 127
 
@@ -18,13 +19,56 @@ HOOP_200X200 = 4
 
 
 def write(pattern, f, settings=None):
-    trims = True
-    date_string = datetime.datetime.today().strftime('%Y%m%d%H%M%S')
+    trims = False
+    command_count_max = 3
+
+    date_string = datetime.datetime.today().strftime("%Y%m%d%H%M%S")
     if settings is not None:
         trims = settings.get("trims", trims)
+        command_count_max = settings.get("trim_at", command_count_max)
         date_string = settings.get("date", date_string)
+
     pattern.fix_color_count()
-    color_count = pattern.count_threads()
+    # REMOVE BUG: color_count = pattern.count_threads(). #
+
+    # PATCH
+    jef_threads = get_thread_set()
+    last_index = None
+    last_thread = None
+    palette = []
+    color_toggled = False
+    color_count = 0  # Color and Stop count.
+    index_in_threadlist = 0
+    for stitch in pattern.stitches:
+        # Iterate all stitches.
+        flags = stitch[2] & COMMAND_MASK
+        if flags == COLOR_CHANGE or index_in_threadlist == 0:
+            # If color change *or* initial color unset.
+            thread = pattern.threadlist[index_in_threadlist]
+            index_in_threadlist += 1
+            color_count += 1
+            index_of_jefthread = thread.find_nearest_color_index(jef_threads)
+            if last_index == index_of_jefthread and last_thread != thread:
+                # Last thread and current thread pigeonhole to same jefcolor.
+                # We set that thread to None. And get the second closest color.
+                repeated_thread = jef_threads[index_of_jefthread]
+                repeated_index = index_of_jefthread
+                jef_threads[index_of_jefthread] = None
+                index_of_jefthread = thread.find_nearest_color_index(jef_threads)
+                jef_threads[repeated_index] = repeated_thread
+            palette.append(index_of_jefthread)
+            last_index = index_of_jefthread
+            last_thread = thread
+            color_toggled = False
+        if flags == STOP:
+            color_count += 1
+            color_toggled = not color_toggled
+            if color_toggled:
+                palette.append(0)
+            else:
+                palette.append(last_index)
+    # END PATCH
+
     offsets = 0x74 + (color_count * 8)
     write_int_32le(f, offsets)
     write_int_32le(f, 0x14)
@@ -34,20 +78,20 @@ def write(pattern, f, settings=None):
     write_int_32le(f, color_count)
     point_count = 1  # 1 command for END statement
     for stitch in pattern.stitches:
-        data = stitch[2]
+        data = stitch[2] & COMMAND_MASK
         if data == STITCH:
             point_count += 1
         elif data == JUMP:
             point_count += 2
         elif data == TRIM:
             if trims:
-                point_count += 6
-        elif data == COLOR_CHANGE:
+                point_count += 2 * command_count_max
+        elif data == COLOR_CHANGE or data == STOP:  # PATCH: INCLUDE STOP.
             point_count += 2
         elif data == END:
             break
     write_int_32le(f, point_count)
-    extents = pattern.extents()
+    extents = pattern.bounds()
     design_width = int(round(extents[2] - extents[0]))
     design_height = int(round(extents[3] - extents[1]))
     write_int_32le(f, get_jef_hoop_size(design_width, design_height))
@@ -80,10 +124,15 @@ def write(pattern, f, settings=None):
     y_hoop_edge = 1000 - half_height
     write_hoop_edge_distance(f, x_hoop_edge, y_hoop_edge)
 
-    jef_threads = get_thread_set()
-    for thread in pattern.threadlist:
-        thread_index = thread.find_nearest_color_index(jef_threads)
-        write_int_32le(f, thread_index)
+    # REMOVE (We covered this in PATCH).
+    #jef_threads = get_thread_set()
+    #
+    #palette = build_nonrepeat_palette(jef_threads, pattern.threadlist)
+    # END REMOVE
+
+    for t in palette:
+        write_int_32le(f, t)
+
     for i in range(0, color_count):
         write_int_32le(f, 0x0D)
 
@@ -92,7 +141,7 @@ def write(pattern, f, settings=None):
     for stitch in pattern.stitches:
         x = stitch[0]
         y = stitch[1]
-        data = stitch[2]
+        data = stitch[2] & COMMAND_MASK
         dx = int(round(x - xx))
         dy = int(round(y - yy))
         xx += dx
@@ -101,24 +150,23 @@ def write(pattern, f, settings=None):
             write_int_8(f, dx)
             write_int_8(f, -dy)
             continue
-        elif data == COLOR_CHANGE:
-            f.write(b'\x80\x01')
+        elif data == COLOR_CHANGE or data == STOP:  # PATCH INCLUDE STOP.
+            f.write(b"\x80\x01")
             write_int_8(f, dx)
             write_int_8(f, -dy)
             continue
         elif data == TRIM:
-            if trims:
-                # three jumps equal a trim
-                f.write(b'\x80\x02\x00\x00' * 3)
+            if trims:  # command trim.
+                f.write(b"\x80\x02\x00\x00" * command_count_max)
             continue
         elif data == JUMP:
-            f.write(b'\x80\x02')
+            f.write(b"\x80\x02")
             write_int_8(f, dx)
             write_int_8(f, -dy)
             continue
         elif data == END:
             break
-    f.write(b'\x80\x10')
+    f.write(b"\x80\x10")
 
 
 def get_jef_hoop_size(width, height):

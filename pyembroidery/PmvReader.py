@@ -2,10 +2,10 @@ from .ReadHelper import read_int_8, read_int_16le
 
 
 def find_extents(stitches):
-    min_x = float('inf')
-    min_y = float('inf')
-    max_x = -float('inf')
-    max_y = -float('inf')
+    min_x = float("inf")
+    min_y = float("inf")
+    max_x = -float("inf")
+    max_y = -float("inf")
 
     for stitch in stitches:
         if stitch[0] > max_x:
@@ -40,63 +40,29 @@ def read_pmv_stitches(f, out, settings=None):
             if x > 32:
                 x = -(64 - x)  # This is a 6 bit signed number.
             x *= 2.5
-            y *= 2.5
+            y *= -2.5
             dx = x
             out.stitch_abs(px + x, y)  # This is a hybrid relative, absolute value.
             px += dx
-            # stitches.append((x, y))
-    out.end()
-    # f.seek(0x10, 1)  # 16 bytes
-    # block_end = read_int_16le(f)
-    # if block_end != 256:
-    #     return
-    # steps = []
-    # dunno0 = read_int_8(f)
-    # dunno1 = read_int_8(f)
-    # length_steps = read_int_8(f)
-    # steps_size = read_int_8(f)
-    # for i in range(0, steps_size):
-    #     x = read_int_16le(f)
-    #     y = read_int_16le(f)
-    #     if x is None or y is None:
-    #         break
-    #     steps.append((x, y))
-    # width_units = read_int_8(f)
-    # steps2_size = read_int_8(f)
-    # steps2 = []
-    # for i in range(0, steps2_size):
-    #     x = read_int_16le(f)
-    #     y = read_int_16le(f)
-    #     if x is None or y is None:
-    #         break
-    #     steps2.append((x, y))
-    # dunno4 = read_int_16le(f)  # seems to be 0x12.
-    # f.seek(0x10, 1)  # 16 bytes
-    # # EOF - This should be End of File.
-    # none_bytes = read_int_8(f)
-    # if none_bytes is None:
-    #     pass
-    #
-    # extents = find_extents(stitches)
-    # print(f)
-    # print("Stitches: Total ", len(stitches), " : ", stitches)
-    # print("Unknown0:", dunno0)
-    # print("Unknown1:", dunno1)
-    # print("Length Position:", length_steps)
-    # print("Length Lookup: ", len(steps), " : ", steps)
-    # print("Length value:", steps[length_steps])
-    # length_max = extents[2] - extents[0]
-    # width_max = extents[3] - extents[1]
-    # print("Max Length:", length_max)
-    # print("Max dx+:", extents[2])
-    # print("Max dx-:", extents[0])
-    # print("Width Position:", width_units)
-    # print("Width Lookup:", len(steps2), " : ", steps2)
-    # print("Width value:", steps2[width_units])
-    # print("Max Width:", width_max)
-    #
-    # print("Unknown4:", dunno4)
-
+    # f.seek(20,1)
+    # length_table_index = read_int_8(f)
+    # length_table_size = read_int_8(f)
+    # length_table = []
+    # for j in range(length_table_size):
+    #     v1 = read_int_16le(f)
+    #     v2 = read_int_16le(f)
+    #     length_table.append((v1, v2))
+    # print("Length Index is: %d -- %s" % (length_table_index, str(length_table[length_table_index])))
+    # print(length_table)
+    # width_table_index = read_int_8(f)
+    # width_table_size = read_int_8(f)
+    # width_table = []
+    # for j in range(width_table_size):
+    #     v1 = read_int_16le(f)
+    #     v2 = read_int_16le(f)
+    #     width_table.append((v1, v2))
+    # print("Width Index is: %d -- %s" % (width_table_index, str(width_table[width_table_index])))
+    # print(width_table)
     out.end()
 
 
