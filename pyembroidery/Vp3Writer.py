@@ -252,8 +252,8 @@ def write_stitches_block(f, stitches, first_pos_x, first_pos_y):
             # VP3 has no jump commands. These are skipped.
             # It moves to the relevant location without needing to block the needlebar.
             continue
-        dx = int(x - last_x)
-        dy = int(y - last_y)
+        dx = int(round(x - last_x))
+        dy = int((y - last_y))
         last_x += dx
         last_y += dy
         if flags == STITCH:
