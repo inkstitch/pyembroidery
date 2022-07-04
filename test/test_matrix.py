@@ -91,8 +91,8 @@ class TestMatrix(unittest.TestCase):
         self.assertIsNotNone(pattern.stitches)
         self.assertEqual(pattern.count_stitch_commands(MATRIX_TRANSLATE), 0)
         self.assertEqual(pattern.count_stitch_commands(MATRIX_ROTATE), 0)
-        self.assertAlmostEqual(pattern.stitches[12][0], pattern.stitches[6][0])
-        self.assertAlmostEqual(pattern.stitches[12][1], pattern.stitches[6][1])
+        self.assertAlmostEqual(pattern.stitches[14][0], 140)
+        self.assertAlmostEqual(pattern.stitches[14][1], -120)
         file1 = "file3.svg"
         write_svg(pattern, file1)
         self.addCleanup(os.remove, file1)
@@ -109,8 +109,8 @@ class TestMatrix(unittest.TestCase):
         self.assertIsNotNone(pattern.stitches)
         self.assertEqual(pattern.count_stitch_commands(MATRIX_TRANSLATE), 0)
         self.assertEqual(pattern.count_stitch_commands(MATRIX_SCALE), 0)
-        self.assertAlmostEqual(pattern.stitches[12][0], pattern.stitches[6][0])
-        self.assertAlmostEqual(pattern.stitches[12][1], pattern.stitches[6][1])
+        self.assertAlmostEqual(pattern.stitches[13][0], 50)
+        self.assertAlmostEqual(pattern.stitches[13][1], 290)
         file1 = "file4.svg"
         write_svg(pattern, file1)
         self.addCleanup(os.remove, file1)
