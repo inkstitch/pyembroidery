@@ -23,6 +23,7 @@ import pyembroidery.ExyReader as ExyReader
 import pyembroidery.FxyReader as FxyReader
 import pyembroidery.GcodeReader as GcodeReader
 import pyembroidery.GcodeWriter as GcodeWriter
+import pyembroidery.InkstitchGcodeWriter as InkstitchGcodeWriter
 import pyembroidery.GtReader as GtReader
 import pyembroidery.HusReader as HusReader
 import pyembroidery.InbReader as InbReader
@@ -1391,9 +1392,12 @@ class EmbPattern:
                 "mimetype": "text/plain",
                 "category": "embroidery",
                 "reader": GcodeReader,
-                "writer": GcodeWriter,
+                "writer": InkstitchGcodeWriter,
                 "write_options": {
-                    "stitch_z_travel": (5.0, 10.0),
+                    "flip_x": (True, False),
+                    "flip_y": (True, False),
+                    "alternate_z": (True, False),
+                    "stitch_z_travel": (int),
                 },
             }
         )
