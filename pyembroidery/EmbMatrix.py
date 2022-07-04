@@ -61,9 +61,9 @@ class EmbMatrix:
         if x == 0 and y == 0:
             self.m = self.matrix_multiply(self.m, self.get_scale(sx, sy))
         else:
-            self.post_translate(x, y)
-            self.post_scale(sx, sy)
             self.post_translate(-x, -y)
+            self.post_scale(sx, sy)
+            self.post_translate(x, y)
 
     def post_translate(self, tx, ty):
         self.m = self.matrix_multiply(self.m, self.get_translate(tx, ty))
@@ -76,9 +76,9 @@ class EmbMatrix:
         if x == 0 and y == 0:
             self.m = self.matrix_multiply(self.m, self.get_rotate(theta))
         else:
-            self.post_translate(x, y)
-            self.post_rotate(theta)
             self.post_translate(-x, -y)
+            self.post_rotate(theta)
+            self.post_translate(x, y)
 
     def post_cat(self, matrix_list):
         for mx in matrix_list:
@@ -148,13 +148,13 @@ class EmbMatrix:
     @staticmethod
     def matrix_multiply(m0, m1):
         return [
-            m1[0] * m0[0] + m1[1] * m0[3] + m1[2] * m0[6],
-            m1[0] * m0[1] + m1[1] * m0[4] + m1[2] * m0[7],
-            m1[0] * m0[2] + m1[1] * m0[5] + m1[2] * m0[8],
-            m1[3] * m0[0] + m1[4] * m0[3] + m1[5] * m0[6],
-            m1[3] * m0[1] + m1[4] * m0[4] + m1[5] * m0[7],
-            m1[3] * m0[2] + m1[4] * m0[5] + m1[5] * m0[8],
-            m1[6] * m0[0] + m1[7] * m0[3] + m1[8] * m0[6],
-            m1[6] * m0[1] + m1[7] * m0[4] + m1[8] * m0[7],
-            m1[6] * m0[2] + m1[7] * m0[5] + m1[8] * m0[8],
+            m0[0] * m1[0] + m0[1] * m1[3] + m0[2] * m1[6],
+            m0[0] * m1[1] + m0[1] * m1[4] + m0[2] * m1[7],
+            m0[0] * m1[2] + m0[1] * m1[5] + m0[2] * m1[8],
+            m0[3] * m1[0] + m0[4] * m1[3] + m0[5] * m1[6],
+            m0[3] * m1[1] + m0[4] * m1[4] + m0[5] * m1[7],
+            m0[3] * m1[2] + m0[4] * m1[5] + m0[5] * m1[8],
+            m0[6] * m1[0] + m0[7] * m1[3] + m0[8] * m1[6],
+            m0[6] * m1[1] + m0[7] * m1[4] + m0[8] * m1[7],
+            m0[6] * m1[2] + m0[7] * m1[5] + m0[8] * m1[8],
         ]
