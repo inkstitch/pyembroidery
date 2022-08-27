@@ -62,6 +62,8 @@ def write(pattern, f, settings=None):
     alternate_z = cycle(list(range(2)))
     stitching = False
     for x, y, command in pattern.stitches:
+        command = command & COMMAND_MASK
+
         # embroidery G-code discussion: https://github.com/inkstitch/inkstitch/issues/335
         if command == STITCH:
             if flip_x:
