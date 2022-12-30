@@ -225,6 +225,8 @@ class EmbThread:
                 self.brand = thread["brand"]
             if "manufacturer" in thread:
                 self.brand = thread["manufacturer"]
+            if "chart" in thread:
+                self.chart = thread["chart"]
             if "color" in thread or "rgb" in thread:
                 try:
                     color = thread["color"]
