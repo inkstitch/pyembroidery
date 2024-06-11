@@ -2,6 +2,7 @@ from .EmbConstant import *
 from .EmbThread import build_unique_palette
 from .EmbThreadPec import get_thread_set
 from .PecGraphics import draw_scaled, get_blank
+from .exceptions import TooManyColorChangesError
 from .WriteHelper import (
     write_int_8,
     write_int_16le,
@@ -61,11 +62,9 @@ def write_pec_header(pattern, f, threadlist):
         f.write(b"\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20")
         add_value = current_thread_count - 1
         color_index_list.insert(0, add_value)
-        assert (
-            color_index_list[0] < 255
-        ), "too many color changes, ({0}) out of bounds (0, 255)".format(
-            len(color_index_list)
-        )
+        if color_index_list[0] > 255:
+            num_color_changes = len(color_index_list)
+            raise TooManyColorChangesError(f'Too many color changes, ({num_color_changes} out of bounds (0, 255)')
         f.write(bytes(bytearray(color_index_list)))
     else:
         f.write(b"\x20\x20\x20\x20\x64\x20\x00\x20\x00\x20\x20\x20\xFF")
