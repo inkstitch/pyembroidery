@@ -1,3 +1,5 @@
+import re
+
 from .EmbConstant import *
 from .EmbThread import build_unique_palette
 from .EmbThreadPec import get_thread_set
@@ -46,6 +48,8 @@ def write_pec(pattern, f, threadlist=None):
 
 def write_pec_header(pattern, f, threadlist):
     name = pattern.get_metadata("name", "Untitled")
+    # the usage of other characters can mess up the output file
+    name = re.sub('[^A-Za-z0-9]+', '', name) or "Untitled"
     write_string_utf8(f, "LA:%-16s\r" % name[:8])
     f.write(b"\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\xFF\x00")
     write_int_8(f, int(PEC_ICON_WIDTH / 8))  # PEC BYTE STRIDE
