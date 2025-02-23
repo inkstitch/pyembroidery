@@ -29,6 +29,9 @@ def write(pattern, f, settings=None):
     custom_start = settings.get('custom_start', '')
     custom_end = settings.get('custom_end', '')
 
+    threadlist = pattern.threadlist
+    current_thread = 0
+
     laser_mode = settings.get('laser_mode', False)
     dynamic_laser_power = settings.get('dynamic_laser_power', True)
     laser_warm_up_time = settings.get('laser_warm_up_time', 0)
@@ -54,7 +57,16 @@ def write(pattern, f, settings=None):
     if custom_start == '' or laser_mode:
         init(f, laser_mode, dynamic_laser_power, max_spindle_speed, min_spindle_speed, spindle_speed, feed_rate)
     else:
-        for value in custom_start.split('\\n'):
+        # They may want to set the inital thread color
+        thread = threadlist[current_thread]
+        custom_start = custom_start.replace(
+            "%R", str("%.0f" % thread.get_red())
+        ).replace(
+            "%G", str("%.0f" % thread.get_green())
+        ).replace(
+            "%B", str("%.0f" % thread.get_blue())
+        ).split('\\n')
+        for value in custom_start:
             write_string_utf8(f, "%s\r\n" % value.strip())
         write_string_utf8(f, "\r\n")
 
@@ -110,10 +122,18 @@ def write(pattern, f, settings=None):
 
             stitching = True
         elif command == COLOR_CHANGE and not laser_mode:
+            current_thread += 1
+            thread = threadlist[current_thread]
             if custom_color_change == '':
                 color_change = ['M00']
             else:
-                color_change = custom_color_change.split('\\n')
+                color_change = custom_color_change.replace(
+                    "%R", str("%.0f" % thread.get_red())
+                ).replace(
+                    "%G", str("%.0f" % thread.get_green())
+                ).replace(
+                    "%B", str("%.0f" % thread.get_blue())
+                ).split('\\n')
             if custom_color_change not in ['None', 'none']:
                 for value in color_change:
                     write_string_utf8(f, "%s\r\n" % value.strip())
