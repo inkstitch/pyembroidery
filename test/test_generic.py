@@ -3,7 +3,7 @@ from __future__ import print_function
 import unittest
 
 from test.pattern_for_tests import *
-from pyembroidery import GenericWriter
+from inkstitch_pyembroidery import GenericWriter
 
 
 class TestConverts(unittest.TestCase):
