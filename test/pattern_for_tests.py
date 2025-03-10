@@ -1,4 +1,4 @@
-from pyembroidery import *
+from inkstitch_pyembroidery import *
 
 import math
 
