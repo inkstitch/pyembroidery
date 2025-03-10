@@ -63,6 +63,7 @@ jobs:
 
     - name: Run Unittests
       run: |
+        pip install .
         python -m unittest discover test -v
         if ${{ matrix.experimental }} == true; then
             exit 0

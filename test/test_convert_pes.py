@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import unittest
-from pyembroidery import *
+from inkstitch_pyembroidery import *
 from test.pattern_for_tests import *
 
 
