@@ -20,6 +20,8 @@ read_gcode = EmbPattern.read_gcode
 read_xxx = EmbPattern.read_xxx
 read_tbf = EmbPattern.read_tbf
 read_iqp = EmbPattern.read_iqp
+read_plt = EmbPattern.read_plt
+read_qcc = EmbPattern.read_qcc
 read = EmbPattern.static_read
 
 write_embroidery = EmbPattern.write_embroidery
@@ -36,6 +38,8 @@ write_txt = EmbPattern.write_txt
 write_gcode = EmbPattern.write_gcode
 write_xxx = EmbPattern.write_xxx
 write_tbf = EmbPattern.write_tbf
+write_plt = EmbPattern.write_plt
+write_qcc = EmbPattern.write_qcc
 write_svg = EmbPattern.write_svg
 write_png = EmbPattern.write_png
 write = EmbPattern.static_write
