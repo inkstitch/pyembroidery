@@ -29,6 +29,7 @@ import pyembroidery.HusReader as HusReader
 import pyembroidery.InbReader as InbReader
 import pyembroidery.InfReader as InfReader
 import pyembroidery.InfWriter as InfWriter
+import pyembroidery.IqpReader as IqpReader
 import pyembroidery.JefReader as JefReader
 import pyembroidery.JefWriter as JefWriter
 import pyembroidery.JpxReader as JpxReader
@@ -1411,6 +1412,16 @@ class EmbPattern:
                 "reader": HusReader,
             }
         )
+        yield(
+            {
+                "description": "Iqp - Intelliquilter Format",
+                "extension": "iqp",
+                "extensions": ("iqp",),
+                "mimetype": "application/x-iqp",
+                "category": "embroidery",
+                "reader": IqpReader,
+            }
+        )
         yield (
             {
                 "description": "Edr Color Format",
@@ -1551,6 +1562,12 @@ class EmbPattern:
     def read_tbf(f, settings=None, pattern=None):
         """Reads fileobject as TBF file"""
         return EmbPattern.read_embroidery(TbfReader, f, settings, pattern)
+
+    @staticmethod
+    def read_iqp(f, settings=None, pattern=None):
+        """Reads fileobject as XXX file"""
+        pattern = EmbPattern.read_embroidery(IqpReader, f, settings, pattern)
+        return pattern
 
     @staticmethod
     def static_read(filename, settings=None, pattern=None):
