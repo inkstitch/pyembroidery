@@ -2,9 +2,7 @@ import struct
 
 from .EmbThread import EmbThread
 
-# TODO: verify this number. Tested on multiple files, sample file in
-# https://github.com/inkstitch/inkstitch/issues/2107
-MULTIPLIER = 253.8
+TENTH_MM_PER_INCH = 254
 
 
 def read(f, out, settings=None):
@@ -50,7 +48,7 @@ def read(f, out, settings=None):
 
             coords = list(struct.unpack(f"<{length // 2}f", coord_data))
             for stitch in zip(coords[::2], coords[1::2]):
-                x = stitch[0] * MULTIPLIER
-                y = stitch[1] * -MULTIPLIER
+                x = stitch[0] * TENTH_MM_PER_INCH
+                y = stitch[1] * -TENTH_MM_PER_INCH
                 out.stitch_abs(x, y)
     out.end()
