@@ -1418,7 +1418,7 @@ class EmbPattern:
                 "extension": "iqp",
                 "extensions": ("iqp",),
                 "mimetype": "application/x-iqp",
-                "category": "embroidery",
+                "category": "quilting",
                 "reader": IqpReader,
             }
         )
