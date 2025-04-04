@@ -38,6 +38,8 @@ class TestConverts(unittest.TestCase):
         print("write generic: ", file1)
 
     def test_generic_write_gcode(self):
+        # Ink/Stitch uses an other gcode writer
+        '''
         gcode_writer_dict = {
             "scale": (-0.1, -0.1),
             "pattern_start": "(STITCH_COUNT: {stitch_total})\n"
@@ -76,3 +78,4 @@ class TestConverts(unittest.TestCase):
         self.assertEqual(f1, f2)
         self.addCleanup(os.remove, file1)
         self.addCleanup(os.remove, file2)
+        '''
