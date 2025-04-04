@@ -49,9 +49,13 @@ import pyembroidery.PesReader as PesReader
 import pyembroidery.PesWriter as PesWriter
 import pyembroidery.PhbReader as PhbReader
 import pyembroidery.PhcReader as PhcReader
+import pyembroidery.PltReader as PltReader
+import pyembroidery.PltWriter as PltWriter
 import pyembroidery.PmvReader as PmvReader
 import pyembroidery.PmvWriter as PmvWriter
 import pyembroidery.PngWriter as PngWriter
+import pyembroidery.QccReader as QccReader
+import pyembroidery.QccWriter as QccWriter
 import pyembroidery.SewReader as SewReader
 import pyembroidery.ShvReader as ShvReader
 import pyembroidery.SpxReader as SpxReader
@@ -1422,6 +1426,28 @@ class EmbPattern:
                 "reader": IqpReader,
             }
         )
+        yield(
+            {
+                "description": "Plt - HPGL",
+                "extension": "plt",
+                "extensions": ("plt",),
+                "mimetype": "text/plain",
+                "category": "quilting",
+                "reader": PltReader,
+                "writer": PltWriter,
+            }
+        )
+        yield(
+            {
+                "description": "Qcc - QuiltEZ",
+                "extension": "qcc",
+                "extensions": ("qcc",),
+                "mimetype": "text/plain",
+                "category": "quilting",
+                "reader": QccReader,
+                "writer": QccWriter,
+            }
+        )
         yield (
             {
                 "description": "Edr Color Format",
@@ -1494,8 +1520,12 @@ class EmbPattern:
             except AttributeError:
                 pass
             if text_mode:
-                with open(f, "r") as stream:
-                    reader.read(stream, pattern, settings)
+                try:
+                    with open(f, "r", errors='ignore') as stream:
+                        reader.read(stream, pattern, settings)
+                        stream.close()
+                except IOError:
+                    pass
             else:
                 with open(f, "rb") as stream:
                     reader.read(stream, pattern, settings)
@@ -1565,8 +1595,20 @@ class EmbPattern:
 
     @staticmethod
     def read_iqp(f, settings=None, pattern=None):
-        """Reads fileobject as XXX file"""
+        """Reads fileobject as IQP file"""
         pattern = EmbPattern.read_embroidery(IqpReader, f, settings, pattern)
+        return pattern
+
+    @staticmethod
+    def read_plt(f, settings=None, pattern=None):
+        """Reads fileobject as PLT file"""
+        pattern = EmbPattern.read_embroidery(PltReader, f, settings, pattern)
+        return pattern
+
+    @staticmethod
+    def read_qcc(f, settings=None, pattern=None):
+        """Reads fileobject as QCC file"""
+        pattern = EmbPattern.read_embroidery(QccReader, f, settings, pattern)
         return pattern
 
     @staticmethod
@@ -1731,6 +1773,16 @@ class EmbPattern:
     def write_tbf(pattern, stream, settings=None):
         """Writes fileobject as TBF file"""
         EmbPattern.write_embroidery(TbfWriter, pattern, stream, settings)
+
+    @staticmethod
+    def write_plt(pattern, stream, settings=None):
+        """Writes fileobject as PLT file"""
+        EmbPattern.write_embroidery(PltWriter, pattern, stream, settings)
+
+    @staticmethod
+    def write_qcc(pattern, stream, settings=None):
+        """Writes fileobject as QCC file"""
+        EmbPattern.write_embroidery(QccWriter, pattern, stream, settings)
 
     @staticmethod
     def write_svg(pattern, stream, settings=None):

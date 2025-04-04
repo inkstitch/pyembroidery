@@ -6,8 +6,16 @@ Differences from Upstream
 
 This fork differs from upstream in several ways:
 
-* We have a differeng G-code writer that satisfies the needs of Ink/Stitch users.
 * We have a couple of changes and bug-fixes.
+
+* Additional readers:
+  * IQP
+  * PLT
+  * QCC
+* Additional writers:
+  * We have a differeng G-code writer that satisfies the needs of Ink/Stitch users.
+  * PLT
+  * QCC
 
 Pulling in changes from upstream
 ================================
