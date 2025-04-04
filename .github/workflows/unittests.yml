@@ -2,12 +2,8 @@ name: Unittest
 
 on:
   push:
-    branches: [main, dev]
-    paths:
-      - '**.py'
-      - '.github/workflows/unittests.yml'
-  pull_request:
-    branches: [main]
+    branches-ignore:
+      - main
     paths:
       - '**.py'
       - '.github/workflows/unittests.yml'
@@ -48,7 +44,7 @@ jobs:
       run: echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))")
 
     - name: Cache Python env for ${{ matrix.os }}-py${{ steps.full-python-version.outputs.version }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ${{ env.pythonLocation }}
         key: new-${{ matrix.os }}-py${{ steps.full-python-version.outputs.version }}-${{ hashFiles('requirements.txt') }}
