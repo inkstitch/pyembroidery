@@ -19,6 +19,7 @@ read_json = EmbPattern.read_json
 read_gcode = EmbPattern.read_gcode
 read_xxx = EmbPattern.read_xxx
 read_tbf = EmbPattern.read_tbf
+read_iqp = EmbPattern.read_iqp
 read = EmbPattern.static_read
 
 write_embroidery = EmbPattern.write_embroidery
