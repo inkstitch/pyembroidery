@@ -23,6 +23,7 @@ def write(pattern, f, settings=None):
     stitch_z_travel = settings.get('stitch_z_travel', 5)
 
     custom_stitch = settings.get('custom_stitch', '')
+    custom_jump = settings.get('custom_jump', '')
     custom_color_change = settings.get('custom_color_change', '')
     custom_frameout = settings.get('custom_frameout', '')
     custom_stop = settings.get('custom_stop', '')
@@ -121,6 +122,15 @@ def write(pattern, f, settings=None):
                 write_string_utf8(f, "G1 G4 P%.2f (wait for laser to warm up)\r\n" % laser_warm_up_time)
 
             stitching = True
+        elif command == JUMP and not laser_mode:
+            if custom_jump != '':
+                jump = custom_jump.replace("%X", f"{x:.3f}").replace("%Y", f"{y:.3f}").split('\\n')
+                for value in jump:
+                    value = value.strip()
+                    write_string_utf8(f, f"{value}\r\n")
+            else:
+                # default settings simply ignores jumps
+                pass
         elif command == COLOR_CHANGE and not laser_mode:
             current_thread += 1
             thread = threadlist[current_thread]
