@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import unittest
-from inkstitch_pyembroidery import *
+from pystitch import *
 
 
 class TestMatrix(unittest.TestCase):

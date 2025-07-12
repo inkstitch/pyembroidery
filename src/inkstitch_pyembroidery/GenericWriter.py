@@ -1,5 +1,5 @@
-import inkstitch_pyembroidery
-from inkstitch_pyembroidery import (
+import pystitch
+from pystitch import (
     CONTINGENCY_SEQUIN_UTILIZE,
     decode_embroidery_command,
     STITCH,
@@ -16,7 +16,7 @@ from inkstitch_pyembroidery import (
     get_common_name_dictionary,
     COMMAND_MASK,
 )
-from inkstitch_pyembroidery.WriteHelper import write_string_utf8
+from pystitch.WriteHelper import write_string_utf8
 
 WRITES_SPEEDS = True
 SEQUIN_CONTINGENCY = CONTINGENCY_SEQUIN_UTILIZE
@@ -282,7 +282,7 @@ class GenericWriter:
             self.cmd, self.thread, self.needle, self.order = decode_embroidery_command(
                 self.command
             )
-            self.cmd_str = inkstitch_pyembroidery.get_common_name_dictionary()[self.cmd]
+            self.cmd_str = pystitch.get_common_name_dictionary()[self.cmd]
         except IndexError:
             self.current_stitch = None
             self.x = None
