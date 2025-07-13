@@ -41,7 +41,7 @@ def write(pattern, f, settings=None):
     min_spindle_speed = settings.get('min_spindle_speed', -1)
     feed_rate = settings.get('feed_rate', -1)
 
-    # pyembroidery natively uses tenths of a millimeter
+    # pystitch natively uses tenths of a millimeter
     extents = [extent / 10.0 for extent in pattern.extents()]
     width = extents[2] - extents[0]
     height = extents[3] - extents[1]
@@ -84,7 +84,7 @@ def write(pattern, f, settings=None):
             if flip_y:
                 y = -y
 
-            # pyembroidery natively uses tenths of a millimeter
+            # pystitch natively uses tenths of a millimeter
             x /= 10.0
             y /= 10.0
 
