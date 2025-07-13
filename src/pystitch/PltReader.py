@@ -27,7 +27,7 @@ def read(f, out, settings=None):
 
         elif line.startswith("SP"):
             try:
-                pen_num = re.findall("\d+", line)[0]
+                pen_num = re.findall(r"\d+", line)[0]
                 pen = int(pen_num)
                 out.needle_change(pen)
             except IndexError:
@@ -37,4 +37,4 @@ def read(f, out, settings=None):
             break
 
 def get_coords(line):
-    return re.findall("[-+]?\d+", line)
+    return re.findall(r"[-+]?\d+", line)
