@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pystitch"
-dynamic = ["version"]
+version = "1.0.0"
 dependencies = []
 requires-python = ">=3.9"
 authors = [
