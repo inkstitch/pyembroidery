@@ -31,5 +31,5 @@ classifiers = [
 ]
 
 [project.urls]
-Repository = "https://github.com/inkstitch/pyembroidery"
-Issues = "https://github.com/inkstitch/pyembroidery/issues"
+Repository = "https://github.com/inkstitch/pystitch"
+Issues = "https://github.com/inkstitch/pystitch/issues"
