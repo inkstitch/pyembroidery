@@ -30,6 +30,6 @@ To pull in changes from https://github.com/EmbroidePy/pyembroidery, do the follo
   * fix the conflicting files
   * do `git add <file>` for all conflicting files
   * do `git rebase --continue`
-6. **Force-push** the `main` branch to `inkstitch/pyembroidery`.
+6. **Force-push** the `main` branch to `inkstitch/pystitch`.
 
 You can also skip a conflicting commit if upstream applied the same fix (`git rebase`'s output will tell you how to skip).

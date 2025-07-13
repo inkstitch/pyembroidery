@@ -26,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: [3.8, 3.12]
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
 
     steps:
 
@@ -63,6 +63,7 @@ jobs:
 
     - name: Run Unittests
       run: |
+        pip install .
         python -m unittest discover test -v
         if ${{ matrix.experimental }} == true; then
             exit 0

@@ -2,9 +2,9 @@ from __future__ import print_function
 
 import unittest
 
-from pyembroidery import *
-from pyembroidery.EmbThreadPec import *
-from pyembroidery.EmbThread import build_unique_palette, build_nonrepeat_palette, build_palette
+from pystitch import *
+from pystitch.EmbThreadPec import *
+from pystitch.EmbThread import build_unique_palette, build_nonrepeat_palette, build_palette
 
 
 class TestPalettes(unittest.TestCase):
