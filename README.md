@@ -14,7 +14,7 @@ pip install pystitch
 
 Any suggestions or comments please raise an issue on the github.
 
-pystitch was coded from the ground up with all projects in mind. It includes a lot of higher level and middle level pattern composition abilities, and should accounts for any knowable error. If you know an error it does not account for, raise an issue. It should be highly robust with a simple api so as to be reasonable for *any* python embroidery project.
+pystitch was coded from the ground up with all projects in mind. It includes a lot of high and middle level pattern composition abilities, and should account for any known error. If you know an error it does not account for, raise an issue. It should be highly robust with a simple api so as to be reasonable for *any* python embroidery project.
 
 It should be complex enough to go very easily from points to stitches, fine grained enough to let you control everything, and good enough that you shouldn't want to.
 
@@ -79,7 +79,7 @@ EmbPattern objects contain three primary elements:
 The stitches contain absolute locations x, y and command. Commands are found defined within the EmbConstant.py file and should be referenced by name rather than value. The commands are the lower 8 bits of the command value. The upper bits of the command values are reserved for additional information (See Thread Changes). For best practices these should be masked off `stitch[stitch_index][2] & COMMAND_MASK`. 
 
 ### EmbPattern Threadlist
-The threadlist is a reference table of threads and the information about those threads. By default, if not explicitly specified, the threadlist is utilized in the order given. Usually it is sufficient to provide a thread for each color change in the sequence. However, if a color is not provided one, one will be invented when writing to a format that requires one. In some cases like .dst files, no colors exists so this will simply be ignored (except if extended headers are requested as those give a color sequence). The colors are checked and validated during the encoding process, so specifying these elements with greater detail is explicitly possible. See Thread Changes for more details.
+The threadlist is a reference table of threads and the information about those threads. By default, if not explicitly specified, the threadlist is utilized in the order given. Usually it is sufficient to provide a thread for each color change in the sequence. However, if a color is not provided one, one will be invented when writing to a format that requires one. In some cases like .dst files, no colors exist so this will simply be ignored (except if extended headers are requested as those give a color sequence). The colors are checked and validated during the encoding process, so specifying these elements with greater detail is explicitly possible. See Thread Changes for more details.
 
 ### EmbPattern Extras
 This can largely be ignored except in cases when the metadata within the file matters. If for example you wish to read files and find the label that exists inside many different embroidery file times, the resulting value will be put into extras. This is to store the metadata and sometimes transfer the metadata from one format type to another. So an internal label might be able to be transferred between a .dst file and .pes file without regard to the external file name. Or the 1-bit images within a PEC file could be viewed.
@@ -618,4 +618,4 @@ Thanks to,
 
 ---
 
-This software is in no way derived from or based on Jackson Yee's abandoned 2006 "pystitch" project. The name was simply taken from libEmbroidery and written in python and thus a portmanteau of those. I was unaware of the project until after the all the principal work on this project was complete. I apologize for any confusion this may cause.
+This software is in no way derived from or based on Jackson Yee's abandoned 2006 "pyembroidery" project. The name "pyembroidery" for the project from which this was forked was simply taken from libEmbroidery and written in python and thus a portmanteau of those. Awareness of Jackson Yee's project was only obtained after all the principal work on this project was complete - apologies for any confusion this may cause.
