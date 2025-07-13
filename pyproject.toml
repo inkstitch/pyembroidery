@@ -14,7 +14,7 @@ maintainers = [
   {name = "Kaalleen"},
 ]
 description = "Embroidery IO library"
-readme = "README.inkstitch.md"
+readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 keywords = ["embroidery", "file conversion"]
